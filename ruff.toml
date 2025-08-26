@@ -1,0 +1,23 @@
+# # Python version
+target-version = "py310"
+line-length = 100
+
+[lint]
+select = ["E", "F", "I", "D", "W"]
+ignore = ["D415","D205"]
+unfixable = ["F401"]
+
+# Common directories to ignore
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "env",
+    ".mypy_cache",
+    ".ruff_cache"
+]
+
+[lint.pydocstyle]
+convention = "google"
