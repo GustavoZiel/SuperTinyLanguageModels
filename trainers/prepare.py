@@ -1,40 +1,34 @@
-"""
-Necessary to be run before training to make sure all of the data is preprcessed etc.
-"""
-import os 
-import torch 
-import numpy as np 
-from tqdm import tqdm 
-from trainers.utils import load_data
+"""Necessary to be run before training to make sure all of the data is preprcessed etc."""
 
-from models.build_models import build_embedding_model 
+import os
+
+import numpy as np
+from tqdm import tqdm
+
+from models.build_models import build_embedding_model
+from trainers.utils import load_data
+from utils.logger import get_logger
+
+logger = get_logger()
 
 
 class StandardProcessor:
-    """
-    A standard processor that tokenizes the text
-    """
+    """A standard processor that tokenizes the text"""
+
     def __init__(self, embedder):
         self.embedder = embedder
 
     def process(self, example):
         ids = self.embedder.tokenize_input(example["text"])
         return {"ids": ids, "len": len(ids)}
-    
+
     def write_tokenized_data(self, tokenized, tokenized_data_folder):
-        """
-        Write the tokenized data to a file
-        """
+        """Write the tokenized data to a file"""
         for split, dset in tokenized.items():
             arr_len = np.sum(dset["len"], dtype=np.uint64)
             filename = os.path.join(tokenized_data_folder, f"{split}.bin")
             dtype = np.uint16  # (can do since enc.max_token_value == 50256 is < 2**16)
-            arr = np.memmap(
-                filename, 
-                dtype=dtype, 
-                mode="w+", 
-                shape=(arr_len,)
-            )
+            arr = np.memmap(filename, dtype=dtype, mode="w+", shape=(arr_len,))
             total_batches = 1024
 
             idx = 0
@@ -48,11 +42,11 @@ class StandardProcessor:
                 arr[idx : idx + len(arr_batch)] = arr_batch
                 idx += len(arr_batch)
             arr.flush()
-    
+
+
 class ByteLevelProcessor(StandardProcessor):
-    """
-    A byte-level processor that tokenizes the text
-    """
+    """A byte-level processor that tokenizes the text"""
+
     def __init__(self, embedder):
         super().__init__(embedder)
 
@@ -65,7 +59,7 @@ class ByteLevelProcessor(StandardProcessor):
                 filename,
                 dtype=dtype,
                 mode="w+",
-                shape=(arr_len, 12), #TODO remove hardcoding
+                shape=(arr_len, 12),  # TODO remove hardcoding
             )
             total_batches = 1024
 
@@ -81,19 +75,20 @@ class ByteLevelProcessor(StandardProcessor):
                 idx += len(arr_batch)
             arr.flush()
 
+
 class DualByteLevelProcessor(StandardProcessor):
-    """
-    This preprocessor stores both the byte level structure and 
+    """This preprocessor stores both the byte level structure and
     the standard structure to enable the training of architectures
     with byte-level input, but standard token output.
     """
+
     def __init__(self, embedder):
         super().__init__(embedder)
 
     def process(self, example):
         byte_ids, token_ids = self.embedder.tokenize_input(example["text"], return_high_level=True)
         return {"byte_ids": byte_ids, "token_ids": token_ids, "len": len(token_ids)}
-    
+
     def write_tokenized_data(self, tokenized, tokenized_data_folder):
         for split, dset in tokenized.items():
             arr_len = np.sum(dset["len"], dtype=np.uint64)
@@ -107,7 +102,7 @@ class DualByteLevelProcessor(StandardProcessor):
                 filename_byte,
                 dtype=dtype,
                 mode="w+",
-                shape=(arr_len, 12), #TODO remove hardcoding
+                shape=(arr_len, 12),  # TODO remove hardcoding
             )
 
             arr_token = np.memmap(
@@ -120,7 +115,9 @@ class DualByteLevelProcessor(StandardProcessor):
             total_batches = 1024
 
             idx = 0
-            for batch_idx in tqdm(range(total_batches), desc=f"writing {filename_byte} and {filename_token}"):
+            for batch_idx in tqdm(
+                range(total_batches), desc=f"writing {filename_byte} and {filename_token}"
+            ):
                 # Batch together samples for faster write
                 batch = dset.shard(
                     num_shards=total_batches, index=batch_idx, contiguous=True
@@ -137,20 +134,15 @@ class DualByteLevelProcessor(StandardProcessor):
             arr_token.flush()
 
 
-
 DATALOADER_PROCESSORS = {
     "standard": StandardProcessor,
     "byte_pooling": ByteLevelProcessor,
-    "dual_byte_pooling": DualByteLevelProcessor
+    "dual_byte_pooling": DualByteLevelProcessor,
 }
 
 
-
-
-
 def prepare_data(cfg):
-    """
-    Split the data, process & tokenize it, and store 
+    """Split the data, process & tokenize it, and store
     it as memmap bin files
     """
     # check if the data is already preprocessed
@@ -159,58 +151,60 @@ def prepare_data(cfg):
     tokenized_data_folder = os.path.join(
         cfg["general"]["paths"]["data_dir"],
         dataset_name,
-        f'{cfg["model"]["embedder"]["tokenizer_type"]}-{cfg["model"]["vocab_size"]}-{cfg["trainer"]["dataloader"]["name"]}',
+        f"{cfg['model']['embedder']['tokenizer_type']}-{cfg['model']['vocab_size']}-{cfg['trainer']['dataloader']['name']}",
     )
 
-    # check if already exists (check len because some datasets use differen filenames
+    # check if already exists (check len because some datasets use different filenames
     # (i.e. dual byte level)
-    if os.path.exists(tokenized_data_folder) and len(os.listdir(tokenized_data_folder))!=0:
-        print("Tokenized data already exists")
+    if os.path.exists(tokenized_data_folder) and len(os.listdir(tokenized_data_folder)) != 0:
+        logger.info(f"Tokenized data already exists at {tokenized_data_folder}")
         return
     else:
-        # create the folder if it doesn't exist   
+        # create the folder if it doesn't exist
         if not os.path.exists(tokenized_data_folder):
             os.makedirs(tokenized_data_folder)
-
+            logger.info(f"Created tokenized data folder at {tokenized_data_folder}")
 
     # load embedder
+    logger.info("Building embedding model")
     embedder = build_embedding_model(cfg["model"])
 
     # load the dataset
+    logger.info(f"Loading dataset: {dataset_name}")
     split_dataset = load_data(
         dataset_name=dataset_name,
     )
 
-    processor_object = DATALOADER_PROCESSORS[dataloader_name](
-        embedder=embedder
-    )
+    processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)
+    logger.info(f"Using processor: {processor_object.__class__.__name__}")
 
     # wrap in try such that half-complete files can be deleted on error
     try:
         # Get the maximum number of processors
         max_procs = os.cpu_count()
         # cap at 12 to reduce memory usage
-        max_procs = 1 #min(max_procs, 12) # TODO properly fix this
-        print(f"Using {max_procs} processors")
+        # max_procs = 1  # min(max_procs, 12) # TODO properly fix this
+        max_procs = min(max_procs, 12)  # TODO properly fix this
+        logger.info(f"Using {max_procs} processors for tokenization")
 
         # tokenize the dataset
+        logger.info("Tokenizing dataset")
         tokenized = split_dataset.map(
             processor_object.process,
             remove_columns=["text"],
             desc="Tokenizing dataset",
-            num_proc=max_procs
+            num_proc=max_procs,
         )
 
         # concatenate all the ids in each dataset
+        logger.info(f"Writing tokenized data to {tokenized_data_folder}")
         processor_object.write_tokenized_data(
-            tokenized=tokenized, 
-            tokenized_data_folder=tokenized_data_folder
+            tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
         )
+        logger.info("Tokenized data successfully written")
 
     except Exception as exc:
-        print(f"Error: {exc}")
+        logger.error(f"Error during data preparation: {exc}")
         for file in os.listdir(tokenized_data_folder):
             os.remove(os.path.join(tokenized_data_folder, file))
         raise RuntimeError("Failed to process and write data") from exc
-
-

@@ -9,9 +9,9 @@ import random
 
 def load_winogrande(split="test"):
     """Load and process the benchmark"""
-    base_dataset = load_dataset(
-        "allenai/winogrande", "winogrande_xs", trust_remote_code=True
-    )[SPLIT_REMAP[split]]
+    base_dataset = load_dataset("allenai/winogrande", "winogrande_xs", trust_remote_code=True)[
+        SPLIT_REMAP[split]
+    ]
     index = list(range(len(base_dataset)))
     if split == "train":
         index = index[: len(index) // 2]

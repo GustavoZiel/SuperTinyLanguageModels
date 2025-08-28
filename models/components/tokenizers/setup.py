@@ -1,6 +1,4 @@
-"""
-A script for building the various tokenizers.
-"""
+"""A script for building the various tokenizers."""
 
 from models.components.tokenizers.base_class import Tokenizer
 from models.components.tokenizers.bpe import BPETokenizer
@@ -15,9 +13,5 @@ TOKENIZER_DICT = {
 
 
 def build_tokenizer(tokenizer_type, vocab_size, dataset_name) -> Tokenizer:
-    """
-    Build the tokenizer.
-    """
-    return TOKENIZER_DICT[tokenizer_type](
-        vocab_size=vocab_size, dataset_name=dataset_name
-    )
+    """Build the tokenizer."""
+    return TOKENIZER_DICT[tokenizer_type](vocab_size=vocab_size, dataset_name=dataset_name)

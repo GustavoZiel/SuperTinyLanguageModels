@@ -1,6 +1,4 @@
-"""
-Generator Base Wrapper
-"""
+"""Generator Base Wrapper"""
 
 import torch
 
@@ -16,9 +14,7 @@ class StandardGenerator(torch.nn.Module):
         self.generate_config = generate_cfg
 
     def default_generate(self, input_text):
-        """
-        Generate text using the default generation method
-        """
+        """Generate text using the default generation method"""
         return self.generate(
             input_text,
             self.generate_config["max_new_tokens"],
@@ -28,21 +24,24 @@ class StandardGenerator(torch.nn.Module):
 
     @torch.no_grad()
     def generate(self, input_text, max_new_tokens, temperature=1.0, top_k=None):
-        """
-        Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
+        """Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
-        idx = self.model.embedding_model.tokenize_input(input_string=input_text,
-                                                        add_eot=False,
-                                                        truncate=True)
+        idx = self.model.embedding_model.tokenize_input(
+            input_string=input_text, add_eot=False, truncate=True
+        )
         # push to device
         idx = torch.tensor(idx).unsqueeze(0).to(torch.device("cuda"))
         for _ in range(max_new_tokens):
             # forward the model to get the logits for the index in the sequence
             logits = self.model.inference(idx)
+            # print("logits", logits)
+            # print("temperature", temperature)
             # pluck the logits at the final step and scale by desired temperature
+            logits = logits[0]  # pega o primeiro elemento da tupla
             logits = logits / temperature
+            # logits = logits / temperature
             # logits have shape (b,t,v)
             # optionally crop the logits to only the top k options
             if top_k is not None:
@@ -55,16 +54,14 @@ class StandardGenerator(torch.nn.Module):
             # apply softmax to convert logits to (normalized) probabilities
             probs = torch.nn.functional.softmax(logits, dim=-1)
             # sample from the distribution
-            # check if byte-level and if so, flatten 
+            # check if byte-level and if so, flatten
             if len(probs.size()) == 4:
                 B, S, S_c, H = probs.size()
-                probs = probs.view(B* S * S_c, H)
+                probs = probs.view(B * S * S_c, H)
                 flattened = True
             else:
                 flattened = False
 
-
-            
             idx_next = torch.multinomial(probs, num_samples=1)
 
             # check if byte-level and if so, unflatten

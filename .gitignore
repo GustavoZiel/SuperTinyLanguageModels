@@ -8,6 +8,7 @@ data/
 *.DS_store
 wandb
 *.out
+area1.*
 
 ### DEFAULTS FROM GITHUB ###
 __pycache__/

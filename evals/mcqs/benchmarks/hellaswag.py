@@ -16,9 +16,9 @@ def load_hellaswag(split="test"):
     base_dataset = load_dataset("Rowan/hellaswag")[split]
     index = list(range(len(base_dataset)))
     if split == "train":
-        index = index[len(index)//2:]
+        index = index[len(index) // 2 :]
     elif split == "validation":
-        index = index[:len(index)//2]
+        index = index[: len(index) // 2]
     random.shuffle(index)
     for i in index:
         sample = base_dataset[i]

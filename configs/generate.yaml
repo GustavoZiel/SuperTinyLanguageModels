@@ -1,4 +1,3 @@
 defaults:
   - generator: baseline
-model_ckpt: "checkpoints/...pt"
-
+model_ckpt: "checkpoints/ckpt_9.pt"

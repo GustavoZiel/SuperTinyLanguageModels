@@ -1,6 +1,4 @@
-"""
-Evaluator class for evaluating models.
-"""
+"""Evaluator class for evaluating models."""
 
 import torch
 import tqdm
@@ -9,11 +7,13 @@ from evals import eval_wrapper
 from evals.evaluator_interface import EvaluationInterface
 from evals.mcqs.load_benchmarks import load_benchmark
 from evals.metrics import MCQ_METRIC_DICT
+from utils.logger import get_logger
+
+logger = get_logger()
 
 
 class MCQEvaluator(EvaluationInterface):
-    """
-    Base Evaluator class the evaluates models
+    """Base Evaluator class the evaluates models
     and prints/logs the results.
     """
 
@@ -27,8 +27,7 @@ class MCQEvaluator(EvaluationInterface):
 
     @torch.no_grad()
     def predict(self, prefix, ground_truth, false_options):
-        """
-        Given a prompt, use the model to predict the output
+        """Given a prompt, use the model to predict the output
         Returns the loglikelihood of the ground truth and the options
         """
         prefixes = [prefix] * (len(false_options) + 1)
@@ -38,9 +37,7 @@ class MCQEvaluator(EvaluationInterface):
         return loglikelihoods
 
     def _calculate_metrics(self, confidences):
-        """
-        Calculate the metrics for the model
-        """
+        """Calculate the metrics for the model"""
         score_dict = {}
 
         for metric_name, metric in MCQ_METRIC_DICT.items():
@@ -53,9 +50,7 @@ class MCQEvaluator(EvaluationInterface):
         # load the benchmark_loader
         benchmark_loader = load_benchmark(benchmark_name, split="test")
         confidences = []
-        for i, (prefix, ground_truth, false_options) in tqdm.tqdm(
-            enumerate(benchmark_loader)
-        ):
+        for i, (prefix, ground_truth, false_options) in tqdm.tqdm(enumerate(benchmark_loader)):
             if num_samples is not None and i > num_samples:
                 break
             loglikelihoods = self.predict(prefix, ground_truth, false_options)
@@ -72,12 +67,17 @@ class MCQEvaluator(EvaluationInterface):
         return score_dict
 
     def evaluate(self):
-        """Given a list of benchmark names, load and evaluate them
+        """Evaluate the model on each benchmark in self.benchmarks.
 
-        Only do so on  {num_samples} for each benchmark"""
+        For each benchmark, evaluates up to self.num_samples samples (if specified).
+        Logs progress and returns a dictionary mapping benchmark names to their score dictionaries.
+
+        Returns:
+            dict: {benchmark_name: {metric_name: score, ...}, ...}
+        """
         results = {}
         for benchmark_name in self.benchmarks:
-            print(f"evalling benchmark {benchmark_name}")
+            logger.info(f"Evaluating benchmark {benchmark_name}")
             score_dict = self.evaluate_benchmark(
                 benchmark_name=benchmark_name, num_samples=self.num_samples
             )

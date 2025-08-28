@@ -9,5 +9,6 @@ class EvaluationInterface:
 
     def evaluate(self):
         """Evaluate the model performance on a list
-        of benchmarks."""
+        of benchmarks.
+        """
         raise NotImplementedError()

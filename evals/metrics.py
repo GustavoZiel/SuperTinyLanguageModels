@@ -1,14 +1,12 @@
-"""
-A collection of metrics for evaluating models
-"""
+"""A collection of metrics for evaluating models"""
 
 import torch
 
 from trainers.utils import aggregate_value
 
+
 def accuracy_metric(confidences):
-    """
-    Calculate the accuracy of the model over a path_prob
+    """Calculate the accuracy of the model over a path_prob
     Assume that the ground truth is the first element in the list
     Args:
         confidences: (B, N) tensor of confidences
@@ -21,8 +19,7 @@ def accuracy_metric(confidences):
 
 
 def path_confidence(confidences):
-    """
-    Calculate the path confidence of the model.
+    """Calculate the path confidence of the model.
     Assume that the ground truth is the first element in the list
     Args:
         confidences: (B, N) tensor of confidences
@@ -34,9 +31,9 @@ def path_confidence(confidences):
     ## aggregate the tensor values
     return aggregate_value(softmaxed.mean())
 
+
 def ground_confidence(confidences):
-    """
-    Calculate the confidence of the model on the ground truth
+    """Calculate the confidence of the model on the ground truth
     Assume that the ground truth is the first element in the list
     Args:
         confidences: (B, N) tensor of confidences
@@ -49,4 +46,8 @@ def ground_confidence(confidences):
     return confidences[:, 0].mean()
 
 
-MCQ_METRIC_DICT = {"accuracy": accuracy_metric, "path_confidence": path_confidence, "ground_confidence": ground_confidence}
+MCQ_METRIC_DICT = {
+    "accuracy": accuracy_metric,
+    "path_confidence": path_confidence,
+    "ground_confidence": ground_confidence,
+}

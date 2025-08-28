@@ -1,6 +1,4 @@
-"""
-Load a bechmark loader, given the benchmark name.
-"""
+"""Load a bechmark loader, given the benchmark name."""
 
 from evals.mcqs.benchmarks.arc import load_arc
 from evals.mcqs.benchmarks.blimp import load_blimp
@@ -18,7 +16,5 @@ EVALS_DICT = {
 
 
 def load_benchmark(benchmark_name, split):
-    """
-    Given the benchmark name, build the benchmark
-    """
+    """Given the benchmark name, build the benchmark"""
     return EVALS_DICT[benchmark_name](split=split)

@@ -1,5 +1,6 @@
 """An interface for loading in models from the Hugging Face model hub
-This can be used for finetuning or training from scratch."""
+This can be used for finetuning or training from scratch.
+"""
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -9,10 +10,9 @@ from models.embedding_models import EmbedderInterface
 from models.model_shell import ModelShell
 from trainers.base_trainer import BaseTrainer
 
+
 def build_model(model_cfg):
-    '''
-    Helper function to build a model from the huggingface model hub.
-    '''
+    """Helper function to build a model from the huggingface model hub."""
     ## get the model string
     model_str = model_cfg["model_string"]
 
@@ -50,7 +50,8 @@ class HFTokenizerWrapper(Tokenizer):
     def encode_batch(self, texts):
         """Encode a batch of texts into tokens.
 
-        Default implementation is to loop over the texts"""
+        Default implementation is to loop over the texts
+        """
         self.hf_tokenizer.batch_encode_plus(
             texts,
             padding=True,
@@ -64,14 +65,13 @@ class HFTokenizerWrapper(Tokenizer):
     def decode_batch(self, token_lists):
         """Decode a list of token lists into a list of strings.
 
-        Default implementation is to loop over the token lists."""
+        Default implementation is to loop over the token lists.
+        """
         return self.hf_tokenizer.batch_decode(token_lists, skip_special_tokens=True)
 
 
 class HFEmbedder(EmbedderInterface):
-    """
-    A class for loading in models from the Hugging Face model hub
-    """
+    """A class for loading in models from the Hugging Face model hub"""
 
     def __init__(self, model_cfg):
         super().__init__()
@@ -81,21 +81,18 @@ class HFEmbedder(EmbedderInterface):
         self.embeddings = build_model(model_cfg).get_input_embeddings()
 
     def decode(self, token_ids):
-        """
-        Decode the token ids
-        """
+        """Decode the token ids"""
         return self.tokenizer.decode_batch(token_ids)
 
     def forward(self, token_ids):
-        """
-        Forward pass for the model
-        """
+        """Forward pass for the model"""
         return self.embeddings(token_ids)
 
     def tokenize_input(self, input_string, truncate=False, add_eot=True):
         """This function should take a single input string and returns
 
         the tokenized input.
+
         Args:
             input_string: str
             truncate: bool - whether to perform (left) truncation
@@ -121,13 +118,11 @@ class HFEmbedder(EmbedderInterface):
 
 
 class HFTransformerCore(torch.nn.Module):
-    """
-    Hugging Face transformer class.
-    """
+    """Hugging Face transformer class."""
 
     def __init__(self, model_cfg):
         super().__init__()
-        self.model = build_model(model_cfg = model_cfg)
+        self.model = build_model(model_cfg=model_cfg)
 
         ## freeze the parameters
         print("Note: Freezing the parameters of the hf_core model.")
@@ -135,32 +130,28 @@ class HFTransformerCore(torch.nn.Module):
             param.requires_grad = False
 
     def forward(self, x):
-        """
-        Calls the huggingface model in question, and returns the last hidden state.
-        """
+        """Calls the huggingface model in question, and returns the last hidden state."""
         ## get the hidden states
-        hidden_states = self.model(inputs_embeds = x, output_hidden_states = True).hidden_states
+        hidden_states = self.model(inputs_embeds=x, output_hidden_states=True).hidden_states
 
         ## return the last hidden state
         if isinstance(hidden_states, tuple):
             return hidden_states[-1]
 
-        
 
 class HFLMHead(torch.nn.Module):
-    """
-    Takes the language model head of a Hugging Face transformer class.
-    """
+    """Takes the language model head of a Hugging Face transformer class."""
 
     def __init__(self, model_cfg):
         super().__init__()
-        self.lm_head = build_model(model_cfg = model_cfg).get_output_embeddings()
-    
+        self.lm_head = build_model(model_cfg=model_cfg).get_output_embeddings()
+
     def forward(self, x):
-        """
-        Passes the input through the language model head to get logits.
+        """Passes the input through the language model head to get logits.
+
         Args:
             x: torch.tensor(B, S, H)
+
         Returns:
             x: torch.tensor(B, S, V)
         """

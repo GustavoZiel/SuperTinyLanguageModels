@@ -1,5 +1,4 @@
-"""
-Builds the individual components of the trainer,
+"""Builds the individual components of the trainer,
 and the trainer itself.
 """
 
@@ -29,13 +28,15 @@ from trainers.scheduler import (
     LRScheduler,
     TriangleDropoutScheduler,
 )
+from utils.logger import get_logger
+
+logger = get_logger()
 
 
 def ddp_setup(rank, world_size):
-    """
-    Args:
-        rank: Unique identifier of each process
-        world_size: Total number of processes
+    """Args:
+    rank: Unique identifier of each process
+    world_size: Total number of processes
     """
     # Get the master address and port from SLURM environment variables
     master_addr = os.environ.get("MASTER_ADDR", "localhost")
@@ -65,12 +66,8 @@ OPTIMIZER_DICT = {
 
 
 def build_optimizer(model, optimizer_config):
-    """
-    Given the optimizer config, build the optimizer
-    """
-    return OPTIMIZER_DICT[optimizer_config["name"]](
-        model=model, trainer_cfg=optimizer_config
-    )
+    """Given the optimizer config, build the optimizer"""
+    return OPTIMIZER_DICT[optimizer_config["name"]](model=model, trainer_cfg=optimizer_config)
 
 
 SCHEDULER_DICT = {
@@ -87,16 +84,12 @@ SCHEDULER_DICT = {
 
 
 def build_lr_scheduler(trainer_cfg):
-    """
-    Given the trainer config, build the LR scheduler.build_model
-    """
+    """Given the trainer config, build the LR scheduler.build_model"""
     return SCHEDULER_DICT[trainer_cfg["lr_scheduler"]["name"]](trainer_cfg=trainer_cfg)
 
 
 def build_dropout_scheduler(trainer_cfg):
-    """
-    Given the trainer config, build the dropout scheduler.
-    """
+    """Given the trainer config, build the dropout scheduler."""
     if trainer_cfg["dropout_scheduler"]["dropout_type"] == "constant":
         return DropoutScheduler(trainer_cfg["dropout_scheduler"]["dropout"])
     if trainer_cfg["dropout_scheduler"]["dropout_type"] == "linear":
@@ -126,11 +119,8 @@ DATASET_DICT: dict[str, DatasetInterface] = {
 
 
 def build_dataset(cfg, split):
-    """
-    Given the config, build the dataloader
-    """
+    """Given the config, build the dataloader"""
     return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split)
-
 
 
 LOSS_FN_DICT = {
@@ -141,9 +131,7 @@ LOSS_FN_DICT = {
 
 
 def build_loss_fn(loss_fn_name):
-    """
-    Given the loss function name, build the loss function
-    """
+    """Given the loss function name, build the loss function"""
     return LOSS_FN_DICT[loss_fn_name]
 
 
@@ -154,31 +142,27 @@ TRAINER_DICT = {
 
 
 def build_trainer(cfg, model, gpu_id):
-    """
-    Given a config, this function builds a trainer
+    """Given a config, this function builds a trainer
     and all relevant components of it.
     """
-
-    # build optimizer
+    logger.info("Building optimizer...")
     optimizer = build_optimizer(model=model, optimizer_config=cfg.trainer["optimizer"])
 
-    # build LR scheduler
+    logger.info("Building LR scheduler...")
     lr_scheduler = build_lr_scheduler(trainer_cfg=cfg.trainer)
 
-    # build dropout scheduler
+    logger.info("Building dropout scheduler...")
     dropout_scheduler = build_dropout_scheduler(trainer_cfg=cfg.trainer)
 
-    # build dataloder
+    logger.info("Building datasets...")
     train_dataset = build_dataset(cfg=cfg, split="train")
     val_dataset = build_dataset(cfg=cfg, split="val")
 
-
-    # wrap in dataloaders
+    logger.info("Wrapping datasets in dataloaders...")
     train_dataloader = torch.utils.data.DataLoader(
         dataset=train_dataset,
         batch_size=cfg["trainer"]["training"]["batch_size"],
         shuffle=False,
-
     )
     val_dataloader = torch.utils.data.DataLoader(
         dataset=val_dataset,
@@ -186,11 +170,10 @@ def build_trainer(cfg, model, gpu_id):
         shuffle=False,
     )
 
-    # build loss function
+    logger.info("Building loss function...")
     loss_fn = build_loss_fn(loss_fn_name=cfg.trainer["loss_fn"]["name"])
 
-    # build the trainer
-    print(cfg.trainer["training"]["trainer_type"])
+    logger.info(f"Building trainer of type: {cfg.trainer['training']['trainer_type']}")
     trainer = TRAINER_DICT[cfg.trainer["training"]["trainer_type"]](
         cfg=cfg,
         model=model,
@@ -203,4 +186,5 @@ def build_trainer(cfg, model, gpu_id):
         gpu_id=gpu_id,
     )
 
+    logger.info("Trainer built successfully.")
     return trainer

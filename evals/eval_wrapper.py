@@ -16,26 +16,20 @@ class EvalWrapper:
         super().__init__()
 
     def loglikelihood(self, prefixes, continuations) -> list[float]:
-        """
-        Compute the loglikelihood of given inputs
-        """
+        """Compute the loglikelihood of given inputs"""
         device_str = "cuda" if torch.cuda.is_available() else "cpu"
         device = torch.device(device_str)
         self.model_shell = self.model_shell.to(device)
         results = []
         with torch.no_grad():
             with torch.autocast(device_type=device_str):
-                for prefix_batch, cont_batch in zip(
-                    batch(prefixes, 32), batch(continuations, 32)
-                ):
+                for prefix_batch, cont_batch in zip(batch(prefixes, 32), batch(continuations, 32)):
                     ll = self.model_shell.loglikelihood(prefix_batch, cont_batch)
                     results.extend(ll.cpu().numpy())
         return results
 
     def generate(self, prefixes) -> list[str]:
-        """
-        Generate a continuation for a given prefix
-        """
+        """Generate a continuation for a given prefix"""
         model_generator = generator.StandardGenerator(
             self.model_shell,
             generate_cfg={
