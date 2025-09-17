@@ -43,6 +43,60 @@ class StandardProcessor:
                 idx += len(arr_batch)
             arr.flush()
 
+    def write_tokenized_data_easy(
+        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None
+    ):
+        """Write tokenized datasets to disk as flat binary files using memmap.
+
+        Args:
+            tokenized (dict): Dictionary of Hugging Face Datasets (split -> Dataset)
+            tokenized_data_folder (str): Folder to save .bin files
+            dtype (np.dtype): data type for token IDs (default uint16)
+            total_batches (int, optional): Number of shards to split dataset into. If None, auto-determined.
+        """
+        for split, dset in tokenized.items():
+            arr_len = int(np.sum(dset["len"], dtype=np.uint64))
+            filename = os.path.join(tokenized_data_folder, f"{split}.bin")
+
+            # Use provided total_batches or auto-adapt to dataset size
+            num_batches = total_batches or min(1024, len(dset))
+            print(
+                f"Writing split '{split}' to {filename} ({arr_len} tokens in {num_batches} batches)"
+            )
+
+            # Create a flat memmap array
+            arr = np.memmap(filename, dtype=dtype, mode="w+", shape=(arr_len,))
+
+            idx = 0
+            for batch_idx in tqdm(range(num_batches), desc=f"writing {filename}"):
+                batch = dset.shard(
+                    num_shards=num_batches, index=batch_idx, contiguous=True
+                ).with_format("numpy")
+
+                # Flatten token IDs for this batch
+                arr_batch = np.concatenate(batch["ids"])
+
+                # Safety check: prevent writing past allocated size
+                end_idx = idx + len(arr_batch)
+                if end_idx > arr.shape[0]:
+                    raise ValueError(
+                        f"Batch exceeds preallocated array size: {end_idx} > {arr.shape[0]}"
+                    )
+
+                arr[idx:end_idx] = arr_batch
+                idx = end_idx
+
+            arr.flush()
+            print(f"✅ Finished writing {split}, total tokens: {idx}")
+
+    def write_tokenized_data_simpler(tokenized, tokenized_data_folder, dtype=np.uint16):
+        for split, dset in tokenized.items():
+            filename = os.path.join(tokenized_data_folder, f"{split}.bin")
+            all_ids = np.concatenate(dset["ids"])
+            all_ids = all_ids.astype(dtype)
+            all_ids.tofile(filename)  # simple flat write
+            print(f"Saved {split} ({len(all_ids)} tokens) to {filename}")
+
 
 class ByteLevelProcessor(StandardProcessor):
     """A byte-level processor that tokenizes the text"""
@@ -198,7 +252,8 @@ def prepare_data(cfg):
 
         # concatenate all the ids in each dataset
         logger.info(f"Writing tokenized data to {tokenized_data_folder}")
-        processor_object.write_tokenized_data(
+        # processor_object.write_tokenized_data(
+        processor_object.write_tokenized_data_easy(
             tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
         )
         logger.info("Tokenized data successfully written")

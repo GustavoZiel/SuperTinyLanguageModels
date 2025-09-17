@@ -1,39 +1,28 @@
 defaults:
   - dropout_scheduler: constant
 
-dataset: "debug"
+dataset: "sports_wiki"
+# dataset: "simple_en_wiki"
+# dataset: "debug"
 # dataset: "stlm"
 
 training:
   trainer_type: "base_trainer"
-  batch_size: 8
-  gradient_accumulation_steps: 20
-  max_iters: 10
-  lr_decay_iters: 25000
-  warmup_iters: 5000
-  eval_interval: 2000
-  log_interval: 10
+  batch_size: 12
+  gradient_accumulation_steps: 10
+  max_iters: 2500
+  # max_iters: 10
+  lr_decay_iters: 2500
+  warmup_iters: 100
+  eval_interval: 10
+  log_interval: 1
   eval_iters: 200
-  checkpoint_interval: 1e9
+  checkpoint_interval: 500
   run_profiler: false
-
-# training:
-#   trainer_type: "base_trainer"
-#   batch_size: 8                  # ↓ reduce memory
-#   gradient_accumulation_steps: 60 # ↑ keep same effective batch size
-#   max_iters: 25000
-#   lr_decay_iters: 25000
-#   warmup_iters: 5000
-#   eval_interval: 5000            # less frequent eval → save compute
-#   log_interval: 10
-#   eval_iters: 100                # smaller eval loop
-#   checkpoint_interval: 1e9
-#   run_profiler: true
-
 
 eval:
   benchmarks:
-    # - "winograd"
+    - "winograd"
     # - "hellaswag"
     # - "arc"
     - "mmlu"

@@ -168,85 +168,18 @@ class BaseTrainer:
         self.model.train()
         return eval_results, evaluator_results
 
-    # def _run_step(self):
-    #     """Run a single step of training with gradient accumulation."""
-    #     self.optimizer.zero_grad()  # Clear gradients at the start of accumulation
-
-    #     accumulated_loss = 0
-    #     for i in range(self.gradient_accumulation_steps):
-    #         # get the next batch
-    #         x, y = next(self.train_dataloader_iter)
-    #         x = x.to(self.gpu_id if self.gpu_id is not None else self.model.device)
-    #         y = y.to(self.gpu_id if self.gpu_id is not None else self.model.device)
-
-    #         # Enable or disable gradient synchronization based on the need for accumulation
-    #         if self.dist and hasattr(self.DDP_model, "no_sync"):
-    #             context_manager = (
-    #                 self.DDP_model.no_sync()
-    #                 if i != self.gradient_accumulation_steps - 1
-    #                 else nullcontext()
-    #             )
-    #         else:
-    #             context_manager = nullcontext()
-
-    #         with context_manager:
-    #             with self.ctx:
-    #                 output, aux_loss = self.DDP_model(x)
-    #                 loss = self.loss_fn(output, y)
-    #                 if aux_loss is not None:
-    #                     loss += aux_loss
-
-    #             # Scale loss to simulate larger effective batch size
-    #             loss = loss / self.gradient_accumulation_steps
-    #             self.scaler.scale(loss).backward()
-    #             accumulated_loss += loss.item()
-
-    #     # once graidents are accumulated, step
-    #     if self.cfg.trainer.optimizer.grad_clip > 0:
-    #         # Unscale the gradients of the optimizer's assigned params in-place
-    #         self.scaler.unscale_(self.optimizer)
-    #         # Clip the gradients with normalization
-    #         torch.nn.utils.clip_grad_norm_(
-    #             self.model.parameters(), self.cfg.trainer.optimizer.grad_clip
-    #         )
-
-    #     # Perform a single optimization step
-    #     self.scaler.step(self.optimizer)
-    #     self.scaler.update()
-    #     self.optimizer.zero_grad()  # Reset gradients after update
-
-    #     return accumulated_loss
-
     def _run_step(self):
-        """Run a single step of training with gradient accumulation, with debug prints."""
-        print("=== _run_step START ===")
-        print(f"GPU ID: {self.gpu_id}, Device: {self.model.device}")
-
-        # Clear gradients at the start
-        print("Zeroing gradients...")
-        self.optimizer.zero_grad()
+        """Run a single step of training with gradient accumulation."""
+        self.optimizer.zero_grad()  # Clear gradients at the start of accumulation
 
         accumulated_loss = 0
-        print(f"Starting gradient accumulation for {self.gradient_accumulation_steps} steps...")
-
         for i in range(self.gradient_accumulation_steps):
-            print(f"\n--- Accumulation step {i} ---")
+            # get the next batch
+            x, y = next(self.train_dataloader_iter)
+            x = x.to(self.gpu_id if self.gpu_id is not None else self.model.device)
+            y = y.to(self.gpu_id if self.gpu_id is not None else self.model.device)
 
-            # Fetch next batch
-            try:
-                x, y = next(self.train_dataloader_iter)
-                print(f"Batch fetched: x.shape={x.shape}, y.shape={y.shape}")
-            except StopIteration:
-                print("WARNING: DataLoader exhausted!")
-                break
-
-            # Move batch to GPU
-            device = self.gpu_id if self.gpu_id is not None else self.model.device
-            x = x.to(device)
-            y = y.to(device)
-            print(f"Tensors moved to device: {device}")
-
-            # Context for DDP no_sync
+            # Enable or disable gradient synchronization based on the need for accumulation
             if self.dist and hasattr(self.DDP_model, "no_sync"):
                 context_manager = (
                     self.DDP_model.no_sync()
@@ -257,52 +190,119 @@ class BaseTrainer:
                 context_manager = nullcontext()
 
             with context_manager:
-                with self.ctx:  # AMP autocast context
-                    print("Running forward pass...")
+                with self.ctx:
                     output, aux_loss = self.DDP_model(x)
-                    print(f"Forward pass done: output.shape={output.shape}")
-
                     loss = self.loss_fn(output, y)
-                    print(f"Computed primary loss: {loss.item():.6f}")
-
                     if aux_loss is not None:
-                        print(f"Adding auxiliary loss: {aux_loss.item():.6f}")
                         loss += aux_loss
 
-                # Scale loss for accumulation
-                loss_scaled = loss / self.gradient_accumulation_steps
-                print(f"Scaled loss for accumulation: {loss_scaled.item():.6f}")
+                # Scale loss to simulate larger effective batch size
+                loss = loss / self.gradient_accumulation_steps
+                self.scaler.scale(loss).backward()
+                accumulated_loss += loss.item()
 
-                # Backward
-                print("Running backward pass...")
-                self.scaler.scale(loss_scaled).backward()
-                print("Backward pass complete.")
-                accumulated_loss += loss_scaled.item()
-
-            # Optional: print GPU memory usage
-            print(torch.cuda.memory_summary(device=device, abbreviated=True))
-
-        print("\n=== Gradient accumulation done ===")
-        print(f"Accumulated loss: {accumulated_loss:.6f}")
-
-        # Gradient clipping
+        # once graidents are accumulated, step
         if self.cfg.trainer.optimizer.grad_clip > 0:
-            print(f"Clipping gradients at {self.cfg.trainer.optimizer.grad_clip}...")
+            # Unscale the gradients of the optimizer's assigned params in-place
             self.scaler.unscale_(self.optimizer)
+            # Clip the gradients with normalization
             torch.nn.utils.clip_grad_norm_(
                 self.model.parameters(), self.cfg.trainer.optimizer.grad_clip
             )
-            print("Gradient clipping done.")
 
-        # Optimizer step
-        print("Performing optimizer step...")
+        # Perform a single optimization step
         self.scaler.step(self.optimizer)
         self.scaler.update()
-        self.optimizer.zero_grad()
-        print("Optimizer step complete.")
+        self.optimizer.zero_grad()  # Reset gradients after update
 
-        print("=== _run_step END ===\n")
         return accumulated_loss
+
+    # def _run_step(self):
+    #     """Run a single step of training with gradient accumulation, with debug prints."""
+    #     print("=== _run_step START ===")
+    #     print(f"GPU ID: {self.gpu_id}, Device: {self.model.device}")
+
+    #     # Clear gradients at the start
+    #     print("Zeroing gradients...")
+    #     self.optimizer.zero_grad()
+
+    #     accumulated_loss = 0
+    #     print(f"Starting gradient accumulation for {self.gradient_accumulation_steps} steps...")
+
+    #     for i in range(self.gradient_accumulation_steps):
+    #         print(f"\n--- Accumulation step {i} ---")
+
+    #         # Fetch next batch
+    #         try:
+    #             x, y = next(self.train_dataloader_iter)
+    #             print(f"Batch fetched: x.shape={x.shape}, y.shape={y.shape}")
+    #         except StopIteration:
+    #             print("WARNING: DataLoader exhausted!")
+    #             break
+
+    #         # Move batch to GPU
+    #         device = self.gpu_id if self.gpu_id is not None else self.model.device
+    #         x = x.to(device)
+    #         y = y.to(device)
+    #         print(f"Tensors moved to device: {device}")
+
+    #         # Context for DDP no_sync
+    #         if self.dist and hasattr(self.DDP_model, "no_sync"):
+    #             context_manager = (
+    #                 self.DDP_model.no_sync()
+    #                 if i != self.gradient_accumulation_steps - 1
+    #                 else nullcontext()
+    #             )
+    #         else:
+    #             context_manager = nullcontext()
+
+    #         with context_manager:
+    #             with self.ctx:  # AMP autocast context
+    #                 print("Running forward pass...")
+    #                 output, aux_loss = self.DDP_model(x)
+    #                 print(f"Forward pass done: output.shape={output.shape}")
+
+    #                 loss = self.loss_fn(output, y)
+    #                 print(f"Computed primary loss: {loss.item():.6f}")
+
+    #                 if aux_loss is not None:
+    #                     print(f"Adding auxiliary loss: {aux_loss.item():.6f}")
+    #                     loss += aux_loss
+
+    #             # Scale loss for accumulation
+    #             loss_scaled = loss / self.gradient_accumulation_steps
+    #             print(f"Scaled loss for accumulation: {loss_scaled.item():.6f}")
+
+    #             # Backward
+    #             print("Running backward pass...")
+    #             self.scaler.scale(loss_scaled).backward()
+    #             print("Backward pass complete.")
+    #             accumulated_loss += loss_scaled.item()
+
+    #         # Optional: print GPU memory usage
+    #         print(torch.cuda.memory_summary(device=device, abbreviated=True))
+
+    #     print("\n=== Gradient accumulation done ===")
+    #     print(f"Accumulated loss: {accumulated_loss:.6f}")
+
+    #     # Gradient clipping
+    #     if self.cfg.trainer.optimizer.grad_clip > 0:
+    #         print(f"Clipping gradients at {self.cfg.trainer.optimizer.grad_clip}...")
+    #         self.scaler.unscale_(self.optimizer)
+    #         torch.nn.utils.clip_grad_norm_(
+    #             self.model.parameters(), self.cfg.trainer.optimizer.grad_clip
+    #         )
+    #         print("Gradient clipping done.")
+
+    #     # Optimizer step
+    #     print("Performing optimizer step...")
+    #     self.scaler.step(self.optimizer)
+    #     self.scaler.update()
+    #     self.optimizer.zero_grad()
+    #     print("Optimizer step complete.")
+
+    #     print("=== _run_step END ===\n")
+    #     return accumulated_loss
 
     def run_profile(self):
         """Run the profiler"""
@@ -391,7 +391,7 @@ class BaseTrainer:
 
                 # Log to wandb if enabled and on first GPU
                 if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
-                    print("AAAAAAA")
+                    # print("AAAAAAA")
                     log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
                     log_dict.update(eval_results)
                     log_dict.update(benchmark_results)
@@ -403,7 +403,7 @@ class BaseTrainer:
                 and iter_num > 0
                 and (self.gpu_id == 0 or self.gpu_id is None)
             ):
-                print("BBBBBBBBBBBBB")
+                # print("BBBBBBBBBBBBB")
                 self._save_model(iter_num)
                 logger.info(f"Checkpoint saved at iteration {iter_num}")
 
@@ -414,10 +414,10 @@ class BaseTrainer:
 
             # Log loss periodically
             if not iter_num % self.cfg.trainer.training.log_interval and iter_num > 0:
-                print("DDDDDDDDDDDDDDDD")
+                # print("DDDDDDDDDDDDDDDD")
                 # Aggregate loss across all GPUs
                 lossf = aggregate_value(lossf, self.cfg.general.device)
-                print("EEEEEEEEEEEEEE")
+                # print("EEEEEEEEEEEEEE")
 
                 # Log aggregated loss only on first GPU
                 logger.info(

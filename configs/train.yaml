@@ -1,4 +1,4 @@
 defaults:
 - model: baseline
-- trainer: baseline
+- trainer: baseline_sports
 - general: default

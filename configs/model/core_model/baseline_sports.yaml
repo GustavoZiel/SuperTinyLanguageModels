@@ -1,0 +1,14 @@
+core_model_type: "generic"
+num_layers: 4                  # smaller to prevent overfitting
+ffn:
+  ffn_type: "swiglu"
+  ffn_dim: 768                 # reduce FFN size
+  normalization: "rms_norm"
+  bias: False
+attn:
+  attn_type: "generic"
+  num_heads: 4                 # fewer attention heads
+  normalization: "rms_norm"
+  group_size: 4
+  bias: False
+  is_causal: True

@@ -80,8 +80,8 @@ def basic_main(cfg):
 def main(cfg):
     world_size = torch.cuda.device_count()
     logger.info(f"Number of available CUDA devices: {world_size}")
-    # logger.info(OmegaConf.to_yaml(cfg))
 
+    # logger.info(OmegaConf.to_yaml(cfg))
     # print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
     # print(cfg["no_defaults"]["general"]["paths"]["data_dir"])
     # print(hydra.utils.to_absolute_path("teste"))
@@ -96,9 +96,11 @@ def main(cfg):
     cfg["general"]["paths"]["data_dir"] = hydra.utils.to_absolute_path(
         cfg["general"]["paths"]["data_dir"]
     )  # must be done before multiprocessing or else the path is wrong?
+
     cfg["general"]["paths"]["checkpoint_dir"] = hydra.utils.to_absolute_path(
         cfg["general"]["paths"]["checkpoint_dir"]
     )  # must be done before multiprocessing or else the path is wrong?
+
     logger.info(f"Checkpoint directory set to: {cfg['general']['paths']['checkpoint_dir']}")
     logger.info(f"Data directory set to: {cfg['general']['paths']['data_dir']}")
 
@@ -109,10 +111,10 @@ def main(cfg):
     prepare_data(cfg)
     logger.info("Data preparation complete.")
 
-    if world_size <= 1:
-        # single GPU/CPU training
-        logger.info("Starting single GPU/CPU training.")
-        basic_main(cfg)
+    # if world_size <= 1:
+    #     # single GPU/CPU training
+    #     logger.info("Starting single GPU/CPU training.")
+    #     basic_main(cfg)
 
     # else:
     #     # multi-GPU training

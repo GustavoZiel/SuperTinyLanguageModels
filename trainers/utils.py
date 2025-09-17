@@ -9,8 +9,14 @@ from typing import Any, Dict
 import numpy as np
 import torch
 import torch.distributed as dist
-from datasets import DatasetDict, concatenate_datasets, load_dataset
+from datasets import DatasetDict, concatenate_datasets, load_dataset, load_from_disk
 from prettytable import PrettyTable
+
+DATA_DIR = "/home/ziel/codes/SIPGA/scripts/data"
+
+
+def load_custom_dataset(dataset_name: str) -> Any:
+    return load_from_disk(os.path.join(DATA_DIR, dataset_name))
 
 
 def set_seed(seed):
@@ -128,18 +134,19 @@ def load_competition_math_dataset():
 
 
 DATASET_DICT = {
+    "sports_wiki": lambda: load_custom_dataset("wiki_20220301.en_filtered"),
     "debug": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
-    # "en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.en"),
-    # "simple_en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
-    # "babylm_100m": lambda: load_dataset("Sree1994/babylm_100M"),  # https://babylm.github.io/
-    # "tinystories": lambda: load_dataset(
-    #     "roneneldan/TinyStories"
-    # ),  # https://huggingface.co/datasets/roneneldan/TinyStories
-    # "stlm": create_stlm_data_mix,
-    # "openhermes-2.5": lambda: load_dataset("teknium/OpenHermes-2.5"),
-    # "openwebtext": lambda: load_dataset("Skylion007/openwebtext"),
-    # "github-code": lambda: load_github_code_dataset(),
-    # "competition_math": lambda: load_competition_math_dataset(),
+    "en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.en"),
+    "simple_en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
+    "babylm_100m": lambda: load_dataset("Sree1994/babylm_100M"),  # https://babylm.github.io/
+    "tinystories": lambda: load_dataset(
+        "roneneldan/TinyStories"
+    ),  # https://huggingface.co/datasets/roneneldan/TinyStories
+    "stlm": create_stlm_data_mix,
+    "openhermes-2.5": lambda: load_dataset("teknium/OpenHermes-2.5"),
+    "openwebtext": lambda: load_dataset("Skylion007/openwebtext"),
+    "github-code": lambda: load_github_code_dataset(),
+    "competition_math": lambda: load_competition_math_dataset(),
 }
 
 

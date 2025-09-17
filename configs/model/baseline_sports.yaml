@@ -1,0 +1,11 @@
+defaults:
+  - core_model: baseline
+  - embedder: baseline
+  - lm_head: baseline
+
+hidden_dim: 256             # reduce to prevent overfitting
+context_window: 256         # smaller context is enough for short sequences
+vocab_size: 50257
+model_shell_type: "standard"
+embedding_weight_tying: True
+positional_encoding_type: "rope"

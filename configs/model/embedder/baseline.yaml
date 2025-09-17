@@ -1,4 +1,5 @@
 tokenizer_type: "gpt2"
 embedding_model_type: "generic"
+dataset_name: "wiki_20220301.en_filtered"
 # dataset_name: "simple_en_wiki"
-dataset_name: "debug"
+# dataset_name: "debug"
