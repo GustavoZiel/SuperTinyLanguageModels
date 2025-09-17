@@ -222,12 +222,8 @@ def prepare_data(cfg):
     # load embedder
     embedder = build_embedding_model(cfg["model"], verbose=True)
 
-    # # load the dataset
-    # dataset_name = cfg["trainer"]["dataset"]
-    # logger.info(f"Loading dataset: {dataset_name}")
-    # split_dataset = load_data(
-    #     dataset_name=dataset_name,
-    # )
+    # load the dataset
+    split_dataset = load_data(dataset_name=cfg["trainer"]["dataset"], verbose=True)
 
     # dataloader_name = cfg["trainer"]["dataloader"]["name"]
     # processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)

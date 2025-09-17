@@ -186,12 +186,21 @@ DATASET_DICT = {
 }
 
 
-def load_data(dataset_name: str, shuffle: bool = True) -> Dict[str, Any]:
-    """Load the specified dataset, split into training and validation sets, and optionally shuffle.
+def load_data(
+    dataset_name: str,
+    test_size: float = 0.1,
+    seed: int = 489,
+    shuffle: bool = True,
+    verbose: bool = False,
+) -> Dict[str, Any]:
+    """Load a dataset by name, split it into training and validation sets, and optionally shuffle and log details.
 
     Args:
         dataset_name (str): The name of the dataset to load. Must be a key in DATASET_DICT.
+        test_size (float, optional): Proportion of the dataset to use as validation. Defaults to 0.1.
+        seed (int, optional): Random seed for reproducibility. Defaults to 489.
         shuffle (bool, optional): Whether to shuffle the dataset before splitting. Defaults to True.
+        verbose (bool, optional): If True, logs dataset loading and split information. Defaults to False.
 
     Returns:
         Dict[str, Any]: A dictionary with "train" and "val" splits of the dataset.
@@ -200,18 +209,29 @@ def load_data(dataset_name: str, shuffle: bool = True) -> Dict[str, Any]:
         AssertionError: If the dataset_name is not found in DATASET_DICT.
     """
     assert dataset_name in DATASET_DICT, f"Dataset {dataset_name} not found!"
+    if verbose:
+        logger.info(f"Loading dataset: {dataset_name}")
     dataset = DATASET_DICT[dataset_name]()
 
-    # create dataset split
-    split_dataset = dataset["train"].train_test_split(test_size=0.01, seed=489, shuffle=shuffle)
+    if verbose:
+        logger.info(f"Splitting dataset: test_size={test_size}, seed={seed}, shuffle={shuffle}")
+    split_dataset = dataset["train"].train_test_split(
+        test_size=test_size, seed=seed, shuffle=shuffle
+    )
 
-    # rename test split to val
     split_dataset["val"] = split_dataset.pop("test")
 
     if dataset_name == "debug":
         split_dataset["train"] = split_dataset["train"].select(range(2048))
+        if verbose:
+            logger.info("Debug mode: selected first 2048 samples for training.")
 
-    # return the training and validation datasets
+    if verbose:
+        logger.info(
+            f"Dataset '{dataset_name}' loaded. Train size: {len(split_dataset['train'])}, "
+            f"Val size: {len(split_dataset['val'])}"
+        )
+
     return split_dataset
 
 
