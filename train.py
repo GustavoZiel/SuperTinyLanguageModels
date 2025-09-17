@@ -76,40 +76,25 @@ def basic_main(cfg):
     logger.info("Training complete.")
 
 
-@hydra.main(config_path="configs", config_name="train")
+@hydra.main(config_path="configs", config_name="train", version_base=None)
 def main(cfg):
-    world_size = torch.cuda.device_count()
-    logger.info(f"Number of available CUDA devices: {world_size}")
+    # world_size = torch.cuda.device_count()
+    # logger.info(f"Number of available CUDA devices: {world_size}")
 
     # logger.info(OmegaConf.to_yaml(cfg))
-    # print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
-    # print(cfg["no_defaults"]["general"]["paths"]["data_dir"])
-    # print(hydra.utils.to_absolute_path("teste"))
+    print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
 
-    if "full_configs" in cfg:
-        logger.info("Using 'full_configs' from configuration.")
-        cfg = cfg["full_configs"]
+    # if "full_configs" in cfg:
+    #     logger.info("Using 'full_configs' from configuration.")
+    #     cfg = cfg["full_configs"]
 
-    # print(cfg["general"]["paths"]["data_dir"])
+    create_folder_structure(
+        cfg["general"]["paths"]["data_dir"], cfg["general"]["paths"]["checkpoint_dir"], verbose=True
+    )
 
-    # NOTE This here is strange
-    cfg["general"]["paths"]["data_dir"] = hydra.utils.to_absolute_path(
-        cfg["general"]["paths"]["data_dir"]
-    )  # must be done before multiprocessing or else the path is wrong?
-
-    cfg["general"]["paths"]["checkpoint_dir"] = hydra.utils.to_absolute_path(
-        cfg["general"]["paths"]["checkpoint_dir"]
-    )  # must be done before multiprocessing or else the path is wrong?
-
-    logger.info(f"Checkpoint directory set to: {cfg['general']['paths']['checkpoint_dir']}")
-    logger.info(f"Data directory set to: {cfg['general']['paths']['data_dir']}")
-
-    create_folder_structure(path_config=cfg["general"]["paths"])
-    logger.info("Folder structure created.")
-
-    # process data
-    prepare_data(cfg)
-    logger.info("Data preparation complete.")
+    # # process data
+    # prepare_data(cfg)
+    # logger.info("Data preparation complete.")
 
     # if world_size <= 1:
     #     # single GPU/CPU training

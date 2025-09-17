@@ -6,11 +6,16 @@ import os
 import pkgutil
 from typing import Any, Dict
 
+import hydra
 import numpy as np
 import torch
 import torch.distributed as dist
 from datasets import DatasetDict, concatenate_datasets, load_dataset, load_from_disk
 from prettytable import PrettyTable
+
+from utils.logger import get_logger
+
+logger = get_logger()
 
 DATA_DIR = "/home/ziel/codes/SIPGA/scripts/data"
 
@@ -26,14 +31,45 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
 
 
-def create_folder_structure(path_config):
-    """Create all necessary folders for training."""
-    if not os.path.exists(path_config["data_dir"]):
-        os.makedirs(path_config["data_dir"])
+def get_absolute_path(relative_path: str, verbose: bool = False) -> str:
+    """Get the absolute path from a relative path.
 
-    # NOTE This is never created because the path is wrong, its not absolute
-    if not os.path.exists(path_config["checkpoint_dir"]):
-        os.makedirs(path_config["checkpoint_dir"])
+    Args:
+        relative_path (str): The relative path to convert.
+        verbose (bool, optional): If True, logs the absolute path. Defaults to False.
+
+    Returns:
+        str: The absolute path.
+    """
+    absolute_path = hydra.utils.to_absolute_path(relative_path)
+    if verbose:
+        logger.info(f"'{relative_path}' directory set to: {absolute_path}")
+    return absolute_path
+
+
+def create_folder(relative_path: str, verbose: bool = False) -> None:
+    """Create a folder if it does not exist.
+
+    Args:
+        relative_path (str): The relative path of the folder to create.
+        verbose (bool, optional): If True, logs folder creation. Defaults to False.
+    """
+    absolute_path = get_absolute_path(relative_path, verbose=verbose)
+    if not os.path.exists(absolute_path):
+        os.makedirs(absolute_path)
+        if verbose:
+            logger.info(f"Created folder: {absolute_path}")
+
+
+def create_folder_structure(*args, verbose: bool = False) -> None:
+    """Create all necessary folders for training.
+
+    Args:
+        *args: Relative paths of folders to create.
+        verbose (bool, optional): If True, logs folder creation. Defaults to False.
+    """
+    for path in args:
+        create_folder(path, verbose=verbose)
 
 
 def create_stlm_data_mix():
