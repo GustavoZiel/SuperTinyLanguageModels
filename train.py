@@ -52,37 +52,53 @@ from trainers.utils import create_folder_structure, init_print_override, restore
 
 
 def basic_main(cfg):
-    """Main function for single GPU training.
+    """Main entry point for single GPU training.
+
+    This function performs the following steps:
+    1. Builds the model using the configuration provided in `cfg["model"]`.
+    2. Moves the model to the device specified in `cfg["general"]["device"]`.
+    3. Sets the model to training mode.
+    4. Constructs the trainer object with the given configuration and model, disabling Distributed Data Parallel (DDP).
+    5. Initiates the training process using the trainer.
+
+    Args:
+        cfg (dict): Configuration dictionary containing model and general training parameters.
+
+    Logs:
+        - Model building and device assignment.
+        - Trainer construction.
+        - Training start and completion.
     Builds the model, moves it to the specified device, constructs the trainer, and starts training.
     """
     logger.info("Building model...")
+
     model = build_model(model_cfg=cfg["model"])
     model.to(cfg["general"]["device"])
     model.train()
+
     logger.info("Model built and moved to device.")
 
     logger.info("Building trainer...")
-    # load the relevant trainer
+
     trainer = build_trainer(
         cfg=cfg,
         model=model,
         gpu_id=None,  # disables DDP
     )
+
     logger.info("Trainer built.")
 
-    # train the model
     logger.info("Starting training...")
+
     trainer.train()
+
     logger.info("Training complete.")
 
 
 @hydra.main(config_path="configs", config_name="train", version_base=None)
 def main(cfg):
-    # world_size = torch.cuda.device_count()
-    # logger.info(f"Number of available CUDA devices: {world_size}")
-
     # logger.info(OmegaConf.to_yaml(cfg))
-    print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
+    # print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
 
     # if "full_configs" in cfg:
     #     logger.info("Using 'full_configs' from configuration.")
@@ -96,11 +112,12 @@ def main(cfg):
     prepare_data(cfg)
     logger.info("Data preparation complete.")
 
-    # if world_size <= 1:
-    #     # single GPU/CPU training
-    #     logger.info("Starting single GPU/CPU training.")
-    #     basic_main(cfg)
-
+    world_size = torch.cuda.device_count()
+    logger.info(f"Number of available CUDA devices: {world_size}")
+    if world_size <= 1:
+        # Single GPU/CPU training
+        logger.info("Starting single GPU/CPU training.")
+        basic_main(cfg)
     # else:
     #     # multi-GPU training
     #     mp.spawn(

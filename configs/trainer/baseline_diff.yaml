@@ -1,0 +1,52 @@
+defaults:
+  - dropout_scheduler: constant
+
+# dataset: "sports_wiki"
+dataset: "simple_en_wiki"
+# dataset: "debug"
+# dataset: "stlm"
+
+training:
+  trainer_type: "base_trainer"
+  batch_size: 12
+  gradient_accumulation_steps: 10
+  max_iters: 2500
+  # max_iters: 10
+  lr_decay_iters: 2500
+  warmup_iters: 100
+  eval_interval: 10
+  log_interval: 1
+  eval_iters: 0
+  checkpoint_interval: 500
+  run_profiler: false
+
+eval:
+  benchmarks:
+    - "winograd"
+    # - "hellaswag"
+    # - "arc"
+    - "mmlu"
+    # - "blimp"
+  num_samples: 1000
+  evaluator:
+    - "mcq"
+
+optimizer:
+  name: "nanoGPTadamW"
+  lr: 6e-4
+  min_lr: 6e-5
+  weight_decay: 1e-1
+  beta1: 0.9
+  beta2: 0.95
+  grad_clip: 1.0
+  decay_lr: True
+  warmup_iters: 5000
+
+lr_scheduler:
+  name: "cosine"
+
+dataloader:
+  name: "standard"
+
+loss_fn:
+  name: "cross_entropy"

@@ -2,41 +2,55 @@ defaults:
   - dropout_scheduler: constant
 
 # dataset: "sports_wiki"  # 53k tokens
-dataset: "simple_en_wiki"  # 53k tokens
+dataset: "simple_en_wiki"
 
 training:
   trainer_type: "base_trainer"
-  batch_size: 4                     # smaller batch size
+  batch_size: 12                     # smaller batch size
   gradient_accumulation_steps: 4    # effective batch ~16 tokens (4x4)
   max_iters: 500                    # much fewer iterations for small dataset
   lr_decay_iters: 500               # match max_iters
   warmup_iters: 50                  # short warmup
-  eval_interval: 25                 # more frequent monitoring
+  eval_interval: 0                 # more frequent monitoring
   log_interval: 1
   eval_iters: 50                     # fewer samples per evaluation
   checkpoint_interval: 250           # less frequent
   run_profiler: false
 
-eval:
-  benchmarks:
-    - "winograd"
-    - "mmlu"
-  num_samples: 100
-  evaluator:
-    - "mcq"
+# eval:
+#   benchmarks:
+#     - "winograd"
+#     - "hellaswag"
+#     - "arc"
+#     - "mmlu"
+#     - "blimp"
+#   num_samples: 5000
+#   evaluator: "mcq"
+
+# optimizer:
+#   name: "nanoGPTadamW"
+#   lr: 3e-4          # lower initial LR
+#   min_lr: 3e-5      # lower min LR
+#   weight_decay: 0.1
+#   beta1: 0.9
+#   beta2: 0.95
+#   grad_clip: 1.0
+#   decay_lr: True
+#   warmup_iters: 100
 
 optimizer:
   name: "nanoGPTadamW"
-  lr: 3e-4          # lower initial LR
-  min_lr: 3e-5      # lower min LR
-  weight_decay: 0.1
+  lr: 6e-4
+  min_lr: 6e-5
+  weight_decay: 1e-1
   beta1: 0.9
   beta2: 0.95
   grad_clip: 1.0
   decay_lr: True
-  warmup_iters: 50
+  warmup_iters: 5000
 
 lr_scheduler:
+  # name: "constant"
   name: "cosine"
 
 dataloader:
@@ -44,6 +58,3 @@ dataloader:
 
 loss_fn:
   name: "cross_entropy"
-
-dropout:
-  rate: 0.2  # slightly higher to regularize small dataset

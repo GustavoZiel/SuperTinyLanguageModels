@@ -107,7 +107,8 @@ class TriangleDropoutScheduler(DropoutScheduler):
             dropout_trough: The minimum dropout probability
             dropout_peak: The maximum dropout probability
             num_iterations: The total number of iterations
-            num_cycles: The number of cycles"""
+            num_cycles: The number of cycles
+        """
         super().__init__(dropout_trough)
         self.dropout_trough = dropout_trough
         self.dropout_peak = dropout_peak

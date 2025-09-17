@@ -15,12 +15,13 @@ from torch.utils.data.distributed import DistributedSampler
 
 import wandb
 from models import model_shell
+from trainers import datasets as train_dataloader
 from trainers import utils
 from trainers.evaluator import train_eval
 from trainers.utils import aggregate_value, print_evaluation_results
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 # pylint: disable invalid-name
@@ -84,11 +85,7 @@ class BaseTrainer:
             raise SystemExit
 
     def _setup_logging(self):
-        """Initialize Weights & Biases (wandb) logging for experiment tracking.
-
-        Sets the run name based on model and dataset configuration, and initializes
-        wandb with the project name and configuration. Logs the initialization event.
-        """
+        # set run name
         run_name = (
             f"{self.cfg.model['model_shell_type']}"
             f"_{self.cfg.model['core_model']['core_model_type']}"
@@ -100,7 +97,8 @@ class BaseTrainer:
             config=OmegaConf.to_container(self.cfg),
             name=run_name,
         )
-        logger.info("wandb initialized with run name: %s", run_name)
+        wandb.init(project=self.cfg.general.logging.wandb_project)
+        print("wand_b_initted")
 
     def _setup_ctx(self):
         """Get the context manager"""
@@ -156,15 +154,15 @@ class BaseTrainer:
         eval_results["Perplexity"] = avg_perplexity
 
         evaluator_results = {}
-        for evaluator in self.cfg.trainer["eval"]["evaluator"]:
-            evaluator_results[evaluator] = train_eval(
-                eval_name=evaluator, eval_cfg=self.cfg.trainer["eval"], model=self.model
-            )
+        for evaluator in self.cfg.trainer["eval"]:
+            evaluator_results[evaluator["evaluator"]] = train_eval(evaluator, self.model)
             # recurse over metrics to prepend the evaluator name as a prefix
             relabeled_results = {}
-            for metric in evaluator_results[evaluator]:
-                relabeled_results[f"{evaluator}/{metric}"] = evaluator_results[evaluator][metric]
-            evaluator_results[evaluator] = relabeled_results
+            for metric in evaluator_results[evaluator["evaluator"]]:
+                relabeled_results[f"{evaluator['evaluator']}/{metric}"] = evaluator_results[
+                    evaluator["evaluator"]
+                ][metric]
+            evaluator_results[evaluator["evaluator"]] = relabeled_results
         self.model.train()
         return eval_results, evaluator_results
 
@@ -217,93 +215,6 @@ class BaseTrainer:
 
         return accumulated_loss
 
-    # def _run_step(self):
-    #     """Run a single step of training with gradient accumulation, with debug prints."""
-    #     print("=== _run_step START ===")
-    #     print(f"GPU ID: {self.gpu_id}, Device: {self.model.device}")
-
-    #     # Clear gradients at the start
-    #     print("Zeroing gradients...")
-    #     self.optimizer.zero_grad()
-
-    #     accumulated_loss = 0
-    #     print(f"Starting gradient accumulation for {self.gradient_accumulation_steps} steps...")
-
-    #     for i in range(self.gradient_accumulation_steps):
-    #         print(f"\n--- Accumulation step {i} ---")
-
-    #         # Fetch next batch
-    #         try:
-    #             x, y = next(self.train_dataloader_iter)
-    #             print(f"Batch fetched: x.shape={x.shape}, y.shape={y.shape}")
-    #         except StopIteration:
-    #             print("WARNING: DataLoader exhausted!")
-    #             break
-
-    #         # Move batch to GPU
-    #         device = self.gpu_id if self.gpu_id is not None else self.model.device
-    #         x = x.to(device)
-    #         y = y.to(device)
-    #         print(f"Tensors moved to device: {device}")
-
-    #         # Context for DDP no_sync
-    #         if self.dist and hasattr(self.DDP_model, "no_sync"):
-    #             context_manager = (
-    #                 self.DDP_model.no_sync()
-    #                 if i != self.gradient_accumulation_steps - 1
-    #                 else nullcontext()
-    #             )
-    #         else:
-    #             context_manager = nullcontext()
-
-    #         with context_manager:
-    #             with self.ctx:  # AMP autocast context
-    #                 print("Running forward pass...")
-    #                 output, aux_loss = self.DDP_model(x)
-    #                 print(f"Forward pass done: output.shape={output.shape}")
-
-    #                 loss = self.loss_fn(output, y)
-    #                 print(f"Computed primary loss: {loss.item():.6f}")
-
-    #                 if aux_loss is not None:
-    #                     print(f"Adding auxiliary loss: {aux_loss.item():.6f}")
-    #                     loss += aux_loss
-
-    #             # Scale loss for accumulation
-    #             loss_scaled = loss / self.gradient_accumulation_steps
-    #             print(f"Scaled loss for accumulation: {loss_scaled.item():.6f}")
-
-    #             # Backward
-    #             print("Running backward pass...")
-    #             self.scaler.scale(loss_scaled).backward()
-    #             print("Backward pass complete.")
-    #             accumulated_loss += loss_scaled.item()
-
-    #         # Optional: print GPU memory usage
-    #         print(torch.cuda.memory_summary(device=device, abbreviated=True))
-
-    #     print("\n=== Gradient accumulation done ===")
-    #     print(f"Accumulated loss: {accumulated_loss:.6f}")
-
-    #     # Gradient clipping
-    #     if self.cfg.trainer.optimizer.grad_clip > 0:
-    #         print(f"Clipping gradients at {self.cfg.trainer.optimizer.grad_clip}...")
-    #         self.scaler.unscale_(self.optimizer)
-    #         torch.nn.utils.clip_grad_norm_(
-    #             self.model.parameters(), self.cfg.trainer.optimizer.grad_clip
-    #         )
-    #         print("Gradient clipping done.")
-
-    #     # Optimizer step
-    #     print("Performing optimizer step...")
-    #     self.scaler.step(self.optimizer)
-    #     self.scaler.update()
-    #     self.optimizer.zero_grad()
-    #     print("Optimizer step complete.")
-
-    #     print("=== _run_step END ===\n")
-    #     return accumulated_loss
-
     def run_profile(self):
         """Run the profiler"""
         utils.profilize(self.model)
@@ -354,31 +265,19 @@ class BaseTrainer:
         torch.save(checkpoint, checkpoint_path)
 
     def run_training_loop(self):
-        """Run the main training loop for the model.
-
-        This method iterates over `max_iters`, performing the following steps:
-            1. Update the learning rate and dropout schedules.
-            2. Evaluate model performance at regular intervals.
-            3. Log evaluation metrics and training progress to wandb (if enabled).
-            4. Save model checkpoints at configured intervals.
-            5. Run a single training step and aggregate the loss across GPUs.
-
-        Only GPU 0 (or CPU if gpu_id is None) performs logging and checkpoint saving in multi-GPU setups.
-        """
+        """Run the training loop"""
+        elapsed_time = 0.0
         for iter_num in range(self.cfg.trainer.training.max_iters):
             start_time = time.time()
-
-            # Update learning rate
             if self.lr_scheduler is not None:
                 lr = self.lr_scheduler.step(self.optimizer, iter_num)
             else:
                 lr = self.optimizer.param_groups[0]["lr"]
-
-            # Update dropout schedule
             dropout = self.dropout_scheduler.step(self.model, iter_num)
-
-            # Evaluate model performance
-            if not iter_num % self.cfg.trainer.training.eval_interval:
+            # estimate the loss on the train/val sets
+            if self.cfg.trainer.training.eval_interval > 0 and (
+                not iter_num % self.cfg.trainer.training.eval_interval
+            ):  # run on first iter to prevent bugs causing it to crash
                 eval_results, benchmark_results = self.estimate_performance()
 
                 # print the evals as table
@@ -389,49 +288,53 @@ class BaseTrainer:
                     benchmark_results=benchmark_results,
                 )
 
-                # Log to wandb if enabled and on first GPU
-                if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
-                    # print("AAAAAAA")
+                # Log to wandb
+                if (
+                    self.gpu_id == 0 or self.gpu_id is None
+                ) and self.use_wandb:  # ensure only the first GPU logs
                     log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
-                    log_dict.update(eval_results)
-                    log_dict.update(benchmark_results)
+                    log_dict.update(eval_results)  # Directly add evals to the log dictionary
+                    log_dict.update(
+                        {k: v for k, v in benchmark_results.items()}
+                    )  # Add benchmark results to the log dictionary
+
                     wandb.log(log_dict)
 
-            # Save checkpoint
+            # save checkpoints
             if (
                 not iter_num % self.cfg.trainer.training.checkpoint_interval
                 and iter_num > 0
-                and (self.gpu_id == 0 or self.gpu_id is None)
+                and (self.gpu_id == 0 or self.gpu_id == None)  ## ensure only the first GPU prints
             ):
-                # print("BBBBBBBBBBBBB")
                 self._save_model(iter_num)
-                logger.info(f"Checkpoint saved at iteration {iter_num}")
 
-            # Run training step
-            lossf = self._run_step()  # Single training step
-
+            lossf = self._run_step()  ## set the 'epoch' to ensure shuffle
             end_time = time.time()
-
-            # Log loss periodically
+            elapsed_time += end_time - start_time
             if not iter_num % self.cfg.trainer.training.log_interval and iter_num > 0:
-                # print("DDDDDDDDDDDDDDDD")
-                # Aggregate loss across all GPUs
+                ## uncomment the following line to print the loss on all GPUs
+                # print(f"GPU {self.gpu_id}: step {iter_num}: loss {lossf:.4f}, lr {lr:.1e}, dt {end_time-start_time:.1f}s")
+
+                ## aggregate the loss across all GPUs
                 lossf = aggregate_value(lossf, self.cfg.general.device)
-                # print("EEEEEEEEEEEEEE")
 
                 # Log aggregated loss only on first GPU
+                elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
                 logger.info(
-                    f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s"
+                    f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
                 )
-
-                # Also log to wandb if enabled
                 if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
-                    wandb.log({"iter": iter_num, "loss": lossf, "lr": lr, "dropout": dropout})
-
-        # Save final model
-        if self.gpu_id == 0 or self.gpu_id is None:
+                    wandb.log(
+                        {
+                            "iter": iter_num,
+                            "loss": lossf,
+                            "lr": lr,
+                            "dropout": dropout,
+                        }
+                    )
+        # save the final model
+        if self.gpu_id == 0 or self.gpu_id is None:  ## ensure only the first GPU saves the model
             self._save_model(iter_num)
-            logger.info(f"Final model saved at iteration {iter_num}")
 
     def train(self, seed=42):
         """Train the model"""

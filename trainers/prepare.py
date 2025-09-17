@@ -210,10 +210,11 @@ def create_tokenized_data_folder(cfg, verbose=True):
         os.makedirs(tokenized_data_folder)
         if verbose:
             logger.info(f"Created tokenized data folder at {tokenized_data_folder}")
+        return tokenized_data_folder
     else:
         if verbose:
             logger.info(f"Tokenized data folder already exists at {tokenized_data_folder}")
-    return tokenized_data_folder
+        return None
 
 
 def prepare_data(cfg):
@@ -234,6 +235,8 @@ def prepare_data(cfg):
         RuntimeError: If any error occurs during processing or writing, cleans up incomplete files and raises.
     """
     tokenized_data_folder = create_tokenized_data_folder(cfg, verbose=True)
+    if tokenized_data_folder is None:
+        return
 
     # Build the embedding model (tokenizer)
     embedder = build_embedding_model(cfg["model"], verbose=True)
