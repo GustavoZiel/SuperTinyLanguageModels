@@ -1,7 +1,8 @@
 defaults:
   - dropout_scheduler: constant
 
-dataset: "sports_wiki"  # 53k tokens
+# dataset: "sports_wiki"  # 53k tokens
+dataset: "simple_en_wiki"  # 53k tokens
 
 training:
   trainer_type: "base_trainer"

@@ -44,7 +44,7 @@ class StandardProcessor:
             arr.flush()
 
     def write_tokenized_data_easy(
-        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None
+        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None, verbose=False
     ):
         """Write tokenized datasets to disk as flat binary files using memmap.
 
@@ -56,13 +56,15 @@ class StandardProcessor:
         """
         for split, dset in tokenized.items():
             arr_len = int(np.sum(dset["len"], dtype=np.uint64))
+
             filename = os.path.join(tokenized_data_folder, f"{split}.bin")
 
             # Use provided total_batches or auto-adapt to dataset size
             num_batches = total_batches or min(1024, len(dset))
-            print(
-                f"Writing split '{split}' to {filename} ({arr_len} tokens in {num_batches} batches)"
-            )
+            if verbose:
+                logger.info(
+                    f"Writing split '{split}' to {filename} ({arr_len} tokens in {num_batches} batches)"
+                )
 
             # Create a flat memmap array
             arr = np.memmap(filename, dtype=dtype, mode="w+", shape=(arr_len,))
@@ -87,7 +89,7 @@ class StandardProcessor:
                 idx = end_idx
 
             arr.flush()
-            print(f"✅ Finished writing {split}, total tokens: {idx}")
+            # print(f"✅ Finished writing {split}, total tokens: {idx}")
 
     def write_tokenized_data_simpler(tokenized, tokenized_data_folder, dtype=np.uint16):
         for split, dset in tokenized.items():
@@ -211,52 +213,64 @@ def create_tokenized_data_folder(cfg, verbose=True):
     else:
         if verbose:
             logger.info(f"Tokenized data folder already exists at {tokenized_data_folder}")
+    return tokenized_data_folder
 
 
 def prepare_data(cfg):
-    """Split the data, process & tokenize it, and store
-    it as memmap bin files
-    """
-    create_tokenized_data_folder(cfg, verbose=True)
+    """Prepares and tokenizes dataset for training.
 
-    # load embedder
+    This function performs the following steps:
+      1. Creates a folder for storing tokenized data.
+      2. Loads the embedding model (tokenizer).
+      3. Loads and splits the dataset.
+      4. Selects and initializes the appropriate processor for tokenization.
+      5. Tokenizes the dataset in parallel.
+      6. Writes the tokenized data to disk as memory-mapped binary files.
+
+    Args:
+        cfg (dict): Configuration dictionary containing model, dataset, and dataloader settings.
+
+    Raises:
+        RuntimeError: If any error occurs during processing or writing, cleans up incomplete files and raises.
+    """
+    tokenized_data_folder = create_tokenized_data_folder(cfg, verbose=True)
+
+    # Build the embedding model (tokenizer)
     embedder = build_embedding_model(cfg["model"], verbose=True)
 
-    # load the dataset
+    # Load and split the dataset
     split_dataset = load_data(dataset_name=cfg["trainer"]["dataset"], verbose=True)
 
-    # dataloader_name = cfg["trainer"]["dataloader"]["name"]
-    # processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)
-    # logger.info(f"Using processor: {processor_object.__class__.__name__}")
+    # Select the processor class based on dataloader type
+    dataloader_name = cfg["trainer"]["dataloader"]["name"]
+    processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)
+    logger.info(f"Using processor: {processor_object.__class__.__name__}")
 
-    # # wrap in try such that half-complete files can be deleted on error
-    # try:
-    #     # Get the maximum number of processors
-    #     max_procs = os.cpu_count()
-    #     # cap at 12 to reduce memory usage
-    #     # max_procs = 1  # min(max_procs, 12) # TODO properly fix this
-    #     max_procs = min(max_procs, 12)  # TODO properly fix this
-    #     logger.info(f"Using {max_procs} processors for tokenization")
+    try:
+        # Determine number of parallel processes (up to 12 or CPU count)
+        max_procs = os.cpu_count()
+        max_procs = min(max_procs, 12)
+        logger.info(f"Using {max_procs} processes for tokenization")
 
-    #     # tokenize the dataset
-    #     logger.info("Tokenizing dataset")
-    #     tokenized = split_dataset.map(
-    #         processor_object.process,
-    #         remove_columns=["text"],
-    #         desc="Tokenizing dataset",
-    #         num_proc=max_procs,
-    #     )
+        # Tokenize the dataset in parallel, removing raw text after processing
+        logger.info("Tokenizing dataset")
+        tokenized = split_dataset.map(
+            processor_object.process,
+            remove_columns=["text"],
+            desc="Tokenizing dataset",
+            num_proc=max_procs,
+        )
 
-    #     # concatenate all the ids in each dataset
-    #     logger.info(f"Writing tokenized data to {tokenized_data_folder}")
-    #     # processor_object.write_tokenized_data(
-    #     processor_object.write_tokenized_data_easy(
-    #         tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
-    #     )
-    #     logger.info("Tokenized data successfully written")
+        # Write tokenized data to disk as memory-mapped binary files
+        logger.info(f"Writing tokenized data to {tokenized_data_folder}")
+        processor_object.write_tokenized_data_easy(
+            tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
+        )
+        logger.info("Tokenized data successfully written")
 
-    # except Exception as exc:
-    #     logger.error(f"Error during data preparation: {exc}")
-    #     for file in os.listdir(tokenized_data_folder):
-    #         os.remove(os.path.join(tokenized_data_folder, file))
-    #     raise RuntimeError("Failed to process and write data") from exc
+    except Exception as exc:
+        logger.error(f"Error during data preparation: {exc}")
+        # Clean up any partially written files to avoid corrupt data
+        for file in os.listdir(tokenized_data_folder):
+            os.remove(os.path.join(tokenized_data_folder, file))
+        raise RuntimeError("Failed to process and write data") from exc
