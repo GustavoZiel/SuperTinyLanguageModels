@@ -195,71 +195,72 @@ DATALOADER_PROCESSORS = {
 }
 
 
-def prepare_data(cfg):
-    """Split the data, process & tokenize it, and store
-    it as memmap bin files
-    """
-    # check if the data is already preprocessed
-    dataloader_name = cfg["trainer"]["dataloader"]["name"]
+def create_tokenized_data_folder(cfg, verbose=True):
+    """Create the folder to store the tokenized data"""
+    logger.info("Creating tokenized data folder")
     dataset_name = cfg["trainer"]["dataset"]
     tokenized_data_folder = os.path.join(
         cfg["general"]["paths"]["data_dir"],
         dataset_name,
         f"{cfg['model']['embedder']['tokenizer_type']}-{cfg['model']['vocab_size']}-{cfg['trainer']['dataloader']['name']}",
     )
-
-    # check if already exists (check len because some datasets use different filenames
-    # (i.e. dual byte level)
-    if os.path.exists(tokenized_data_folder) and len(os.listdir(tokenized_data_folder)) != 0:
-        logger.info(f"Tokenized data already exists at {tokenized_data_folder}")
-        return
-    else:
-        # create the folder if it doesn't exist
-        if not os.path.exists(tokenized_data_folder):
-            os.makedirs(tokenized_data_folder)
+    if not os.path.exists(tokenized_data_folder):
+        os.makedirs(tokenized_data_folder)
+        if verbose:
             logger.info(f"Created tokenized data folder at {tokenized_data_folder}")
+    else:
+        if verbose:
+            logger.info(f"Tokenized data folder already exists at {tokenized_data_folder}")
+
+
+def prepare_data(cfg):
+    """Split the data, process & tokenize it, and store
+    it as memmap bin files
+    """
+    create_tokenized_data_folder(cfg, verbose=True)
 
     # load embedder
-    logger.info("Building embedding model")
-    embedder = build_embedding_model(cfg["model"])
+    embedder = build_embedding_model(cfg["model"], verbose=True)
 
-    # load the dataset
-    logger.info(f"Loading dataset: {dataset_name}")
-    split_dataset = load_data(
-        dataset_name=dataset_name,
-    )
+    # # load the dataset
+    # dataset_name = cfg["trainer"]["dataset"]
+    # logger.info(f"Loading dataset: {dataset_name}")
+    # split_dataset = load_data(
+    #     dataset_name=dataset_name,
+    # )
 
-    processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)
-    logger.info(f"Using processor: {processor_object.__class__.__name__}")
+    # dataloader_name = cfg["trainer"]["dataloader"]["name"]
+    # processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)
+    # logger.info(f"Using processor: {processor_object.__class__.__name__}")
 
-    # wrap in try such that half-complete files can be deleted on error
-    try:
-        # Get the maximum number of processors
-        max_procs = os.cpu_count()
-        # cap at 12 to reduce memory usage
-        # max_procs = 1  # min(max_procs, 12) # TODO properly fix this
-        max_procs = min(max_procs, 12)  # TODO properly fix this
-        logger.info(f"Using {max_procs} processors for tokenization")
+    # # wrap in try such that half-complete files can be deleted on error
+    # try:
+    #     # Get the maximum number of processors
+    #     max_procs = os.cpu_count()
+    #     # cap at 12 to reduce memory usage
+    #     # max_procs = 1  # min(max_procs, 12) # TODO properly fix this
+    #     max_procs = min(max_procs, 12)  # TODO properly fix this
+    #     logger.info(f"Using {max_procs} processors for tokenization")
 
-        # tokenize the dataset
-        logger.info("Tokenizing dataset")
-        tokenized = split_dataset.map(
-            processor_object.process,
-            remove_columns=["text"],
-            desc="Tokenizing dataset",
-            num_proc=max_procs,
-        )
+    #     # tokenize the dataset
+    #     logger.info("Tokenizing dataset")
+    #     tokenized = split_dataset.map(
+    #         processor_object.process,
+    #         remove_columns=["text"],
+    #         desc="Tokenizing dataset",
+    #         num_proc=max_procs,
+    #     )
 
-        # concatenate all the ids in each dataset
-        logger.info(f"Writing tokenized data to {tokenized_data_folder}")
-        # processor_object.write_tokenized_data(
-        processor_object.write_tokenized_data_easy(
-            tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
-        )
-        logger.info("Tokenized data successfully written")
+    #     # concatenate all the ids in each dataset
+    #     logger.info(f"Writing tokenized data to {tokenized_data_folder}")
+    #     # processor_object.write_tokenized_data(
+    #     processor_object.write_tokenized_data_easy(
+    #         tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
+    #     )
+    #     logger.info("Tokenized data successfully written")
 
-    except Exception as exc:
-        logger.error(f"Error during data preparation: {exc}")
-        for file in os.listdir(tokenized_data_folder):
-            os.remove(os.path.join(tokenized_data_folder, file))
-        raise RuntimeError("Failed to process and write data") from exc
+    # except Exception as exc:
+    #     logger.error(f"Error during data preparation: {exc}")
+    #     for file in os.listdir(tokenized_data_folder):
+    #         os.remove(os.path.join(tokenized_data_folder, file))
+    #     raise RuntimeError("Failed to process and write data") from exc

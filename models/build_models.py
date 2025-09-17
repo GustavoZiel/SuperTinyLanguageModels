@@ -13,6 +13,9 @@ from models.experimental.next_thought.embedding_models import HierarchicalEncode
 from models.experimental.next_thought.model_heads import VariableLengthLatentDecoder
 from models.model_heads import AutoregressiveLMHead
 from models.model_shell import ModelShell
+from utils.logger import get_logger
+
+logger = get_logger()
 
 
 def build_model(model_cfg=None, checkpoint=None):
@@ -50,7 +53,7 @@ EMBEDDING_MODEL_DICT = {
 }
 
 
-def build_embedding_model(model_cfg):
+def build_embedding_model(model_cfg, verbose=True):
     """Given the embedding model config, build it.
 
     Args:
@@ -58,6 +61,8 @@ def build_embedding_model(model_cfg):
     Returns:
         embedding_model: embedding_model_instance
     """
+    if verbose:
+        logger.info("Building embedding model")
     return EMBEDDING_MODEL_DICT[model_cfg["embedder"]["embedding_model_type"]](model_cfg=model_cfg)
 
 

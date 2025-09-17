@@ -92,9 +92,9 @@ def main(cfg):
         cfg["general"]["paths"]["data_dir"], cfg["general"]["paths"]["checkpoint_dir"], verbose=True
     )
 
-    # # process data
-    # prepare_data(cfg)
-    # logger.info("Data preparation complete.")
+    # Process data
+    prepare_data(cfg)
+    logger.info("Data preparation complete.")
 
     # if world_size <= 1:
     #     # single GPU/CPU training
