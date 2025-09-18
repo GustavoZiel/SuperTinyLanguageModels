@@ -1,6 +1,4 @@
-"""
-Simple, flexible core models.
-"""
+"""Simple, flexible core models."""
 
 import torch
 
@@ -8,8 +6,7 @@ from models.components.layers.transformer_blocks import GenericTransformerBlock
 
 
 class GenericTransformer(torch.nn.Module):
-    """
-    Generic Transformer Class intended to be used for as
+    """Generic Transformer Class intended to be used for as
     broad a range of transformer models as possible.
     """
 
@@ -36,14 +33,13 @@ class GenericTransformer(torch.nn.Module):
         )
 
     def forward(self, x):
-        """
-        Pass an input through the model
+        """Pass an input through the model
         Args:
             x: torch.tensor(B, S, H)
+
         Returns:
             x: torch.tensor(B, S, H)
         """
-
         # apply dropout
         x = self.transformer.drop(x)
 
@@ -55,8 +51,7 @@ class GenericTransformer(torch.nn.Module):
 
 
 class GenericFFNSharedTransfomer(GenericTransformer):
-    """
-    Generic Transformer Class that shares the weights
+    """Generic Transformer Class that shares the weights
     between all FFN blocks (similar to
     https://arxiv.org/abs/2402.16840).
     """
@@ -71,8 +66,6 @@ class GenericFFNSharedTransfomer(GenericTransformer):
             # find all linear layers in the ffn subnets and tie them to the first layer
             for name, module in ffn_0.named_modules():
                 if isinstance(module, torch.nn.Linear):
-                    target_module = dict(self.transformer.h[i].ffn.named_modules())[
-                        name
-                    ]
+                    target_module = dict(self.transformer.h[i].ffn.named_modules())[name]
                     target_module.weight = module.weight
                     target_module.bias = module.bias

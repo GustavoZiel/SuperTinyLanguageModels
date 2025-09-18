@@ -7,7 +7,7 @@ from models.build_models import build_model
 from models.generator import StandardGenerator
 
 
-@hydra.main(config_path="configs", config_name="generate")
+@hydra.main(config_path="configs", config_name="generate", version_base=None)
 def main(cfg):
     """Run the main eval loop"""
     # set the checkpoint path to absolute path
@@ -26,7 +26,7 @@ def main(cfg):
             print("Exiting...")
             break
         generated_text = generator.default_generate(input_text=input_text)
-        print(f"{model_filename}: {generated_text}")
+        print(f"{model_filename}: {generated_text[0]}")
 
 
 if __name__ == "__main__":

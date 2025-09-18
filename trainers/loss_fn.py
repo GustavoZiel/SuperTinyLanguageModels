@@ -1,7 +1,8 @@
 """Loss Functions for Training
 
 Each loss function should take in output of a model and the target labels
-and return the loss value. This need not be the logits."""
+and return the loss value. This need not be the logits.
+"""
 
 import time
 
@@ -10,12 +11,13 @@ import torch
 
 def masked_cross_entropy_loss_fn(logits, y, mask=None):
     """Cross Entropy Loss Function"""
-    # mask the pad token from y 
+    # mask the pad token from y
     pad_token_id = 257
     logits = logits.view(-1, logits.size(-1))
     y = y.view(-1)
-    #return torch.nn.functional.cross_entropy(logits, y, weight=mask, ignore_index=-1)
+    # return torch.nn.functional.cross_entropy(logits, y, weight=mask, ignore_index=-1)
     return torch.nn.functional.cross_entropy(logits, y, ignore_index=pad_token_id)
+
 
 def cross_entropy_loss_fn(logits, y, mask=None):
     """Cross Entropy Loss Function"""
@@ -25,8 +27,7 @@ def cross_entropy_loss_fn(logits, y, mask=None):
 
 
 def next_token_mlm_loss_fn(logits, y_mask, masked_loss=True):
-    """
-    Using the mask to extract the masked tokens, calculate the next-token
+    """Using the mask to extract the masked tokens, calculate the next-token
     cross-entropy-loss. This was proposed in https://arxiv.org/abs/2404.05961
     to train document embedding models.
     """
@@ -39,16 +40,15 @@ def next_token_mlm_loss_fn(logits, y_mask, masked_loss=True):
 
 
 def compute_perplexity(logits, y, char_lengths, mask=None):
-    """
-    Compute perplexity
+    """Compute perplexity
     Args:
         logits: torch.tensor(B, S, H) or torch.tensor(B, S, S_c, H_c)
         y: torch.tensor(B, S) or torch.tensor(B, S, S_c)
         char_lengths: List[int]
+
     Returns:
         perplexity: torch.tensor(1)
     """
-
     # pull everything onto cpu
     logits = logits.cpu()
     y = y.cpu()
