@@ -336,6 +336,7 @@ class BaseTrainer:
                     log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
                     log_dict.update(eval_results)
                     log_dict.update({k: v for k, v in benchmark_results.items()})
+                    print("Wand db Log dict keys:", log_dict.keys())
                     wandb.log(log_dict)
 
             # Periodic checkpointing
