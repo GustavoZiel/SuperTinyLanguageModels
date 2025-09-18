@@ -1,8 +1,10 @@
 """Tests for trainers/loss_fn.py"""
+
 import pytest
 import torch
 
 from trainers.loss_fn import compute_perplexity
+
 
 def test_compute_perplexity():
     input_batch = torch.randn(2, 16, 64)

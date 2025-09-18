@@ -18,30 +18,36 @@ from utils.logger import get_logger
 logger = get_logger()
 
 
-def build_model(model_cfg=None, checkpoint=None):
+def build_model(model_cfg=None, checkpoint=None, verbose=True):
     """Either initialize or load a model, depending on
     whether a config or checkpoint was provided
     (respectively).
 
     Args:
         model_cfg: model_configuration
-        model_checkpoint: model_checkpoint_dict
-        dataset_name: the dataset for the tokenizer
+        checkpoint: model_checkpoint_dict
+        verbose: whether to log progress
     Returns:
         model: model instance
     """
-    # check if model is to be loaded
     if checkpoint is not None:
+        if verbose:
+            logger.info("Loading model from checkpoint")
         # load model with the correct architecture
         model = initialize_model(checkpoint["config"]["model"])
 
         # load the model weights
         model.load_state_dict(checkpoint["model"])
-
+        if verbose:
+            logger.info("Model weights loaded from checkpoint")
     else:
+        if verbose:
+            logger.info("Initializing model from config")
         # initialize model
         model = initialize_model(model_cfg)
 
+    if verbose:
+        logger.info("Model build complete")
     return model
 
 

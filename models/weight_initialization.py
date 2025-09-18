@@ -5,8 +5,7 @@ import torch.nn as nn
 
 
 def gpt2_weights_init(module):
-    """
-    Initialize model weights according to GPT-2 defaults.
+    """Initialize model weights according to GPT-2 defaults.
     This function is adjusted to work when called from an external file.
     The 'depth' parameter is now explicitly passed to the function.
     """
@@ -25,16 +24,13 @@ def gpt2_weights_init(module):
 
 
 def torch_default_init(_):
-    """
-    Initialize model weights according to PyTorch defaults.
+    """Initialize model weights according to PyTorch defaults.
     i.e. do nothing.
     """
 
 
 def build_weight_init(weight_init_type):
-    """
-    Build the weight initialization function
-    """
+    """Build the weight initialization function"""
     if weight_init_type == "gpt2":
         return gpt2_weights_init
     elif weight_init_type == "standard":

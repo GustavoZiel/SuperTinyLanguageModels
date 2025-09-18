@@ -1,4 +1,6 @@
 defaults:
-- model: baseline
-- trainer: baseline_sports
-- general: default
+- full_configs: simple
+# - model: baseline
+# - trainer: baseline_2
+# - general: default
+# - checkpoint: "checkpoints/ckpt_499.pt"

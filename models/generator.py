@@ -11,6 +11,8 @@ class StandardGenerator(torch.nn.Module):
         super().__init__()
         self.model = model
         self.model = self.model.to(torch.device("cuda"))
+        # TODO Check with Bobby
+        self.model.eval()
         self.generate_config = generate_cfg
 
     def default_generate(self, input_text):

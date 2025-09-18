@@ -14,7 +14,7 @@ training:
   eval_interval: 0                 # more frequent monitoring
   log_interval: 1
   eval_iters: 50                     # fewer samples per evaluation
-  checkpoint_interval: 250           # less frequent
+  checkpoint_interval: 10           # less frequent
   run_profiler: false
 
 # eval:
@@ -50,7 +50,6 @@ optimizer:
   warmup_iters: 5000
 
 lr_scheduler:
-  # name: "constant"
   name: "cosine"
 
 dataloader:

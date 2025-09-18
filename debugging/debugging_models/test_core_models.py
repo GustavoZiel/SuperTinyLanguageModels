@@ -1,6 +1,4 @@
-"""
-Pytest for core models.
-"""
+"""Pytest for core models."""
 
 import pytest
 import torch
@@ -9,9 +7,7 @@ from models.build_models import build_core_model
 
 
 def test_generic_core_model():
-    """
-    Test the generic core model.
-    """
+    """Test the generic core model."""
     model = build_core_model(
         model_cfg={
             "hidden_dim": 64,

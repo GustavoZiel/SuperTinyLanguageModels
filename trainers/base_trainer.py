@@ -1,5 +1,6 @@
 """Trainer class for training models with Next Token Prediction"""
 
+import datetime
 import time
 from contextlib import nullcontext
 from copy import deepcopy
@@ -118,52 +119,74 @@ class BaseTrainer:
         self.scaler = torch.amp.GradScaler(device="cuda", enabled=dtype == torch.float16)
 
     @torch.no_grad()
-    def estimate_performance(self, eval_iters=None):
-        """Estimate the loss"""
+    def estimate_performance(
+        self, eval_iters: int = None, verbose: bool = False
+    ) -> tuple[dict, dict]:
+        """Estimate the loss and perplexity on the validation set, plus evaluator metrics.
+
+        Args:
+            eval_iters (int, optional): Number of evaluation iterations. Defaults to config value.
+            verbose (bool, optional): If True, logs detailed info. Defaults to False.
+
+        Returns:
+            tuple[dict, dict]: (eval_results, evaluator_results)
+        """
+        if verbose:
+            logger.info("estimate_performance: called")
         if eval_iters is None:
             eval_iters = self.cfg.trainer.training.eval_iters
-        eval_results = {}
+        if verbose:
+            logger.info(f"estimate_performance: eval_iters={eval_iters}")
+        eval_results: dict = {}
         self.model.eval()
 
         # eval on val set
         losses = []
         perplexities = []
         for i, (x, y) in enumerate(self.val_dataloader):
+            if verbose:
+                logger.info(f"estimate_performance: batch {i}")
             x = x.to(self.gpu_id if self.gpu_id is not None else self.model.device)
             y = y.to(self.gpu_id if self.gpu_id is not None else self.model.device)
             with self.ctx:
                 output, _ = self.model(x)
-
-                # compute loss
                 loss = self.loss_fn(output, y)
+                if verbose:
+                    logger.info(f"estimate_performance: loss={loss.item()}")
                 losses.append(loss.item())
-
-                # compute perplexity
-                perplexity = torch.exp(
-                    loss
-                )  # since seq len is always the same during training anyway
+                perplexity = torch.exp(loss)
+                if verbose:
+                    logger.info(f"estimate_performance: perplexity={perplexity.item()}")
                 perplexities.append(perplexity.item())
-
             if i >= eval_iters:
+                if verbose:
+                    logger.info("estimate_performance: reached eval_iters limit, breaking")
                 break
 
         avg_loss = aggregate_value(np.mean(losses), self.cfg.general.device)
+        if verbose:
+            logger.info(f"estimate_performance: avg_loss={avg_loss}")
         eval_results["Loss"] = avg_loss
 
         avg_perplexity = aggregate_value(np.mean(perplexities), self.cfg.general.device)
+        if verbose:
+            logger.info(f"estimate_performance: avg_perplexity={avg_perplexity}")
         eval_results["Perplexity"] = avg_perplexity
 
-        evaluator_results = {}
-        for evaluator in self.cfg.trainer["eval"]:
-            evaluator_results[evaluator["evaluator"]] = train_eval(evaluator, self.model)
-            # recurse over metrics to prepend the evaluator name as a prefix
-            relabeled_results = {}
-            for metric in evaluator_results[evaluator["evaluator"]]:
-                relabeled_results[f"{evaluator['evaluator']}/{metric}"] = evaluator_results[
-                    evaluator["evaluator"]
-                ][metric]
-            evaluator_results[evaluator["evaluator"]] = relabeled_results
+        evaluator_results: dict = {}
+        for evaluator in self.cfg.trainer["eval"]["evaluator"]:
+            if verbose:
+                logger.info(f"estimate_performance: running evaluator {evaluator}")
+            evaluator_metrics = train_eval(
+                eval_name=evaluator, eval_cfg=self.cfg.trainer["eval"], model=self.model
+            )
+            relabeled_results = {
+                f"{evaluator}/{metric}": value for metric, value in evaluator_metrics.items()
+            }
+            evaluator_results[evaluator] = relabeled_results
         self.model.train()
+        if verbose:
+            logger.info("estimate_performance: returning results")
         return eval_results, evaluator_results
 
     def _run_step(self):
@@ -252,20 +275,44 @@ class BaseTrainer:
         forwards_prof = prof.key_averages().table(sort_by="self_cpu_time_total")
         print(forwards_prof)
 
-    def _save_model(self, iter_num=0):
-        """Store the current model checkpoint."""
+    def save_checkpoint(self, iteration: int, verbose: bool = True) -> None:
+        """Save the current model checkpoint to disk.
+
+        Args:
+            iteration (int): The current training iteration number.
+            verbose (bool, optional): If True, logs checkpoint saving info. Defaults to True.
+
+        The checkpoint includes:
+            - Model state dictionary
+            - Optimizer state dictionary
+            - Current iteration number
+            - Configuration object
+        """
         checkpoint = {
             "model": self.model.state_dict(),
             "optimizer": self.optimizer.state_dict(),
-            "iter_num": iter_num,
+            "iteration": iteration,
             "config": self.cfg,
         }
-        checkpoint_path = f"{self.checkpoint_dir}/ckpt_{iter_num}.pt"
-        print(f"saving checkpoint to {checkpoint_path}")
+        # current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        checkpoint_path = (
+            f"{self.checkpoint_dir}/{current_time}_{self.cfg.trainer.dataset}_{iteration}.pt"
+        )
+        if verbose:
+            logger.info(f"Saving checkpoint to {checkpoint_path}")
         torch.save(checkpoint, checkpoint_path)
 
     def run_training_loop(self):
-        """Run the training loop"""
+        """Run the main training loop for the model.
+
+        This method handles the following:
+            - Iterates for the configured number of training steps.
+            - Adjusts learning rate and dropout via schedulers.
+            - Periodically evaluates model performance and logs results.
+            - Saves checkpoints at specified intervals.
+            - Logs metrics to wandb if enabled.
+        """
         elapsed_time = 0.0
         for iter_num in range(self.cfg.trainer.training.max_iters):
             start_time = time.time()
@@ -274,51 +321,39 @@ class BaseTrainer:
             else:
                 lr = self.optimizer.param_groups[0]["lr"]
             dropout = self.dropout_scheduler.step(self.model, iter_num)
-            # estimate the loss on the train/val sets
+
+            # Periodic evaluation
             if self.cfg.trainer.training.eval_interval > 0 and (
                 not iter_num % self.cfg.trainer.training.eval_interval
-            ):  # run on first iter to prevent bugs causing it to crash
-                eval_results, benchmark_results = self.estimate_performance()
-
-                # print the evals as table
-                # evals format is d1: type d2: train/val
+            ):
+                eval_results, benchmark_results = self.estimate_performance(verbose=False)
                 print_evaluation_results(
                     iter_num=iter_num,
                     eval_results=eval_results,
                     benchmark_results=benchmark_results,
                 )
-
-                # Log to wandb
-                if (
-                    self.gpu_id == 0 or self.gpu_id is None
-                ) and self.use_wandb:  # ensure only the first GPU logs
+                if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
                     log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
-                    log_dict.update(eval_results)  # Directly add evals to the log dictionary
-                    log_dict.update(
-                        {k: v for k, v in benchmark_results.items()}
-                    )  # Add benchmark results to the log dictionary
-
+                    log_dict.update(eval_results)
+                    log_dict.update({k: v for k, v in benchmark_results.items()})
                     wandb.log(log_dict)
 
-            # save checkpoints
+            # Periodic checkpointing
             if (
                 not iter_num % self.cfg.trainer.training.checkpoint_interval
                 and iter_num > 0
-                and (self.gpu_id == 0 or self.gpu_id == None)  ## ensure only the first GPU prints
+                and (self.gpu_id == 0 or self.gpu_id is None)
             ):
-                self._save_model(iter_num)
+                self.save_checkpoint(iter_num)
 
-            lossf = self._run_step()  ## set the 'epoch' to ensure shuffle
+            # Training step
+            lossf = self._run_step()
             end_time = time.time()
             elapsed_time += end_time - start_time
+
+            # Periodic logging
             if not iter_num % self.cfg.trainer.training.log_interval and iter_num > 0:
-                ## uncomment the following line to print the loss on all GPUs
-                # print(f"GPU {self.gpu_id}: step {iter_num}: loss {lossf:.4f}, lr {lr:.1e}, dt {end_time-start_time:.1f}s")
-
-                ## aggregate the loss across all GPUs
                 lossf = aggregate_value(lossf, self.cfg.general.device)
-
-                # Log aggregated loss only on first GPU
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
                 logger.info(
                     f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
@@ -332,9 +367,9 @@ class BaseTrainer:
                             "dropout": dropout,
                         }
                     )
-        # save the final model
-        if self.gpu_id == 0 or self.gpu_id is None:  ## ensure only the first GPU saves the model
-            self._save_model(iter_num)
+        # Save the final model checkpoint
+        if self.gpu_id == 0 or self.gpu_id is None:
+            self.save_checkpoint(iter_num)
 
     def train(self, seed=42):
         """Train the model"""

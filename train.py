@@ -97,12 +97,17 @@ def basic_main(cfg):
 
 @hydra.main(config_path="configs", config_name="train", version_base=None)
 def main(cfg):
-    # logger.info(OmegaConf.to_yaml(cfg))
-    # print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
+    logger.info(OmegaConf.to_yaml(cfg))
+    print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
 
-    # if "full_configs" in cfg:
-    #     logger.info("Using 'full_configs' from configuration.")
-    #     cfg = cfg["full_configs"]
+    if "full_configs" in cfg:
+        logger.info("Using 'full_configs' from configuration.")
+        cfg = cfg["full_configs"]
+
+    # print(cfg.trainer["eval"])
+    # print(cfg.trainer["eval"]["evaluator"])
+    # for evaluator in cfg.trainer["eval"]["evaluator"]:
+    #     print(evaluator)
 
     create_folder_structure(
         cfg["general"]["paths"]["data_dir"], cfg["general"]["paths"]["checkpoint_dir"], verbose=True
