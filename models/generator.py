@@ -11,10 +11,10 @@ class StandardGenerator(torch.nn.Module):
         super().__init__()
         self.model = model
         self.model = self.model.to(torch.device("cuda"))
-        print("Model is in {} mode".format("train" if self.model.training else "eval"))
+        # print("Model is in {} mode".format("train" if self.model.training else "eval"))
         # TODO Check with Bobby
         self.model.eval()
-        print("Model is in {} mode".format("train" if self.model.training else "eval"))
+        # print("Model is in {} mode".format("train" if self.model.training else "eval"))
         self.generate_config = generate_cfg
 
     def default_generate(self, input_text):

@@ -1,4 +1,4 @@
-"""Training a QA model with finetuning on """
+"""Training a QA model with finetuning on"""
 
 import random
 
@@ -14,15 +14,14 @@ from models.model_shell import ModelShell
 
 def form_prompt(question, all_options):
     """Form a prompt for the model"""
-    option_list = "\n".join(
-        [f"{i+1}. {option}" for i, option in enumerate(all_options)]
-    )
+    option_list = "\n".join([f"{i + 1}. {option}" for i, option in enumerate(all_options)])
     return f"{question}\n{option_list}\nAnswer: "
 
 
 class FinetuningQA(EvaluationInterface):
     """Evaluator class for training and evaluating models.
-    Currently just for GLUE finetuning."""
+    Currently just for GLUE finetuning.
+    """
 
     def __init__(self, model, benchmarks, max_train_samples=1000, max_eval_samples=1000):
         super().__init__(model)
@@ -51,7 +50,9 @@ class FinetuningQA(EvaluationInterface):
 
     def train(self, benchmark):
         """Train SKLearn model on the dataset"""
-        train_features, train_labels = self.get_features_labels(benchmark, "train", self.max_train_samples)
+        train_features, train_labels = self.get_features_labels(
+            benchmark, "train", self.max_train_samples
+        )
         model = LogisticRegression(max_iter=1000)
         model.fit(train_features, train_labels)
         return model
@@ -59,7 +60,9 @@ class FinetuningQA(EvaluationInterface):
     def evaluate_model(self, model, benchmark):
         """Evaluate sklearn model"""
         print(f"Evaluating Benchmark: {benchmark}")
-        eval_features, eval_labels = self.get_features_labels(benchmark, "validation", self.max_eval_samples)
+        eval_features, eval_labels = self.get_features_labels(
+            benchmark, "validation", self.max_eval_samples
+        )
         predictions = model.predict(eval_features)
         accuracy = accuracy_score(eval_labels, predictions)
         return accuracy

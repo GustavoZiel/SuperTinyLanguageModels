@@ -1,10 +1,14 @@
+# Simple configuration file for a small language model using SuperTinyLanguageModels
+
+# dataset used: simple_en_wiki
+
 model:
   core_model:
     core_model_type: generic
-    num_layers: 10
+    num_layers: 8
     ffn:
       ffn_type: swiglu
-      ffn_dim: 1536
+      ffn_dim: 1320
       normalization: rms_norm
       bias: false
     attn:
@@ -17,7 +21,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: stlm
+    dataset_name: simple_en_wiki
   lm_head:
     normalization: rms_norm
     bias: false
@@ -32,20 +36,53 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: stlm
+  dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
-    batch_size: 4
-    gradient_accumulation_steps: 4
-    max_iters: 20
-    lr_decay_iters: 20
-    warmup_iters: 5000
-    eval_interval: 10
-    log_interval: 5
-    eval_iters: 100
-    checkpoint_interval: 1000000000.0
+    batch_size: 8
+    gradient_accumulation_steps: 8
+    max_iters: 30000
+    lr_decay_iters: 30000
+    warmup_iters: 500
+    eval_interval: 0
+    prompt_interval: 5
+    log_interval: 1
+    eval_iters: 10
+    checkpoint_interval: 100
     run_profiler: false
-
+  prompt:
+    input_prompts:
+      - "The capital of Brazil is"
+      - "What is the capital of Brazil?"
+      # - "The largest mammal on Earth is"
+      # - "What is the largest mammal on Earth?"
+      # - "The theory of relativity was developed by"
+      # - "Who developed the theory of relativity?"
+      # - "In computer science, a binary tree is"
+      # - "What is a binary tree in computer science?"
+      # - "The process of photosynthesis occurs in"
+      # - "Where does the process of photosynthesis occur?"
+    generator:
+      top_k: 10
+      temperature: 0.8
+      max_new_tokens: 100
+  eval:
+    - evaluator: "mcq" 
+      benchmarks:
+          # - "winograd"
+          # - "hellaswag"
+          - "arc"
+          - "mmlu"
+          - "blimp"
+      num_samples: 100
+    # - evaluator: "glue" 
+    #   benchmarks:
+    #       - "winograd"
+    #       - "hellaswag"
+    #       - "arc"
+    #       - "mmlu"
+    #       - "blimp"
+    #   num_samples: 10
   optimizer:
     name: nanoGPTadamW
     lr: 0.0006
@@ -55,42 +92,22 @@ trainer:
     beta2: 0.95
     grad_clip: 1.0
     decay_lr: true
-    warmup_iters: 10
+    warmup_iters: 500
   lr_scheduler:
     name: cosine
   dataloader:
     name: standard
+  # datasampling: IS THIS BEING USED?
+  #   name: standard
   loss_fn:
     name: cross_entropy
-
-  eval:
-    - evaluator: "ft_qa"
-      benchmarks:
-        - "winograd"
-        - "hellaswag"
-        - "arc"
-        - "mmlu"
-        - "blimp"
-      max_train_samples: 1000
-      max_eval_samples: 1000
-    - evaluator: "glue"
-    - benchmarks:
-        - "winograd"
-        - "hellaswag"
-        - "arc"
-        - "mmlu"
-        - "blimp"
-      num_samples: 1000
-      evaluator: "mcq"
-    - evaluator: "prog"
-
 general:
   logging:
-    wandb_log: false
+    wandb_log: True
     wandb_project: SuperTinyLanguageModels
   paths:
     output_dir: outputs
     data_dir: data
     checkpoint_dir: checkpoints
-  seed: 489
+  seed: 2004
   device: cuda

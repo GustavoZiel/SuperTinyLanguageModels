@@ -1,14 +1,14 @@
 """GLUE eval?"""
+
+import numpy as np
+import torch
 from datasets import load_dataset
+from scipy.stats import pearsonr, spearmanr
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import accuracy_score, f1_score, matthews_corrcoef
-from scipy.stats import pearsonr, spearmanr
 
-import torch
-import numpy as np
-
-from models.model_shell import ModelShell
 from evals.evaluator_interface import EvaluationInterface
+from models.model_shell import ModelShell
 
 GLUE_SUBSETS = [
     "cola",
@@ -57,9 +57,10 @@ METRIC_MAP = {
 
 class FinetuningEvaluator(EvaluationInterface):
     """Evaluator class for training and evaluating models.
-    Currently just for GLUE finetuning."""
+    Currently just for GLUE finetuning.
+    """
 
-    def __init__(self, model):
+    def __init__(self, model, **kwargs):
         super().__init__(model)
         self.model: ModelShell = model
         self.train_datasets = {}
@@ -87,7 +88,7 @@ class FinetuningEvaluator(EvaluationInterface):
         train_features, train_labels = self.extract_subset(subset, "train")
         if subset == "stsb":
             model = Ridge()
-        else:    
+        else:
             model = LogisticRegression(max_iter=1000)
         model.fit(train_features, train_labels)
         return model
@@ -118,9 +119,7 @@ class FinetuningEvaluator(EvaluationInterface):
 
         for sample in dataset[subset]:
             sample_struct = GLUE_SENTENCE_MAPPINGS[subset]
-            features, label = self.extract_features(
-                self.embedding_func, sample_struct, sample
-            )
+            features, label = self.extract_features(self.embedding_func, sample_struct, sample)
             features = features.cpu().numpy()
             subset_features.append(features)
             subset_labels.append(label)

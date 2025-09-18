@@ -2,6 +2,7 @@
 
 import datetime
 import time
+from ast import List
 from contextlib import nullcontext
 from copy import deepcopy
 from itertools import islice
@@ -16,11 +17,13 @@ from torch.utils.data.distributed import DistributedSampler
 
 import wandb
 from models import model_shell
+from models.generator import StandardGenerator
 from trainers import datasets as train_dataloader
 from trainers import utils
 from trainers.evaluator import train_eval
 from trainers.utils import aggregate_value, print_evaluation_results
 from utils.logger import get_logger
+from wandb import Table
 
 logger = get_logger(__name__)
 
@@ -71,7 +74,7 @@ class BaseTrainer:
         self.checkpoint_dir = cfg["general"]["paths"]["checkpoint_dir"]
         self.cached_sets = {"train": {}, "val": {}}
         self.batch_size = cfg["trainer"]["training"]["batch_size"]  ## new
-
+        self.table = None
         # For training, always force the device to be cuda
         # assert torch.cuda.is_available(), "CUDA must be available for training"
         self.ctx = self._setup_ctx()
@@ -84,6 +87,8 @@ class BaseTrainer:
         ):  ## ensures that only the first GPU runs the profiler
             self.run_profile()
             raise SystemExit
+        if cfg.trainer.training.prompt_interval > 0:
+            self.table = wandb.Table(columns=["iteration", "text"], log_mode="MUTABLE")
 
     def _setup_logging(self):
         # set run name
@@ -174,16 +179,16 @@ class BaseTrainer:
         eval_results["Perplexity"] = avg_perplexity
 
         evaluator_results: dict = {}
-        for evaluator in self.cfg.trainer["eval"]["evaluator"]:
+        for evaluator_cfg in self.cfg.trainer["eval"]:
             if verbose:
-                logger.info(f"estimate_performance: running evaluator {evaluator}")
-            evaluator_metrics = train_eval(
-                eval_name=evaluator, eval_cfg=self.cfg.trainer["eval"], model=self.model
-            )
-            relabeled_results = {
-                f"{evaluator}/{metric}": value for metric, value in evaluator_metrics.items()
-            }
-            evaluator_results[evaluator] = relabeled_results
+                logger.info(f"estimate_performance: running evaluator {evaluator_cfg['evaluator']}")
+            evaluator_results[evaluator_cfg["evaluator"]] = train_eval(evaluator_cfg, self.model)
+            relabeled_results = {}
+            for metric in evaluator_results[evaluator_cfg["evaluator"]]:
+                relabeled_results[f"{evaluator_cfg['evaluator']}/{metric}"] = evaluator_results[
+                    evaluator_cfg["evaluator"]
+                ][metric]
+            evaluator_results[evaluator_cfg["evaluator"]] = relabeled_results
         self.model.train()
         if verbose:
             logger.info("estimate_performance: returning results")
@@ -303,7 +308,44 @@ class BaseTrainer:
             logger.info(f"Saving checkpoint to {checkpoint_path}")
         torch.save(checkpoint, checkpoint_path)
 
-    def run_training_loop(self):
+    def run_prompting(self, prompt_cfg) -> Table:
+        """Generate answers for a set of prompts using the model and log them in a wandb Table.
+
+        Args:
+            prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
+
+        Returns:
+            Table: A wandb Table containing prompts and their generated answers.
+        """
+        generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
+        log_buffer = []
+        for input_prompt in prompt_cfg["input_prompts"]:
+            generated_text = generator.default_generate(input_text=input_prompt)
+            logger.info(f"Prompt: {input_prompt}\nGenerated: {generated_text}")
+            log_buffer.append((input_prompt, generated_text[0]))
+        return log_buffer
+
+    def run_prompting_table(self, prompt_cfg) -> Table:
+        """Generate answers for a set of prompts using the model and log them in a wandb Table.
+
+        Args:
+            prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
+
+        Returns:
+            Table: A wandb Table containing prompts and their generated answers.
+        """
+        generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
+        generated = ""
+        for input_num, input_prompt in enumerate(prompt_cfg["input_prompts"], start=1):
+            generated_text = generator.default_generate(input_text=input_prompt)
+            generated += (
+                "=" * 30 + f"\n\nQuestion {input_num}\n\n"
+                f"Prompt:\n{input_prompt}\n\n"
+                f"Generated:\n{generated_text[0]}\n\n"
+            )
+        return generated
+
+    def run_training_loop(self, verbose: bool = True):
         """Run the main training loop for the model.
 
         This method handles the following:
@@ -321,6 +363,20 @@ class BaseTrainer:
             else:
                 lr = self.optimizer.param_groups[0]["lr"]
             dropout = self.dropout_scheduler.step(self.model, iter_num)
+
+            # Periodic prompting
+            if self.cfg.trainer.training.prompt_interval > 0 and (
+                not iter_num % self.cfg.trainer.training.prompt_interval
+            ):
+                if verbose:
+                    logger.info(f"Running prompting at iteration {iter_num}")
+                generated = self.run_prompting_table(self.cfg.trainer.prompt)
+                self.table.add_data(iter_num, generated)
+                wandb.log({"prompt_answer_table": self.table})
+                # artifact_name = f"prompts_{iter_num}"
+                # artifact = wandb.Artifact(name=artifact_name, type="model_predictions")
+                # artifact.add(table, "predictions_table")
+                # wandb.log_artifact(artifact)
 
             # Periodic evaluation
             if self.cfg.trainer.training.eval_interval > 0 and (
