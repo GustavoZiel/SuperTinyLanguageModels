@@ -18,7 +18,8 @@ def load_arc(split="test"):
     """Load and process the benchmark
 
     Returns a geneator of:
-    (prompt, ground_truth, fake_options)"""
+    (prompt, ground_truth, fake_options)
+    """
     base_dataset = load_dataset("allenai/ai2_arc", "ARC-Easy")[split]
     index = list(range(len(base_dataset)))
     random.shuffle(index)

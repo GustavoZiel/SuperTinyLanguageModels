@@ -49,6 +49,7 @@ class BaseTrainer:
         dropout_scheduler=None,
     ) -> None:
         self.model = model
+
         if gpu_id is not None:  # using ddp
             self.dist = True
             self.DDP_model = DDP(self.model, device_ids=[gpu_id])
@@ -56,25 +57,33 @@ class BaseTrainer:
             self.dist = False
             self.DDP_model = model
         self.gpu_id = gpu_id
+
         self.optimizer = optimizer
+        self.loss_fn = loss_fn
         self.lr_scheduler = lr_scheduler
         self.dropout_scheduler = dropout_scheduler
+
         self.train_dataloader_iter = iter(train_dataloader)
         self.val_dataloader = val_dataloader
-        self.loss_fn = loss_fn
+
         self.cfg = cfg
+
         # assert self.cfg["trainer"]["training"]["gradient_accumulation_steps"] % torch.cuda.device_count() == 0, "Gradient Accumulation Steps must be divisible by the number of GPUs"
         self.gradient_accumulation_steps = (
             cfg["trainer"]["training"]["gradient_accumulation_steps"] // torch.cuda.device_count()
             if torch.cuda.is_available()
             else cfg["trainer"]["training"]["gradient_accumulation_steps"]
         )  ## divide by number of GPUs to maximise throughput
+
+        self.iter_start = 1
         self.scaler = None
+        self.batch_size = cfg["trainer"]["training"]["batch_size"]  ## new
+
         self.use_wandb = cfg["general"]["logging"]["wandb_log"]
         self.checkpoint_dir = cfg["general"]["paths"]["checkpoint_dir"]
         self.cached_sets = {"train": {}, "val": {}}
-        self.batch_size = cfg["trainer"]["training"]["batch_size"]  ## new
         self.table = None
+
         # For training, always force the device to be cuda
         # assert torch.cuda.is_available(), "CUDA must be available for training"
         self.ctx = self._setup_ctx()
@@ -356,17 +365,21 @@ class BaseTrainer:
             - Logs metrics to wandb if enabled.
         """
         elapsed_time = 0.0
-        for iter_num in range(self.cfg.trainer.training.max_iters):
+        for iter_num in range(1, self.cfg.trainer.training.max_iters + 1):
             start_time = time.time()
             if self.lr_scheduler is not None:
-                lr = self.lr_scheduler.step(self.optimizer, iter_num)
+                lr = self.lr_scheduler.step(self.optimizer, iter_num - 1)
             else:
                 lr = self.optimizer.param_groups[0]["lr"]
-            dropout = self.dropout_scheduler.step(self.model, iter_num)
+            dropout = self.dropout_scheduler.step(self.model, iter_num - 1)
 
             # Periodic prompting
-            if self.cfg.trainer.training.prompt_interval > 0 and (
-                not iter_num % self.cfg.trainer.training.prompt_interval
+            if self.use_wandb and (
+                iter_num == self.iter_start
+                or (
+                    self.cfg.trainer.training.prompt_interval > 0
+                    and (not iter_num % self.cfg.trainer.training.prompt_interval)
+                )
             ):
                 if verbose:
                     logger.info(f"Running prompting at iteration {iter_num}")
@@ -379,7 +392,7 @@ class BaseTrainer:
                 # wandb.log_artifact(artifact)
 
             # Periodic evaluation
-            if self.cfg.trainer.training.eval_interval > 0 and (
+            if iter_num == self.iter_start or (
                 not iter_num % self.cfg.trainer.training.eval_interval
             ):
                 eval_results, benchmark_results = self.estimate_performance(verbose=False)
@@ -396,9 +409,8 @@ class BaseTrainer:
                     wandb.log(log_dict)
 
             # Periodic checkpointing
-            if (
+            if iter_num == self.iter_start or (
                 not iter_num % self.cfg.trainer.training.checkpoint_interval
-                and iter_num > 0
                 and (self.gpu_id == 0 or self.gpu_id is None)
             ):
                 self.save_checkpoint(iter_num)
@@ -409,7 +421,9 @@ class BaseTrainer:
             elapsed_time += end_time - start_time
 
             # Periodic logging
-            if not iter_num % self.cfg.trainer.training.log_interval and iter_num > 0:
+            if iter_num == self.iter_start or (
+                not iter_num % self.cfg.trainer.training.log_interval
+            ):
                 lossf = aggregate_value(lossf, self.cfg.general.device)
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
                 logger.info(
@@ -424,9 +438,9 @@ class BaseTrainer:
                             "dropout": dropout,
                         }
                     )
-        # Save the final model checkpoint
-        if self.gpu_id == 0 or self.gpu_id is None:
-            self.save_checkpoint(iter_num)
+        # # Save the final model checkpoint
+        # if self.gpu_id == 0 or self.gpu_id is None:
+        #     self.save_checkpoint(iter_num)
 
     def train(self, seed=42):
         """Train the model"""

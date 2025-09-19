@@ -5,6 +5,9 @@ import torch
 
 from models.build_models import build_model
 from models.generator import StandardGenerator
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @hydra.main(config_path="configs", config_name="generate", version_base=None)
@@ -14,6 +17,7 @@ def main(cfg):
 
     model_filename = cfg["model_ckpt"]
     model_filename_absolute_path = hydra.utils.to_absolute_path(model_filename)
+    logger.info(f"Loading model from {model_filename_absolute_path}")
 
     # load checkpoint from the path
     model = build_model(checkpoint=torch.load(model_filename_absolute_path, weights_only=False))

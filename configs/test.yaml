@@ -1,7 +1,8 @@
 defaults:
-  # - testing: "llm_harness"
+  # - testing:a "llm_harness"
   - testing: "baseline"
-model_ckpt: "checkpoints/ckpt_500.pt"
+model_ckpt: "checkpoints/20250919_0859_simple_en_wiki_29999.pt"
+output_path: "results.json"
 # model:
 #   model_string: "microsoft/Phi-3-mini-4k-instruct"
 #   flash_attention: false
@@ -19,7 +20,6 @@ model_ckpt: "checkpoints/ckpt_500.pt"
 #   model_shell_type: standard
 #   embedding_weight_tying: false
 #   positional_encoding_type: rope
-generate_config:
-  temperature: 0.8
-  top_k: 10
-output_path: "results.json"
+# generate_config:
+#   temperature: 0.8
+#   top_k: 10

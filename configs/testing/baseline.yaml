@@ -1,7 +1,7 @@
 benchmarks:
-  - "winograd"
+  # - "winograd"
   # - "hellaswag"
-  # - "arc"
-  # - "mmlu"
-  # - "blimp"
+  - "arc"
+  - "mmlu"
+  - "blimp"
 evaluator_name: "mcq"
