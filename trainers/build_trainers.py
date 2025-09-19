@@ -141,9 +141,15 @@ TRAINER_DICT = {
 }
 
 
-def build_trainer(cfg, model, gpu_id):
+def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
     """Given a config, this function builds a trainer
     and all relevant components of it.
+
+    Args:
+        cfg: Configuration dictionary
+        model: The model to train
+        gpu_id: GPU ID for distributed training
+        checkpoint_path: Optional path to checkpoint for resuming training
     """
     logger.info("Building optimizer...")
     optimizer = build_optimizer(model=model, optimizer_config=cfg.trainer["optimizer"])
@@ -187,4 +193,11 @@ def build_trainer(cfg, model, gpu_id):
     )
 
     logger.info("Trainer built successfully.")
+
+    # Load checkpoint if provided
+    if checkpoint_path is not None:
+        logger.info(f"Loading checkpoint from {checkpoint_path}")
+        iteration = trainer.load_checkpoint(checkpoint_path)
+        logger.info(f"Resuming training from iteration {iteration}")
+
     return trainer

@@ -1,8 +1,9 @@
-# Simple configuration file for a small language model using SuperTinyLanguageModels
+# Configuration for resuming training from a checkpoint
+# Usage: python train.py --config-name full_configs/resume_training checkpoint=path/to/checkpoint.pt
 
-# dataset used: simple_en_wiki
+# Specify the checkpoint to resume from
+checkpoint: "checkpoints/20250919_1203_simple_en_wiki_30.pt"  # Change this path as needed
 
-checkpoint: "checkpoints/20250919_1018_simple_en_wiki_30.pt"
 model:
   core_model:
     core_model_type: generic
@@ -33,6 +34,7 @@ model:
   model_shell_type: standard
   embedding_weight_tying: true
   positional_encoding_type: rope
+
 trainer:
   dropout_scheduler:
     dropout_type: constant
@@ -42,48 +44,20 @@ trainer:
     trainer_type: base_trainer
     batch_size: 8
     gradient_accumulation_steps: 8
-    max_iters: 30
-    lr_decay_iters: 30
+    max_iters: 30  # Total iterations (will resume from checkpoint iteration)
+    lr_decay_iters: 100
     warmup_iters: 5
-    eval_interval: 5
+    eval_interval: 10
     prompt_interval: 5
     log_interval: 1
     eval_iters: 10
     checkpoint_interval: 10
     run_profiler: false
-  prompt:
-    input_prompts:
-      - "The capital of Brazil is"
-      - "What is the capital of Brazil?"
-      # - "The largest mammal on Earth is"
-      # - "What is the largest mammal on Earth?"
-      # - "The theory of relativity was developed by"
-      # - "Who developed the theory of relativity?"
-      # - "In computer science, a binary tree is"
-      # - "What is a binary tree in computer science?"
-      # - "The process of photosynthesis occurs in"
-      # - "Where does the process of photosynthesis occur?"
-    generator:
-      top_k: 10
-      temperature: 0.8
-      max_new_tokens: 100
   eval:
     - evaluator: "mcq" 
       benchmarks:
-          # - "winograd"
-          # - "hellaswag"
-          # - "arc"
-          # - "mmlu"
           - "blimp"
       num_samples: 10
-    # - evaluator: "glue" 
-    #   benchmarks:
-    #       - "winograd"
-    #       - "hellaswag"
-    #       - "arc"
-    #       - "mmlu"
-    #       - "blimp"
-    #   num_samples: 10
   optimizer:
     name: nanoGPTadamW
     lr: 0.0006
@@ -93,15 +67,22 @@ trainer:
     beta2: 0.95
     grad_clip: 1.0
     decay_lr: true
-    warmup_iters: 500
+    warmup_iters: 100
   lr_scheduler:
     name: cosine
   dataloader:
     name: standard
-  # datasampling: IS THIS BEING USED?
-  #   name: standard
   loss_fn:
     name: cross_entropy
+  prompt:
+    input_prompts:
+      - "The capital of Brazil is"
+      - "What is the capital of Brazil?"
+    generator:
+      top_k: 10
+      temperature: 0.8
+      max_new_tokens: 100
+
 general:
   logging:
     wandb_log: False

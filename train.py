@@ -72,7 +72,17 @@ def basic_main(cfg):
     """
     logger.info("Building model...")
 
-    model = build_model(model_cfg=cfg["model"])
+    # Check if we need to load from checkpoint
+    checkpoint_path = None
+    if "checkpoint" in cfg and cfg["checkpoint"] is not None:
+        checkpoint_path = hydra.utils.to_absolute_path(cfg["checkpoint"])
+        logger.info(f"Will resume training from checkpoint: {checkpoint_path}")
+        # Load model from checkpoint
+        model = build_model(checkpoint=torch.load(checkpoint_path, weights_only=False))
+    else:
+        # Build model from config
+        model = build_model(model_cfg=cfg["model"])
+
     model.to(cfg["general"]["device"])
     model.train()
 
@@ -84,6 +94,7 @@ def basic_main(cfg):
         cfg=cfg,
         model=model,
         gpu_id=None,  # disables DDP
+        checkpoint_path=checkpoint_path,
     )
 
     logger.info("Trainer built.")
@@ -97,8 +108,8 @@ def basic_main(cfg):
 
 @hydra.main(config_path="configs", config_name="train", version_base=None)
 def main(cfg):
-    logger.info(OmegaConf.to_yaml(cfg))
-    print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
+    # logger.info(OmegaConf.to_yaml(cfg))
+    # print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
 
     if "full_configs" in cfg:
         logger.info("Using 'full_configs' from configuration.")

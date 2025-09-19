@@ -103,5 +103,5 @@ general:
     output_dir: outputs
     data_dir: data
     checkpoint_dir: checkpoints
-  seed: 2004
+  # seed: 2004
   device: cuda
