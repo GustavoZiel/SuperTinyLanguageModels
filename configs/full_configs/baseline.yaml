@@ -17,7 +17,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: stlm
+    dataset_name: simple_en_wiki
   lm_head:
     normalization: rms_norm
     bias: false
@@ -32,7 +32,7 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: openwebtext
+  dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
     batch_size: 24

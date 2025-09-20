@@ -1,3 +1,10 @@
+area1.ipynb
+area1.py
+docs/
+examples/
+tests/
+utils/
+
 .vscode/
 outputs
 *__pycache__/*

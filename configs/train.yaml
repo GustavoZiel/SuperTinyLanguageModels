@@ -1,4 +1,5 @@
 defaults:
-- model: baseline
-- trainer: baseline
-- general: default
+- full_configs: baseline
+# - model: baseline
+# - trainer: baseline
+# - general: default
