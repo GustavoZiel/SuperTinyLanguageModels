@@ -1,3 +1,11 @@
+### Specific files
+docs/
+examples/
+tests/
+utils/checkpoint_utils.py
+
+### Manually added ###
+
 .vscode/
 .ruff_cache/
 outputs
