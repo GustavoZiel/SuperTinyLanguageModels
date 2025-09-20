@@ -17,14 +17,14 @@ training:
   run_profiler: false
 
 eval:
-  benchmarks:
-    - "winograd"
-    - "hellaswag"
-    - "arc"
-    - "mmlu"
-    - "blimp"
-  num_samples: 5000
-  evaluator: "mcq"
+  - evaluator: "mcq"
+    benchmarks:
+      - "winograd"
+      - "hellaswag"
+      - "arc"
+      - "mmlu"
+      - "blimp"
+    num_samples: 5000
 
 optimizer:
   name: "nanoGPTadamW"
