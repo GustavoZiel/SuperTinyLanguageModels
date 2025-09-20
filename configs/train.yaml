@@ -1,7 +1,8 @@
 defaults:
-- full_configs: resume_training
-# - full_configs: simple
-# - model: baseline
-# - trainer: baseline_2
-# - general: default
-# - checkpoint: "checkpoints/ckpt_499.pt"
+  - full_configs: simple
+  # - full_configs: resume_training
+  # - full_configs: debug_ziel
+  # - model: baseline
+  # - trainer: baseline_2
+  # - general: default
+  # - checkpoint: "checkpoints/ckpt_499.pt"

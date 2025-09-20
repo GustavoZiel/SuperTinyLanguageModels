@@ -188,7 +188,7 @@ DATASET_DICT = {
 
 def load_data(
     dataset_name: str,
-    test_size: float = 0.1,
+    test_size: float = 0.01,
     seed: int = 489,
     shuffle: bool = True,
     verbose: bool = False,

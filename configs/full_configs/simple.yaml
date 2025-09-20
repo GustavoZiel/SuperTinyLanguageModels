@@ -1,6 +1,6 @@
 # Simple configuration file for a small language model using SuperTinyLanguageModels
 
-# dataset used: simple_en_wiki
+# dataset used: en_wiki
 
 model:
   core_model:
@@ -21,7 +21,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: simple_en_wiki
+    dataset_name: en_wiki
   lm_head:
     normalization: rms_norm
     bias: false
@@ -36,7 +36,7 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: simple_en_wiki
+  dataset: en_wiki
   training:
     trainer_type: base_trainer
     batch_size: 8
@@ -44,11 +44,11 @@ trainer:
     max_iters: 30000
     lr_decay_iters: 30000
     warmup_iters: 5000
-    eval_interval: 2500
-    log_interval: 2500
-    prompt_interval: 2500
+    eval_interval: 5000
+    log_interval: 5000
+    prompt_interval: 5000
     eval_iters: 500
-    checkpoint_interval: 2500
+    checkpoint_interval: 5000
     run_profiler: false
   prompt:
     input_prompts:
@@ -91,8 +91,6 @@ trainer:
     name: cosine
   dataloader:
     name: standard
-  # datasampling: IS THIS BEING USED?
-  #   name: standard
   loss_fn:
     name: cross_entropy
 general:
@@ -103,5 +101,5 @@ general:
     output_dir: outputs
     data_dir: data
     checkpoint_dir: checkpoints
-  # seed: 2004
+  seed: 489
   device: cuda
