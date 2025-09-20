@@ -44,7 +44,7 @@ class StandardProcessor:
             arr.flush()
 
     def write_tokenized_data_easy(
-        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None, verbose=False
+        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None, verbose=True
     ):
         """Write tokenized datasets to disk as flat binary files using memmap.
 

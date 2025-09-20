@@ -128,12 +128,12 @@ def main(cfg):
     prepare_data(cfg)
     logger.info("Data preparation complete.")
 
-    world_size = torch.cuda.device_count()
-    logger.info(f"Number of available CUDA devices: {world_size}")
-    if world_size <= 1:
-        # Single GPU/CPU training
-        logger.info("Starting single GPU/CPU training.")
-        basic_main(cfg)
+    # world_size = torch.cuda.device_count()
+    # logger.info(f"Number of available CUDA devices: {world_size}")
+    # if world_size <= 1:
+    #     # Single GPU/CPU training
+    #     logger.info("Starting single GPU/CPU training.")
+    #     basic_main(cfg)
     # else:
     #     # multi-GPU training
     #     mp.spawn(

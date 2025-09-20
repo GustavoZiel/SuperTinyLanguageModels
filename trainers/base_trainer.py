@@ -547,22 +547,22 @@ class BaseTrainer:
 
         return iteration
 
-    def run_prompting(self, prompt_cfg) -> Table:
-        """Generate answers for a set of prompts using the model and log them in a wandb Table.
+    # def run_prompting(self, prompt_cfg) -> Table:
+    #     """Generate answers for a set of prompts using the model and log them in a wandb Table.
 
-        Args:
-            prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
+    #     Args:
+    #         prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
 
-        Returns:
-            Table: A wandb Table containing prompts and their generated answers.
-        """
-        generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
-        log_buffer = []
-        for input_prompt in prompt_cfg["input_prompts"]:
-            generated_text = generator.default_generate(input_text=input_prompt)
-            logger.info(f"Prompt: {input_prompt}\nGenerated: {generated_text}")
-            log_buffer.append((input_prompt, generated_text[0]))
-        return log_buffer
+    #     Returns:
+    #         Table: A wandb Table containing prompts and their generated answers.
+    #     """
+    #     generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
+    #     log_buffer = []
+    #     for input_prompt in prompt_cfg["input_prompts"]:
+    #         generated_text = generator.default_generate(input_text=input_prompt)
+    #         logger.info(f"Prompt: {input_prompt}\nGenerated: {generated_text}")
+    #         log_buffer.append((input_prompt, generated_text[0]))
+    #     return log_buffer
 
     def run_prompting_table(self, prompt_cfg) -> Table:
         """Generate answers for a set of prompts using the model and log them in a wandb Table.
