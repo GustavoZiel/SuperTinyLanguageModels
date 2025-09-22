@@ -5,4 +5,4 @@ defaults:
   # - model: baseline
   # - trainer: baseline_2
   # - general: default
-  # - checkpoint: "checkpoints/ckpt_499.pt"
+  # - checkpoint: "checkpoints/20250920_0838_en_wiki_30000.pt"

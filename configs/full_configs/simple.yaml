@@ -39,35 +39,38 @@ trainer:
   dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
-    batch_size: 8
-    gradient_accumulation_steps: 8
-    max_iters: 30000
-    lr_decay_iters: 30000
-    warmup_iters: 5000
-    eval_interval: 5000
-    log_interval: 5000
-    prompt_interval: 5000
+    batch_size: 12
+    gradient_accumulation_steps: 12
+    max_iters: 10000
+    lr_decay_iters: 10000
+    warmup_iters: 1000
+    eval_interval: 500
+    log_interval: 100
+    prompt_interval: 500
     eval_iters: 500
-    checkpoint_interval: 5000
+    checkpoint_interval: 2500
     run_profiler: false
   prompt:
     input_prompts:
-      - "The capital of Brazil is"
-      - "What is the capital of Brazil?"
-      - "Singapore is located in"
-      - "Where is Singapore located?"
-      - "The largest mammal on Earth is"
-      - "What is the largest mammal on Earth?"
-      - "The theory of relativity was developed by"
-      - "Who developed the theory of relativity?"
-      - "In computer science, a binary tree is"
-      - "What is a binary tree in computer science?"
-      - "The process of photosynthesis occurs in"
-      - "Where does the process of photosynthesis occur?"
+      - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
+      - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
+      - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
+      - December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."
+      # - "What is the capital of Brazil?"
+      # - "Singapore is located in"
+      # - "Where is Singapore located?"
+      # - "The largest mammal on Earth is"
+      # - "What is the largest mammal on Earth?"
+      # - "The theory of relativity was developed by"
+      # - "Who developed the theory of relativity?"
+      # - "In computer science, a binary tree is"
+      # - "What is a binary tree in computer science?"
+      # - "The process of photosynthesis occurs in"
+      # - "Where does the process of photosynthesis occur?"
     generator:
       top_k: 10
       temperature: 0.8
-      max_new_tokens: 150
+      max_new_tokens: 300
   eval:
     - evaluator: "mcq"
       benchmarks:
@@ -76,7 +79,7 @@ trainer:
           - "arc"
           - "mmlu"
           - "blimp"
-      num_samples: 5000
+      num_samples: 1000
   optimizer:
     name: nanoGPTadamW
     lr: 0.0006
@@ -86,7 +89,7 @@ trainer:
     beta2: 0.95
     grad_clip: 1.0
     decay_lr: true
-    warmup_iters: 500
+    warmup_iters: 2500
   lr_scheduler:
     name: cosine
   dataloader:

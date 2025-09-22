@@ -2,7 +2,7 @@
 # Usage: python train.py --config-name full_configs/resume_training checkpoint=path/to/checkpoint.pt
 
 # Specify the checkpoint to resume from
-checkpoint: "checkpoints/20250919_1203_simple_en_wiki_30.pt"  # Change this path as needed
+checkpoint: "checkpoints/20250920_0838_en_wiki_30000.pt"  # Change this path as needed
 
 model:
   core_model:
@@ -23,7 +23,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: simple_en_wiki
+    dataset_name: en_wiki
   lm_head:
     normalization: rms_norm
     bias: false
@@ -34,30 +34,51 @@ model:
   model_shell_type: standard
   embedding_weight_tying: true
   positional_encoding_type: rope
-
 trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: simple_en_wiki
+  dataset: en_wiki
   training:
     trainer_type: base_trainer
     batch_size: 8
     gradient_accumulation_steps: 8
-    max_iters: 30  # Total iterations (will resume from checkpoint iteration)
-    lr_decay_iters: 100
-    warmup_iters: 5
-    eval_interval: 10
-    prompt_interval: 5
-    log_interval: 1
-    eval_iters: 10
-    checkpoint_interval: 10
+    max_iters: 30000
+    lr_decay_iters: 30000
+    warmup_iters: 5000
+    eval_interval: 5000
+    log_interval: 5000
+    prompt_interval: 5000
+    eval_iters: 500
+    checkpoint_interval: 5000
     run_profiler: false
+  prompt:
+    input_prompts:
+      - "The capital of Brazil is"
+      - "What is the capital of Brazil?"
+      - "Singapore is located in"
+      - "Where is Singapore located?"
+      - "The largest mammal on Earth is"
+      - "What is the largest mammal on Earth?"
+      - "The theory of relativity was developed by"
+      - "Who developed the theory of relativity?"
+      - "In computer science, a binary tree is"
+      - "What is a binary tree in computer science?"
+      - "The process of photosynthesis occurs in"
+      - "Where does the process of photosynthesis occur?"
+    generator:
+      top_k: 10
+      temperature: 0.8
+      max_new_tokens: 150
   eval:
-    - evaluator: "mcq" 
+    - evaluator: "mcq"
       benchmarks:
+          # - "winograd"
+          # - "hellaswag"
+          - "arc"
+          - "mmlu"
           - "blimp"
-      num_samples: 10
+      num_samples: 1000
   optimizer:
     name: nanoGPTadamW
     lr: 0.0006
@@ -67,29 +88,20 @@ trainer:
     beta2: 0.95
     grad_clip: 1.0
     decay_lr: true
-    warmup_iters: 100
+    warmup_iters: 500
   lr_scheduler:
     name: cosine
   dataloader:
     name: standard
   loss_fn:
     name: cross_entropy
-  prompt:
-    input_prompts:
-      - "The capital of Brazil is"
-      - "What is the capital of Brazil?"
-    generator:
-      top_k: 10
-      temperature: 0.8
-      max_new_tokens: 100
-
 general:
   logging:
-    wandb_log: False
+    wandb_log: True
     wandb_project: SuperTinyLanguageModels
   paths:
     output_dir: outputs
     data_dir: data
     checkpoint_dir: checkpoints
-  seed: 2004
+  seed: 489
   device: cuda
