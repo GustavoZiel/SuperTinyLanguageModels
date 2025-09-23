@@ -1,6 +1,6 @@
-temperature: 0.5
+temperature: 1
 top_k: 10
-max_new_tokens: 300
+max_new_tokens: 5
 input_prompts:
   - "The earth revolves around the"
   - "The seven days of the week are Monday,"
