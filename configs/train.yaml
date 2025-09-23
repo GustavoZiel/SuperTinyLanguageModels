@@ -1,5 +1,5 @@
 defaults:
-  - full_configs: simple
+  - full_configs: baseline_updated
   # - full_configs: resume_training
   # - full_configs: debug_ziel
   # - model: baseline

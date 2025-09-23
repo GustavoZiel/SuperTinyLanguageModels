@@ -1,14 +1,10 @@
-"""
-A collection of attention layers.
-"""
+"""A collection of attention layers."""
 
 import torch
 
 
 class Attention(torch.nn.Module):
-    """
-    Basic but flexible attention module.
-    """
+    """Basic but flexible attention module."""
 
     def __init__(
         self,
@@ -47,9 +43,7 @@ class Attention(torch.nn.Module):
             )
 
     def forward(self, x, attention_mask=None):
-        """
-        Forward pass
-        """
+        """Forward pass"""
         assert attention_mask is None, "Not implemented yet"
         B, S, H = x.size()
         num_grouped_heads = self.num_heads // self.group_size
@@ -60,9 +54,7 @@ class Attention(torch.nn.Module):
         q, k, v = self.c_attn(x).split([H, group_hidden_dim, group_hidden_dim], dim=-1)
         k = k.view(B, S, num_grouped_heads, H // self.num_heads)  # (B, T, nh, hs)
         q = q.view(B, S, self.num_heads, H // self.num_heads)  # (B, T, nh, hs)
-        v = v.view(B, S, num_grouped_heads, H // self.num_heads).transpose(
-            1, 2
-        )  # (B, nh, T, hs)
+        v = v.view(B, S, num_grouped_heads, H // self.num_heads).transpose(1, 2)  # (B, nh, T, hs)
 
         if self.use_rope:
             q, k = apply_rotary_emb(q, k, freqs_cis=self.freqs_cis[:S].to(x.device))
@@ -104,9 +96,7 @@ def _reshape_for_broadcast(freqs_cis, x):
 
 
 def apply_rotary_emb(xq, xk, freqs_cis):
-    """
-    Apply the rotary embedding to the query and key
-    """
+    """Apply the rotary embedding to the query and key"""
     xq_ = torch.view_as_complex(xq.float().reshape(*xq.shape[:-1], -1, 2))
     xk_ = torch.view_as_complex(xk.float().reshape(*xk.shape[:-1], -1, 2))
     freqs_cis = _reshape_for_broadcast(freqs_cis, xq_)
@@ -117,9 +107,7 @@ def apply_rotary_emb(xq, xk, freqs_cis):
 
 def compute_freqs_cis(seq_len, head_dim):
     """Computes complex frequences used for rotary positional encodings"""
-    freqs = 1.0 / (
-        10_000 ** (torch.arange(0, head_dim, 2)[: (head_dim // 2)].float() / head_dim)
-    )
+    freqs = 1.0 / (10_000 ** (torch.arange(0, head_dim, 2)[: (head_dim // 2)].float() / head_dim))
     t = torch.arange(seq_len * 2, device=freqs.device, dtype=torch.float32)
     freqs = torch.outer(t, freqs)
     freqs_cis = torch.polar(torch.ones_like(freqs), freqs)  # complex64
@@ -140,8 +128,7 @@ ATTENTION_DICT = {
 
 
 def build_attention(hidden_dim, context_window, use_rope, attn_cfg):
-    """
-    Build an attention layer
+    """Build an attention layer
 
     Args:
         hidden_dim: hidden dimension

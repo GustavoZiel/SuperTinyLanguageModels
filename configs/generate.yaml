@@ -1,4 +1,4 @@
 defaults:
   - generator: baseline
   - _self_
-model_ckpt: "checkpoints/20250920_0838_en_wiki_30000.pt"
+model_ckpt: "checkpoints/20250921_1241_simple_en_wiki_10000.pt"

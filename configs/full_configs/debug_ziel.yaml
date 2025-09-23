@@ -46,12 +46,12 @@ trainer:
     max_iters: 30000
     lr_decay_iters: 30000
     warmup_iters: 2500
-    eval_interval: 1000
-    log_interval: 500
     eval_iters: 500
-    checkpoint_interval: 2500
+    checkpoint_interval: 100000
+    eval_interval: 10
+    log_interval: 1
+    prompt_interval: 10
     run_profiler: false
-    prompt_interval: 2500
   eval:
     - benchmarks:
         # - "winograd"
@@ -59,7 +59,7 @@ trainer:
         - "arc"
         - "mmlu"
         - "blimp"
-      num_samples: 1000
+      num_samples: 10
       evaluator: "mcq"
   optimizer:
     name: nanoGPTadamW
@@ -95,7 +95,7 @@ trainer:
       max_new_tokens: 100
 general:
   logging:
-    wandb_log: True
+    wandb_log: False
     wandb_project: SuperTinyLanguageModels
   paths:
     output_dir: outputs

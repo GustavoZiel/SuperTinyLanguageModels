@@ -11,10 +11,7 @@ class StandardGenerator(torch.nn.Module):
         super().__init__()
         self.model = model
         self.model = self.model.to(torch.device("cuda"))
-        # print("Model is in {} mode".format("train" if self.model.training else "eval"))
-        # TODO Check with Bobby
-        self.model.eval()
-        # print("Model is in {} mode".format("train" if self.model.training else "eval"))
+        # Don't set eval mode here - let generate() method handle it
         self.generate_config = generate_cfg
 
     def default_generate(self, input_text):
@@ -32,53 +29,63 @@ class StandardGenerator(torch.nn.Module):
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
-        idx = self.model.embedding_model.tokenize_input(
-            input_string=input_text, add_eot=False, truncate=True
-        )
-        # push to device
-        idx = torch.tensor(idx).unsqueeze(0).to(torch.device("cuda"))
-        for _ in range(max_new_tokens):
-            # forward the model to get the logits for the index in the sequence
-            logits = self.model.inference(idx)
-            # print("logits", logits)
-            # print("temperature", temperature)
-            # pluck the logits at the final step and scale by desired temperature
-            logits = logits[0]  # pega o primeiro elemento da tupla
-            logits = logits / temperature
-            # logits = logits / temperature
-            # logits have shape (b,t,v)
-            # optionally crop the logits to only the top k options
-            if top_k is not None:
-                v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
-                # check for dim
-                if len(v.size()) == 3:
-                    logits[logits < v[:, :, [-1]]] = -float("Inf")
+        # Save current training state and switch to eval mode
+        original_mode = self.model.training
+        self.model.eval()
+
+        try:
+            idx = self.model.embedding_model.tokenize_input(
+                input_string=input_text, add_eot=False, truncate=True
+            )
+            # push to device
+            idx = torch.tensor(idx).unsqueeze(0).to(torch.device("cuda"))
+
+            for _ in range(max_new_tokens):
+                # forward the model to get the logits for the index in the sequence
+                logits = self.model.inference(idx)
+                # print("logits", logits)
+                # print("temperature", temperature)
+                # pluck the logits at the final step and scale by desired temperature
+                logits = logits[0]  # pega o primeiro elemento da tupla
+                logits = logits / temperature
+                # logits = logits / temperature
+                # logits have shape (b,t,v)
+                # optionally crop the logits to only the top k options
+                if top_k is not None:
+                    v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                    # check for dim
+                    if len(v.size()) == 3:
+                        logits[logits < v[:, :, [-1]]] = -float("Inf")
+                    else:
+                        logits[logits < v[:, [-1]]] = -float("Inf")
+                # apply softmax to convert logits to (normalized) probabilities
+                probs = torch.nn.functional.softmax(logits, dim=-1)
+                # sample from the distribution
+                # check if byte-level and if so, flatten
+                if len(probs.size()) == 4:
+                    B, S, S_c, H = probs.size()
+                    probs = probs.view(B * S * S_c, H)
+                    flattened = True
                 else:
-                    logits[logits < v[:, [-1]]] = -float("Inf")
-            # apply softmax to convert logits to (normalized) probabilities
-            probs = torch.nn.functional.softmax(logits, dim=-1)
-            # sample from the distribution
-            # check if byte-level and if so, flatten
-            if len(probs.size()) == 4:
-                B, S, S_c, H = probs.size()
-                probs = probs.view(B * S * S_c, H)
-                flattened = True
-            else:
-                flattened = False
+                    flattened = False
 
-            idx_next = torch.multinomial(probs, num_samples=1)
+                idx_next = torch.multinomial(probs, num_samples=1)
 
-            # check if byte-level and if so, unflatten
-            if flattened:
-                idx_next = idx_next.view(B, S)
-            elif idx_next == self.model.embedding_model.eot_token:
-                break
+                # check if byte-level and if so, unflatten
+                if flattened:
+                    idx_next = idx_next.view(B, S)
+                elif idx_next == self.model.embedding_model.eot_token:
+                    break
 
-            if flattened:
-                idx_next = idx_next.unsqueeze(0)
-            idx = torch.cat((idx, idx_next), dim=1)
+                if flattened:
+                    idx_next = idx_next.unsqueeze(0)
+                idx = torch.cat((idx, idx_next), dim=1)
 
-        return self.model.embedding_model.decode(idx.tolist())
+            return self.model.embedding_model.decode(idx.tolist())
+
+        finally:
+            # Always restore the original training state
+            self.model.train(original_mode)
 
     def forward(self, x):
         """Call the underlying model"""

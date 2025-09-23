@@ -564,14 +564,14 @@ class BaseTrainer:
     #         log_buffer.append((input_prompt, generated_text[0]))
     #     return log_buffer
 
-    def run_prompting_table(self, prompt_cfg) -> Table:
-        """Generate answers for a set of prompts using the model and log them in a wandb Table.
+    def run_prompting_table(self, prompt_cfg) -> str:
+        """Generate answers for a set of prompts using the model and return them as a formatted string.
 
         Args:
             prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
 
         Returns:
-            Table: A wandb Table containing prompts and their generated answers.
+            str: A formatted string containing prompts and their generated answers.
         """
         generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
         generated = ""
@@ -598,6 +598,9 @@ class BaseTrainer:
         # Start from iter_start if resuming from checkpoint, otherwise start from 1
         start_iter = max(1, self.iter_start)
         for iter_num in range(start_iter, self.cfg.trainer.training.max_iters + 1):
+            # logger.info(
+            #     f"Iter {iter_num} - Model is on {'train' if self.model.training else 'eval'} mode"
+            # )
             start_time = time.time()
             if self.lr_scheduler is not None:
                 lr = self.lr_scheduler.step(self.optimizer, iter_num - 1)
@@ -613,15 +616,10 @@ class BaseTrainer:
                     and (not iter_num % self.cfg.trainer.training.prompt_interval)
                 )
             ):
-                if verbose:
-                    logger.info(f"Running prompting at iteration {iter_num}")
+                logger.info(f"Running prompting at iteration {iter_num}")
                 generated = self.run_prompting_table(self.cfg.trainer.prompt)
                 self.table.add_data(iter_num, generated)
                 wandb.log({"prompt_answer_table": self.table})
-                # artifact_name = f"prompts_{iter_num}"
-                # artifact = wandb.Artifact(name=artifact_name, type="model_predictions")
-                # artifact.add(table, "predictions_table")
-                # wandb.log_artifact(artifact)
 
             # Periodic evaluation
             if iter_num == self.iter_start or (
@@ -637,7 +635,6 @@ class BaseTrainer:
                     log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
                     log_dict.update(eval_results)
                     log_dict.update({k: v for k, v in benchmark_results.items()})
-                    print("Wand db Log dict keys:", log_dict.keys())
                     wandb.log(log_dict)
 
             # Periodic checkpointing
