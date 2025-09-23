@@ -2,13 +2,13 @@
 docs/
 examples/
 tests/
+outputs/
 utils/checkpoint_utils.py
 
 ### Manually added ###
 
 .vscode/
 .ruff_cache/
-outputs
 *__pycache__/*
 *.bin
 checkpoints
@@ -17,6 +17,14 @@ data/
 wandb
 *.out
 area1.*
+.pre-commit-config.yaml
+.pylintrc
+LICENSE
+pytest.ini
+*.md
+.github
+pre_reports
+debugging/*
 
 ### DEFAULTS FROM GITHUB ###
 __pycache__/
