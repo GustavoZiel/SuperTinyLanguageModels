@@ -4,6 +4,7 @@ examples/
 tests/
 outputs/
 utils/checkpoint_utils.py
+vast_checkpoints/
 
 ### Manually added ###
 
