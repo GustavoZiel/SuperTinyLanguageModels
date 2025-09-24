@@ -162,9 +162,8 @@ class BaseTrainer:
         for i, (x, y) in enumerate(self.val_dataloader):
             if verbose:
                 logger.info(f"estimate_performance: batch {i}")
-            device = f"cuda:{self.gpu_id}" if self.gpu_id is not None else self.model.device
-            x = x.to(device)
-            y = y.to(device)
+            x = x.to(self.gpu_id if self.gpu_id is not None else self.model.device)
+            y = y.to(self.gpu_id if self.gpu_id is not None else self.model.device)
             with self.ctx:
                 output, _ = self.model(x)
                 loss = self.loss_fn(output, y)

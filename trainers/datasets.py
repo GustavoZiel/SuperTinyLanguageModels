@@ -56,15 +56,11 @@ class BaseDatasetRandom(DatasetInterface):
     def __init__(self, split, cfg):
         super().__init__(split, cfg)
 
-    def __iter__(self, gpu_id=None):
+    def __iter__(self):
         """Get a batch of random data points in an infinite loop."""
         while True:
             # Get a random index
             idx = random.randint(0, self.dataset_len - 1)
-
-            if gpu_id is not None:
-                # For distributed training, ensure different GPUs get different data
-                print(f"Index {idx} for gpu_id {gpu_id} for dataset sharding")
 
             # Extract a slice of data for x and y
             x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))

@@ -73,7 +73,7 @@ def ddp_main(rank, world_size, cfg):
         restore_logger_override(logger, originals)
 
 
-def basic_main(cfg, world_size=1):
+def basic_main(cfg):
     """Main entry point for single GPU training.
 
     This function performs the following steps:
@@ -115,8 +115,7 @@ def basic_main(cfg, world_size=1):
     trainer = build_trainer(
         cfg=cfg,
         model=model,
-        world_size=world_size,
-        gpu_id=None,  # disables DDP
+        gpu_id=None,
         checkpoint_path=checkpoint_path,
     )
 
@@ -151,8 +150,7 @@ def main(cfg):
     prepare_data(cfg)
     logger.info("Data preparation complete.")
 
-    # world_size = torch.cuda.device_count()
-    world_size = 2
+    world_size = torch.cuda.device_count()
     logger.info(f"Number of available CUDA devices: {world_size}")
     if world_size <= 1:
         # Single GPU/CPU training
