@@ -1,12 +1,15 @@
-area1.ipynb
-area1.py
+### Specific files
 docs/
 examples/
 tests/
-utils/
+outputs/
+utils/checkpoint_utils.py
+vast_checkpoints/
+
+### Manually added ###
 
 .vscode/
-outputs
+.ruff_cache/
 *__pycache__/*
 *.bin
 checkpoints
@@ -14,6 +17,15 @@ data/
 *.DS_store
 wandb
 *.out
+area1.*
+.pre-commit-config.yaml
+.pylintrc
+LICENSE
+pytest.ini
+*.md
+.github
+pre_reports
+debugging/*
 
 ### DEFAULTS FROM GITHUB ###
 __pycache__/
