@@ -1,4 +1,13 @@
 temperature: 0.8
 top_k: 10
-max_new_tokens: 300
-input_text: "Earth is the third planet from the Sun and the only astronomical object known to harbor life. This is enabled by Earth being an ocean world, the only one in the Solar System sustaining liquid surface water."
+max_new_tokens: 5
+input_prompts:
+  - "The earth revolves around the"
+  - "The seven days of the week are Monday,"
+  - "The capital of France is P"
+  - "There are 24 hours in a"
+  - "A boot is a type of footwear that protects the foot and ankle."
+  - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
+  - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
+  - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
+  - "December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."

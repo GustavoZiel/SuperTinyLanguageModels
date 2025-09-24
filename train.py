@@ -60,38 +60,47 @@ def basic_main(cfg):
     trainer.train()
 
 
-@hydra.main(config_path="configs", config_name="train")
+@hydra.main(config_path="configs", config_name="train", version_base=None)
 def main(cfg):
-    world_size = torch.cuda.device_count()
+    # print(OmegaConf.to_yaml(cfg))
+    # print(json.dumps(OmegaConf.to_container(cfg, resolve=True), indent=4))
 
     if "full_configs" in cfg:
+        print("Using 'full_configs' from configuration.")
         cfg = cfg["full_configs"]
-    cfg["general"]["paths"]["data_dir"] = hydra.utils.to_absolute_path(
-        cfg["general"]["paths"]["data_dir"]
-    )  # must be done before multiprocessing or else the path is wrong?
 
-    create_folder_structure(path_config=cfg["general"]["paths"])
+    # print(cfg.trainer["eval"])
+    # print(cfg.trainer["eval"]["evaluator"])
+    # for evaluator in cfg.trainer["eval"]["evaluator"]:
+    #     print(evaluator)
 
-    # process data
+    create_folder_structure(
+        cfg["general"]["paths"]["data_dir"], cfg["general"]["paths"]["checkpoint_dir"], verbose=True
+    )
+
+    # Process data
     prepare_data(cfg)
+    print("Data preparation complete.")
 
-    # if world_size <= 1:
-    #     # single GPU/CPU training
-    #     basic_main(cfg)
+    world_size = torch.cuda.device_count()
+    print(f"Number of available CUDA devices: {world_size}")
+    if world_size <= 1:
+        # Single GPU/CPU training
+        print("Starting single GPU/CPU training.")
+        basic_main(cfg)
+    else:
+        # multi-GPU training
+        mp.spawn(
+            ddp_main,
+            args=(world_size, cfg),
+            nprocs=world_size,
+            join=True,
+        )
 
-    # else:
-    #     # multi-GPU training
-    #     mp.spawn(
-    #         ddp_main,
-    #         args=(world_size, cfg),
-    #         nprocs=world_size,
-    #         join=True,
-    #     )
-
-    #     # Additional cleanup to prevent leaked semaphores
-    #     for process in mp.active_children():
-    #         process.terminate()
-    #         process.join()
+        # Additional cleanup to prevent leaked semaphores
+        for process in mp.active_children():
+            process.terminate()
+            process.join()
 
 
 if __name__ == "__main__":

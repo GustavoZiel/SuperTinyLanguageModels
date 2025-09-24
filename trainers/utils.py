@@ -1,16 +1,17 @@
 """Utilities for the trainer"""
 
 import importlib
-from prettytable import PrettyTable
 import inspect
 import os
 import pkgutil
 
+import hydra
 import numpy as np
 import torch
-from datasets import load_dataset, DatasetDict, concatenate_datasets
-
 import torch.distributed as dist
+from datasets import DatasetDict, concatenate_datasets, load_dataset
+from prettytable import PrettyTable
+
 
 def set_seed(seed):
     """Setup the trainer"""
@@ -19,19 +20,49 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
 
 
-def create_folder_structure(path_config):
-    """
-    Create all necessary folders for training.
-    """
-    if not os.path.exists(path_config["data_dir"]):
-        os.makedirs(path_config["data_dir"])
+def get_absolute_path(relative_path: str, verbose: bool = False) -> str:
+    """Get the absolute path from a relative path.
 
-    if not os.path.exists(path_config["checkpoint_dir"]):
-        os.makedirs(path_config["checkpoint_dir"])
+    Args:
+        relative_path (str): The relative path to convert.
+        verbose (bool, optional): If True, logs the absolute path. Defaults to False.
+
+    Returns:
+        str: The absolute path.
+    """
+    absolute_path = hydra.utils.to_absolute_path(relative_path)
+    if verbose:
+        print(f"'{relative_path}' directory set to: {absolute_path}")
+    return absolute_path
+
+
+def create_folder(relative_path: str, verbose: bool = False) -> None:
+    """Create a folder if it does not exist.
+
+    Args:
+        relative_path (str): The relative path of the folder to create.
+        verbose (bool, optional): If True, logs folder creation. Defaults to False.
+    """
+    absolute_path = get_absolute_path(relative_path, verbose=verbose)
+    if not os.path.exists(absolute_path):
+        os.makedirs(absolute_path)
+        if verbose:
+            print(f"Created folder: {absolute_path}")
+
+
+def create_folder_structure(*args, verbose: bool = False) -> None:
+    """Create all necessary folders for training.
+
+    Args:
+        *args: Relative paths of folders to create.
+        verbose (bool, optional): If True, logs folder creation. Defaults to False.
+    """
+    for path in args:
+        create_folder(path, verbose=verbose)
+
 
 def create_stlm_data_mix():
-    """
-    A small custom datamix for STLM models containing:
+    """A small custom datamix for STLM models containing:
     - simple English Wikipedia
     - Python Code (Deepmind Code Contest) - sampled for easy questions
     - technical QA style (StackExchange)
@@ -44,18 +75,22 @@ def create_stlm_data_mix():
 
     # Load Python code from DeepMind Code Contests
     code_dataset = load_dataset("jtatman/python-code-dataset-500k")["train"]
-    code_dataset = code_dataset.map(lambda x: {"text": f"Instruction: {x['instruction']}\nOutput: {x['output']}"})
-
+    code_dataset = code_dataset.map(
+        lambda x: {"text": f"Instruction: {x['instruction']}\nOutput: {x['output']}"}
+    )
 
     # Load technical QA style data from StackExchange
     openhermes = load_dataset("teknium/OpenHermes-2.5")["train"]
 
     # Transform to have a "text" column with both question and answers
-    openhermes = openhermes.map(lambda x: {"text": f"Question: {x['conversations'][0]['value']}\nAnswers: {x['conversations'][1]['value']}"})
+    openhermes = openhermes.map(
+        lambda x: {
+            "text": f"Question: {x['conversations'][0]['value']}\nAnswers: {x['conversations'][1]['value']}"
+        }
+    )
 
     # Add tiny stories
     tiny_stories = load_dataset("roneneldan/TinyStories")["train"]
-
 
     # Calculate and print the distribution of string lengths
     def calculate_length_distribution(dataset):
@@ -69,61 +104,68 @@ def create_stlm_data_mix():
 
     total_length = wiki_length + python3_code_length + openhermes_length + tiny_stories_length
 
-    print(f"Wiki Text Length: {wiki_length} ({wiki_length/total_length*100:.2f}%)")
-    print(f"Python Code Text Length: {python3_code_length} ({python3_code_length/total_length*100:.2f}%)")
-    print(f"openhermes Text Length: {openhermes_length} ({openhermes_length/total_length*100:.2f}%)")
+    print(f"Wiki Text Length: {wiki_length} ({wiki_length / total_length * 100:.2f}%)")
+    print(
+        f"Python Code Text Length: {python3_code_length} ({python3_code_length / total_length * 100:.2f}%)"
+    )
+    print(
+        f"openhermes Text Length: {openhermes_length} ({openhermes_length / total_length * 100:.2f}%)"
+    )
 
     # Concatenate datasets
     combined_dataset = concatenate_datasets([wiki, code_dataset, openhermes, tiny_stories])
 
-    combined_dataset = DatasetDict({
-        "train": combined_dataset,
-    })
+    combined_dataset = DatasetDict(
+        {
+            "train": combined_dataset,
+        }
+    )
 
     return combined_dataset
 
 
 def load_github_code_dataset():
-    """
-    load and re-format the github code dataset
+    """Load and re-format the github code dataset
     https://huggingface.co/datasets/codeparrot/github-code
     """
-    dataset = load_dataset("codeparrot/github-code") 
+    dataset = load_dataset("codeparrot/github-code")
 
     # rename "code" column to "text" column
     dataset = dataset.map(lambda x: {"text": x["code"]})["train"]
 
-    #dataset = DatasetDict({
+    # dataset = DatasetDict({
     #    "train": dataset,
-    #})
-
+    # })
 
     return dataset
 
+
 def load_competition_math_dataset():
-    """
-    load and re-format the competition math dataset
+    """Load and re-format the competition math dataset
     https://huggingface.co/datasets/hendrycks/competition_math
     """
-    dataset = load_dataset("hendrycks/competition_math") 
+    dataset = load_dataset("hendrycks/competition_math")
 
     # format the problem and solution into a single "text" column
     dataset = dataset.map(lambda x: {"text": f"Problem: {x['problem']}\nSolution: {x['solution']}"})
 
-    dataset = DatasetDict({
-        "train": dataset,
-    })
+    dataset = DatasetDict(
+        {
+            "train": dataset,
+        }
+    )
 
     return dataset
-
 
 
 DATASET_DICT = {
     "debug": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
     "en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.en"),
     "simple_en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
-    "babylm_100m": lambda: load_dataset("Sree1994/babylm_100M"), # https://babylm.github.io/
-    "tinystories": lambda: load_dataset("roneneldan/TinyStories"), # https://huggingface.co/datasets/roneneldan/TinyStories
+    "babylm_100m": lambda: load_dataset("Sree1994/babylm_100M"),  # https://babylm.github.io/
+    "tinystories": lambda: load_dataset(
+        "roneneldan/TinyStories"
+    ),  # https://huggingface.co/datasets/roneneldan/TinyStories
     "stlm": create_stlm_data_mix,
     "openhermes-2.5": lambda: load_dataset("teknium/OpenHermes-2.5"),
     "openwebtext": lambda: load_dataset("Skylion007/openwebtext"),
@@ -138,9 +180,7 @@ def load_data(dataset_name, shuffle=True):
     dataset = DATASET_DICT[dataset_name]()
 
     # create dataset split
-    split_dataset = dataset["train"].train_test_split(
-        test_size=0.01, seed=489, shuffle=shuffle
-    )
+    split_dataset = dataset["train"].train_test_split(test_size=0.01, seed=489, shuffle=shuffle)
 
     # rename test split to val
     split_dataset["val"] = split_dataset.pop("test")
@@ -153,8 +193,7 @@ def load_data(dataset_name, shuffle=True):
 
 
 def get_classes_from_module(module_name):
-    """
-    Get a list of classes defined in a module or package.
+    """Get a list of classes defined in a module or package.
 
     Args:
         module_name (str): The name of the module or package.
@@ -173,8 +212,7 @@ def get_classes_from_module(module_name):
 
 
 def get_classes_from_package(package_name):
-    """
-    Get a list of classes defined in a package and its subpackages.
+    """Get a list of classes defined in a package and its subpackages.
 
     Args:
         package_name (str): The name of the package.
@@ -185,9 +223,7 @@ def get_classes_from_package(package_name):
     package = importlib.import_module(package_name)
     classes = get_classes_from_module(package_name)
 
-    for _, module_name, _ in pkgutil.walk_packages(
-        package.__path__, package.__name__ + "."
-    ):
+    for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
         classes.extend(get_classes_from_module(module_name))
 
     return classes
@@ -231,9 +267,7 @@ def profilize(model, classes=None):
 
         def forward_wrapper(*args, **kwargs):
             nested_module_name = model.__class__.__name__
-            with torch.autograd.profiler.record_function(
-                f"{nested_module_name}.forward"
-            ):
+            with torch.autograd.profiler.record_function(f"{nested_module_name}.forward"):
                 outputs = model.old_forward(*args, **kwargs)
             if isinstance(outputs, (list, tuple)):
                 for output in outputs:
@@ -244,16 +278,15 @@ def profilize(model, classes=None):
 
         model.forward = forward_wrapper
 
+
 def is_dist():
-    """
-    Check if the current process is distributed.
-    """
+    """Check if the current process is distributed."""
     return dist.is_initialized()
 
-def aggregate_value(value, device = torch.device("cuda")): 
-    """
-    Since using DDP, calculation of metrics happen across all GPUs. 
-    This function aggregate the loss across all GPUs. 
+
+def aggregate_value(value, device=torch.device("cuda")):
+    """Since using DDP, calculation of metrics happen across all GPUs.
+    This function aggregate the loss across all GPUs.
     """
     if not is_dist():
         return value
@@ -262,36 +295,34 @@ def aggregate_value(value, device = torch.device("cuda")):
     return all_loss.item() / dist.get_world_size()
     # return value
 
+
 def init_print_override():
-    '''
-    Overriding the print function is useful when running DDP. 
+    """Overriding the print function is useful when running DDP.
     This way, only rank 0 prints to the console.
-    '''
+    """
     import builtins as __builtin__
-    
+
     original_print = __builtin__.print
 
     def print(*args, **kwargs):
-        if os.getenv('GLOBAL_RANK') == '0':
+        if os.getenv("GLOBAL_RANK") == "0":
             original_print(*args, **kwargs)
 
     __builtin__.print = print
 
     return original_print
 
+
 def restore_print_override(original_print):
-    '''
-    Restore the original print function.
-    '''
+    """Restore the original print function."""
     import builtins as __builtin__
+
     __builtin__.print = original_print
-
-
 
 
 # Function to print evaluation results and benchmark results
 def print_evaluation_results(iter_num, eval_results, benchmark_results):
-    headers = ['Metric', 'Value']
+    headers = ["Metric", "Value"]
     table = PrettyTable(headers)
 
     # Adding eval_results rows
@@ -302,20 +333,19 @@ def print_evaluation_results(iter_num, eval_results, benchmark_results):
     print(f"Iteration {iter_num}")
     print(table)
 
-    
-    benchmark_table = PrettyTable(['Benchmark', 'Accuracy', "Path Conf.", "Ground Conf."])
+    benchmark_table = PrettyTable(["Benchmark", "Accuracy", "Path Conf.", "Ground Conf."])
     for eval_method in benchmark_results.keys():
         if eval_method == "ft_qa":
             continue
         for benchmark, value in benchmark_results[eval_method].items():
-            benchmark_table.add_row([
-                f"{benchmark}", 
-                value['accuracy'],
-                value['path_confidence'],
-                value['ground_confidence']
-            ])
+            benchmark_table.add_row(
+                [
+                    f"{benchmark}",
+                    value["accuracy"],
+                    value["path_confidence"],
+                    value["ground_confidence"],
+                ]
+            )
 
     print("Benchmark Results")
     print(benchmark_table)
-
-

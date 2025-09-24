@@ -1,5 +1,5 @@
 defaults:
-- full_configs: baseline
+- full_configs: baseline_ziel
 # - model: baseline
 # - trainer: baseline
 # - general: default
