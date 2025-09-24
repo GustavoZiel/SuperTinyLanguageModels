@@ -28,6 +28,7 @@ from trainers.scheduler import (
     LRScheduler,
     TriangleDropoutScheduler,
 )
+from trainers.utils import IterableDatasetShard
 from utils.logger import get_logger
 
 logger = get_logger()
@@ -120,9 +121,25 @@ DATASET_DICT: dict[str, DatasetInterface] = {
 }
 
 
-def build_dataset(cfg, split):
+def build_dataset(cfg, split, world_size, rank):
     """Given the config, build the dataloader"""
-    return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split)
+    if world_size > 1:
+        # For distributed training, we can use IterableDatasetShard to shard the dataset
+        logger.info(
+            f"Building split {split} distributed dataset for rank {rank} out of {world_size} processes"
+        )
+        base_dataset = DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split)
+        return IterableDatasetShard(
+            dataset=base_dataset,
+            batch_size=cfg["trainer"]["training"]["batch_size"],
+            drop_last=False,
+            num_processes=world_size,
+            process_index=rank,
+            seed=0,
+        )
+    else:
+        logger.info(f"Building split {split} non-distributed dataset")
+        return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split)
 
 
 LOSS_FN_DICT = {
@@ -143,7 +160,7 @@ TRAINER_DICT = {
 }
 
 
-def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
+def build_trainer(cfg, model, world_size, gpu_id, checkpoint_path=None):
     """Given a config, this function builds a trainer
     and all relevant components of it.
 
@@ -163,8 +180,13 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
     dropout_scheduler = build_dropout_scheduler(trainer_cfg=cfg.trainer)
 
     logger.info("Building datasets...")
-    train_dataset = build_dataset(cfg=cfg, split="train")
-    val_dataset = build_dataset(cfg=cfg, split="val")
+    train_dataset = build_dataset(
+        cfg=cfg,
+        split="train",
+        world_size=world_size,
+        rank=gpu_id,
+    )
+    val_dataset = build_dataset(cfg=cfg, split="val", world_size=world_size, rank=gpu_id)
 
     logger.info("Wrapping datasets in dataloaders...")
     train_dataloader = torch.utils.data.DataLoader(
