@@ -51,9 +51,11 @@ class BaseTrainer:
         self.model = model
 
         if gpu_id is not None:  # using ddp
+            logger.info(f"Using DDP on GPU {gpu_id}")
             self.dist = True
             self.DDP_model = DDP(self.model, device_ids=[gpu_id])
         else:
+            logger.info("Not using DDP")
             self.dist = False
             self.DDP_model = model
         self.gpu_id = gpu_id
@@ -160,8 +162,9 @@ class BaseTrainer:
         for i, (x, y) in enumerate(self.val_dataloader):
             if verbose:
                 logger.info(f"estimate_performance: batch {i}")
-            x = x.to(self.gpu_id if self.gpu_id is not None else self.model.device)
-            y = y.to(self.gpu_id if self.gpu_id is not None else self.model.device)
+            device = f"cuda:{self.gpu_id}" if self.gpu_id is not None else self.model.device
+            x = x.to(device)
+            y = y.to(device)
             with self.ctx:
                 output, _ = self.model(x)
                 loss = self.loss_fn(output, y)
@@ -213,6 +216,9 @@ class BaseTrainer:
             x, y = next(self.train_dataloader_iter)
             x = x.to(self.gpu_id if self.gpu_id is not None else self.model.device)
             y = y.to(self.gpu_id if self.gpu_id is not None else self.model.device)
+            # device = f"cuda:{self.gpu_id}" if self.gpu_id is not None else self.model.device
+            # x = x.to(device)
+            # y = y.to(device)
 
             # Enable or disable gradient synchronization based on the need for accumulation
             if self.dist and hasattr(self.DDP_model, "no_sync"):
@@ -609,11 +615,13 @@ class BaseTrainer:
             dropout = self.dropout_scheduler.step(self.model, iter_num - 1)
 
             # Periodic prompting
-            if self.use_wandb and (
-                iter_num == self.iter_start
-                or (
-                    self.cfg.trainer.training.prompt_interval > 0
-                    and (not iter_num % self.cfg.trainer.training.prompt_interval)
+            if (
+                self.use_wandb
+                and (self.gpu_id == 0 or self.gpu_id is None)
+                and self.cfg.trainer.training.prompt_interval > 0
+                and (
+                    iter_num == self.iter_start
+                    or not iter_num % self.cfg.trainer.training.prompt_interval
                 )
             ):
                 logger.info(f"Running prompting at iteration {iter_num}")
@@ -655,9 +663,14 @@ class BaseTrainer:
             ):
                 lossf = aggregate_value(lossf, self.cfg.general.device)
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                logger.info(
-                    f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
-                )
+                if self.gpu_id is not None:
+                    logger.info(
+                        f"GPU {self.gpu_id}: Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
+                    )
+                else:
+                    logger.info(
+                        f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
+                    )
                 if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
                     wandb.log(
                         {

@@ -339,6 +339,48 @@ def aggregate_value(value, device=torch.device("cuda")):
     # return value
 
 
+def init_logger_override(logger):
+    """Override logger methods so only rank 0 logs to the console.
+    Returns a dict of the original methods so you can restore if needed.
+    """
+    original_methods = {
+        "debug": logger.debug,
+        "info": logger.info,
+        "warning": logger.warning,
+        "error": logger.error,
+        "critical": logger.critical,
+        "exception": logger.exception,
+    }
+
+    def make_wrapper(original_method):
+        def wrapper(*args, **kwargs):
+            if os.getenv("GLOBAL_RANK", "0") == "0":
+                original_method(*args, **kwargs)
+
+        return wrapper
+
+    # Override logger methods
+    logger.debug = make_wrapper(logger.debug)
+    logger.info = make_wrapper(logger.info)
+    logger.warning = make_wrapper(logger.warning)
+    logger.error = make_wrapper(logger.error)
+    logger.critical = make_wrapper(logger.critical)
+    logger.exception = make_wrapper(logger.exception)
+
+    return original_methods
+
+
+def restore_logger_override(logger, original_methods):
+    """Restore the original logger methods after overriding.
+
+    Args:
+        logger (logging.Logger): The logger to restore.
+        original_methods (dict): Dict returned by init_logger_override.
+    """
+    for method_name, original_method in original_methods.items():
+        setattr(logger, method_name, original_method)
+
+
 def init_print_override():
     """Overriding the print function is useful when running DDP.
     This way, only rank 0 prints to the console.

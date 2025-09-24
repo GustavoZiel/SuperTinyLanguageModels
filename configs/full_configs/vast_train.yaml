@@ -41,16 +41,16 @@ trainer:
   dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
-    batch_size: 8
-    gradient_accumulation_steps: 8
+    batch_size: 12
+    gradient_accumulation_steps: 12
     max_iters: 30000
     lr_decay_iters: 30000
-    warmup_iters: 2500
+    warmup_iters: 5000
     eval_iters: 500
     checkpoint_interval: 100000
-    eval_interval: 10
-    log_interval: 1
-    prompt_interval: 10
+    eval_interval: 100
+    log_interval: 10
+    prompt_interval: 50
     run_profiler: false
   eval:
     - benchmarks:
@@ -59,7 +59,7 @@ trainer:
         - "arc"
         - "mmlu"
         - "blimp"
-      num_samples: 10
+      num_samples: 100
       evaluator: "mcq"
   optimizer:
     name: nanoGPTadamW
@@ -70,7 +70,7 @@ trainer:
     beta2: 0.95
     grad_clip: 1.0
     decay_lr: true
-    warmup_iters: 2500
+    warmup_iters: 5000
   lr_scheduler:
     name: cosine
   dataloader:
