@@ -37,7 +37,7 @@ trainer:
     trainer_type: base_trainer
     batch_size: 8
     gradient_accumulation_steps: 8
-    max_iters: 30000
+    max_iters: 100
     lr_decay_iters: 30000
     warmup_iters: 5000
     eval_iters: 500
@@ -68,7 +68,7 @@ trainer:
         # - "arc"
         # - "mmlu"
         - "blimp"
-      num_samples: 1000
+      num_samples: 10
       evaluator: "mcq"
   optimizer:
     name: nanoGPTadamW
@@ -90,7 +90,7 @@ trainer:
     name: cross_entropy
 general:
   logging:
-    wandb_log: true
+    wandb_log: false
     wandb_project: SuperTinyLanguageModels
   paths:
     output_dir: outputs

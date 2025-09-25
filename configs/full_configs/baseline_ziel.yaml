@@ -41,9 +41,9 @@ trainer:
     lr_decay_iters: 30000
     warmup_iters: 5000
     eval_iters: 500
-    eval_interval: 3000
-    log_interval: 1000
-    prompt_interval: 3000
+    eval_interval: 1000
+    log_interval: 500
+    prompt_interval: 1000
     checkpoint_interval: 3000
     run_profiler: false
   prompt:
@@ -60,7 +60,7 @@ trainer:
     generator:
       top_k: 10
       temperature: 0.8
-      max_new_tokens: 300
+      max_new_tokens: 50
   eval:
     - benchmarks:
         - "winograd"

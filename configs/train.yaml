@@ -1,4 +1,5 @@
 defaults:
+# - full_configs: debug_ziel
 - full_configs: baseline_ziel
 # - model: baseline
 # - trainer: baseline

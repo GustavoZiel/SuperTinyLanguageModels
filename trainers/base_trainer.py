@@ -298,13 +298,14 @@ class BaseTrainer:
 
     def run_training_loop(self):
         """Run the training loop"""
-        for iter_num in range(self.cfg.trainer.training.max_iters):
+        elapsed_time = 0.0
+        for iter_num in range(1, self.cfg.trainer.training.max_iters + 1):
             start_time = time.time()
             if self.lr_scheduler is not None:
-                lr = self.lr_scheduler.step(self.optimizer, iter_num)
+                lr = self.lr_scheduler.step(self.optimizer, iter_num - 1)
             else:
                 lr = self.optimizer.param_groups[0]["lr"]
-            dropout = self.dropout_scheduler.step(self.model, iter_num)
+            dropout = self.dropout_scheduler.step(self.model, iter_num - 1)
 
             # Periodic prompting
             if (
@@ -354,6 +355,8 @@ class BaseTrainer:
 
             lossf = self._run_step()  ## set the 'epoch' to ensure shuffle
             end_time = time.time()
+            elapsed_time += end_time - start_time
+
             if not iter_num % self.cfg.trainer.training.log_interval and iter_num > 0:
                 ## uncomment the following line to print the loss on all GPUs
                 # print(f"GPU {self.gpu_id}: step {iter_num}: loss {lossf:.4f}, lr {lr:.1e}, dt {end_time-start_time:.1f}s")
@@ -362,8 +365,12 @@ class BaseTrainer:
                 lossf = aggregate_value(lossf, self.cfg.general.device)
 
                 ## print and log the result only on the first GPU after aggregation
+                elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+                # print(
+                #     f"All GPU(s): step {iter_num}: loss {lossf:.4f}, lr {lr:.1e}, dt {end_time - start_time:.1f}s"
+                # )
                 print(
-                    f"All GPU(s): step {iter_num}: loss {lossf:.4f}, lr {lr:.1e}, dt {end_time - start_time:.1f}s"
+                    f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
                 )
                 if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
                     wandb.log(
@@ -374,9 +381,9 @@ class BaseTrainer:
                             "dropout": dropout,
                         }
                     )
-        # save the final model
-        if self.gpu_id == 0 or self.gpu_id is None:  ## ensure only the first GPU saves the model
-            self._save_model(iter_num)
+        # # save the final model
+        # if self.gpu_id == 0 or self.gpu_id is None:  ## ensure only the first GPU saves the model
+        #     self._save_model(iter_num)
 
     def train(self, seed=42):
         """Train the model"""

@@ -1,14 +1,12 @@
-"""
-Builds the individual components of the trainer,
+"""Builds the individual components of the trainer,
 and the trainer itself.
 """
 
 import os
 
 import torch
-from torch.distributed import init_process_group
-
 from models.experimental.hugging_face import MockTrainer
+from torch.distributed import init_process_group
 from trainers.base_trainer import BaseTrainer
 from trainers.datasets import (
     BaseDatasetRandom,
@@ -32,10 +30,9 @@ from trainers.scheduler import (
 
 
 def ddp_setup(rank, world_size):
-    """
-    Args:
-        rank: Unique identifier of each process
-        world_size: Total number of processes
+    """Args:
+    rank: Unique identifier of each process
+    world_size: Total number of processes
     """
     # Get the master address and port from SLURM environment variables
     master_addr = os.environ.get("MASTER_ADDR", "localhost")
@@ -65,12 +62,8 @@ OPTIMIZER_DICT = {
 
 
 def build_optimizer(model, optimizer_config):
-    """
-    Given the optimizer config, build the optimizer
-    """
-    return OPTIMIZER_DICT[optimizer_config["name"]](
-        model=model, trainer_cfg=optimizer_config
-    )
+    """Given the optimizer config, build the optimizer"""
+    return OPTIMIZER_DICT[optimizer_config["name"]](model=model, trainer_cfg=optimizer_config)
 
 
 SCHEDULER_DICT = {
@@ -87,16 +80,12 @@ SCHEDULER_DICT = {
 
 
 def build_lr_scheduler(trainer_cfg):
-    """
-    Given the trainer config, build the LR scheduler.build_model
-    """
+    """Given the trainer config, build the LR scheduler.build_model"""
     return SCHEDULER_DICT[trainer_cfg["lr_scheduler"]["name"]](trainer_cfg=trainer_cfg)
 
 
 def build_dropout_scheduler(trainer_cfg):
-    """
-    Given the trainer config, build the dropout scheduler.
-    """
+    """Given the trainer config, build the dropout scheduler."""
     if trainer_cfg["dropout_scheduler"]["dropout_type"] == "constant":
         return DropoutScheduler(trainer_cfg["dropout_scheduler"]["dropout"])
     if trainer_cfg["dropout_scheduler"]["dropout_type"] == "linear":
@@ -126,11 +115,8 @@ DATASET_DICT: dict[str, DatasetInterface] = {
 
 
 def build_dataset(cfg, split):
-    """
-    Given the config, build the dataloader
-    """
+    """Given the config, build the dataloader"""
     return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split)
-
 
 
 LOSS_FN_DICT = {
@@ -141,9 +127,7 @@ LOSS_FN_DICT = {
 
 
 def build_loss_fn(loss_fn_name):
-    """
-    Given the loss function name, build the loss function
-    """
+    """Given the loss function name, build the loss function"""
     return LOSS_FN_DICT[loss_fn_name]
 
 
@@ -154,11 +138,9 @@ TRAINER_DICT = {
 
 
 def build_trainer(cfg, model, gpu_id):
-    """
-    Given a config, this function builds a trainer
+    """Given a config, this function builds a trainer
     and all relevant components of it.
     """
-
     # build optimizer
     optimizer = build_optimizer(model=model, optimizer_config=cfg.trainer["optimizer"])
 
@@ -172,13 +154,11 @@ def build_trainer(cfg, model, gpu_id):
     train_dataset = build_dataset(cfg=cfg, split="train")
     val_dataset = build_dataset(cfg=cfg, split="val")
 
-
     # wrap in dataloaders
     train_dataloader = torch.utils.data.DataLoader(
         dataset=train_dataset,
         batch_size=cfg["trainer"]["training"]["batch_size"],
         shuffle=False,
-
     )
     val_dataloader = torch.utils.data.DataLoader(
         dataset=val_dataset,
