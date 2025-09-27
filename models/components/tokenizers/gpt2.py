@@ -1,11 +1,9 @@
-"""
-A simple wrapper around the GPT2 Tokenizer to
+"""A simple wrapper around the GPT2 Tokenizer to
 standardize the interface for tokenization.
 """
 
 import tiktoken
 import torch
-
 from models.components.tokenizers.base_class import Tokenizer
 
 

@@ -31,13 +31,20 @@ class StandardGenerator(torch.nn.Module):
         idx = self.model.embedding_model.tokenize_input(
             input_string=input_text, add_eot=False, truncate=True
         )
+
         # push to device
         idx = torch.tensor(idx).unsqueeze(0).to(torch.device("cuda"))
-        for _ in range(max_new_tokens):
+
+        messages = []
+        for i_token in range(max_new_tokens):
+            message = f"Step {i_token + 1}:\n"
+
             # forward the model to get the logits for the index in the sequence
             logits, model_input = self.model.inference(idx)
+
             # pluck the logits at the final step and scale by desired temperature
             logits = logits / temperature
+
             # logits have shape (b,t,v)
             # optionally crop the logits to only the top k options
             if top_k is not None:
@@ -49,6 +56,7 @@ class StandardGenerator(torch.nn.Module):
                     logits[logits < v[:, [-1]]] = -float("Inf")
             # apply softmax to convert logits to (normalized) probabilities
             probs = torch.nn.functional.softmax(logits, dim=-1)
+
             # sample from the distribution
             # check if byte-level and if so, flatten
             if len(probs.size()) == 4:
@@ -60,6 +68,12 @@ class StandardGenerator(torch.nn.Module):
 
             idx_next = torch.multinomial(probs, num_samples=1)
 
+            # For every i_token, collect top_k token info and format messages
+            top_k_probs, top_k_indices = torch.topk(probs, top_k)
+            for i_idx, i_prob in zip(top_k_indices.flatten(), top_k_probs.flatten()):
+                decoded_token = self.model.embedding_model.decode(i_idx.view(1, -1))
+                message += f"Token: {decoded_token}, Probability: {i_prob.item():.4f}, Index: {i_idx.item()}\n"
+
             # check if byte-level and if so, unflatten
             if flattened:
                 idx_next = idx_next.view(B, S)
@@ -70,7 +84,9 @@ class StandardGenerator(torch.nn.Module):
                 idx_next = idx_next.unsqueeze(0)
             idx = torch.cat((idx, idx_next), dim=1)
 
-        return self.model.embedding_model.decode(idx.tolist())
+            messages.append(message)
+
+        return self.model.embedding_model.decode(idx.tolist()), messages
 
     def forward(self, x):
         """Call the underlying model"""

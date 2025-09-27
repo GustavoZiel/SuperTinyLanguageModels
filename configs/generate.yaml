@@ -1,4 +1,7 @@
 defaults:
   - generator: baseline
-model_ckpt: "checkpoints/20250923_1019_openwebtext_7500.pt"
+# model_ckpt: "vast_checkpoints/20250925_1040_openwebtext_27000.pt"
+model_ckpt: "checkpoints/20250919_0859_simple_en_wiki_29999.pt"
+# model_ckpt: "checkpoints/20250920_0838_en_wiki_30000.pt"
+# model_ckpt: "checkpoints/20250921_1241_simple_en_wiki_10000.pt"
 
