@@ -5,10 +5,12 @@ import random
 
 import numpy as np
 import torch
-from tqdm import tqdm
+from torch.distributed import get_rank, get_world_size
+from torch.utils.data import DistributedSampler, SequentialSampler, get_worker_info
 
-from models.embedding_models import GenericEmbedder
-from trainers.utils import load_data
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class DatasetInterface(torch.utils.data.IterableDataset):
@@ -56,6 +58,32 @@ class BaseDatasetRandom(DatasetInterface):
     def __init__(self, split, cfg):
         super().__init__(split, cfg)
 
+        # self.worker_info = get_worker_info()
+        # self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
+        # self.worker_id = self.worker_info.id if self.worker_info is not None else 0
+
+        # # Check if distributed is available and initialized, and if more than one GPU is available
+        # if (
+        #     torch.distributed.is_available()
+        #     and torch.distributed.is_initialized()
+        #     and torch.cuda.device_count() > 1
+        # ):
+        #     logger.info("Using DistributedSampler for BaseDatasetRandom")
+        #     self.world_size = get_world_size()
+        #     self.process_rank = get_rank()
+        #     self.sampler = DistributedSampler(
+        #         self,
+        #         num_replicas=(self.num_workers * self.world_size),
+        #         rank=(self.process_rank * self.num_workers + self.worker_id),
+        #         shuffle=False,
+        #     )
+        # else:
+        #     logger.info("Using SequentialSampler for BaseDatasetRandom")
+        #     # Use SequentialSampler if only one GPU or not distributed
+        #     self.world_size = 1
+        #     self.process_rank = 0
+        #     self.sampler = SequentialSampler(self)
+
     def __iter__(self):
         """Get a batch of random data points in an infinite loop."""
         while True:
@@ -70,6 +98,20 @@ class BaseDatasetRandom(DatasetInterface):
 
             # Yield the data points
             yield x, y
+
+    # def __iter__(self):
+    #     for idx in iter(self.sampler):
+    #         # Convert the sampler index to actual data with context window
+    #         # print(f"Processing index {idx} for context window")
+
+    #         # Extract x and y with context window
+    #         x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+    #         y = torch.from_numpy(
+    #             (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
+    #         )
+
+    #         # print(f"Rank {self.rank}: idx={idx}, x={x.tolist()}, y={y.tolist()}")
+    #         yield x, y
 
 
 class BytePoolingDataset(DatasetInterface):

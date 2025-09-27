@@ -17,7 +17,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: simple_en_wiki
+    dataset_name: openwebtext
   lm_head:
     normalization: rms_norm
     bias: false
@@ -32,46 +32,43 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: simple_en_wiki
+  dataset: openwebtext
   training:
     trainer_type: base_trainer
-    batch_size: 8
-    gradient_accumulation_steps: 8
-    max_iters: 100
+    batch_size: 24
+    gradient_accumulation_steps: 20
+    max_iters: 30000
     lr_decay_iters: 30000
     warmup_iters: 5000
     eval_iters: 500
-    eval_interval: 25
-    log_interval: 10
-    prompt_interval: 50
-    checkpoint_interval: 50
+    eval_interval: 1000
+    log_interval: 500
+    prompt_interval: 1000
+    checkpoint_interval: 3000
     run_profiler: false
   prompt:
     input_prompts:
-      - "The capital of France is"
-      - "The capital of France is"
-      - "The capital of France is"
-      - "The capital of France is"
-      # - "The earth revolves around the"
-      # - "The seven days of the week are Monday,"
-      # - "There are 24 hours in a"
-      # - "A boot is a type of footwear that protects the foot and ankle."
-      # - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
-      # - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
-      # - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
-      # - December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."
+      - "The earth revolves around the"
+      - "The seven days of the week are Monday,"
+      - "The capital of France is P"
+      - "There are 24 hours in a"
+      - "A boot is a type of footwear that protects the foot and ankle."
+      - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
+      - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
+      - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
+      - December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."
     generator:
       top_k: 10
       temperature: 0.8
-      max_new_tokens: 10
+      max_new_tokens: 50
   eval:
     - benchmarks:
-        # - "winograd"
-        # - "hellaswag"
-        # - "arc"
-        # - "mmlu"
+        - "winograd"
+        - "hellaswag"
+        - "arc"
+        - "mmlu"
         - "blimp"
-      num_samples: 10
+      num_samples: 1000
       evaluator: "mcq"
   optimizer:
     name: nanoGPTadamW

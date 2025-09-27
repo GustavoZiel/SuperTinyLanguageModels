@@ -576,12 +576,15 @@ class BaseTrainer:
         generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
         generated = ""
         for input_num, input_prompt in enumerate(prompt_cfg["input_prompts"], start=1):
-            generated_text = generator.default_generate(input_text=input_prompt)
+            generated_text, messages = generator.default_generate(input_text=input_prompt)
             generated += (
                 "=" * 30 + f"\n\nQuestion {input_num}\n\n"
                 f"Prompt:\n{input_prompt}\n\n"
                 f"Generated:\n{generated_text[0]}\n\n"
             )
+            for message in messages[:1]:
+                generated += message + "\n"
+            generated += "=" * 30 + "\n\n"
         return generated
 
     def run_training_loop(self, verbose: bool = True):
@@ -598,9 +601,6 @@ class BaseTrainer:
         # Start from iter_start if resuming from checkpoint, otherwise start from 1
         start_iter = max(1, self.iter_start)
         for iter_num in range(start_iter, self.cfg.trainer.training.max_iters + 1):
-            # logger.info(
-            #     f"Iter {iter_num} - Model is on {'train' if self.model.training else 'eval'} mode"
-            # )
             start_time = time.time()
             if self.lr_scheduler is not None:
                 lr = self.lr_scheduler.step(self.optimizer, iter_num - 1)
@@ -609,40 +609,41 @@ class BaseTrainer:
             dropout = self.dropout_scheduler.step(self.model, iter_num - 1)
 
             # Periodic prompting
-            if self.use_wandb and (
-                iter_num == self.iter_start
-                or (
-                    self.cfg.trainer.training.prompt_interval > 0
-                    and (not iter_num % self.cfg.trainer.training.prompt_interval)
-                )
+            if iter_num == self.iter_start or (
+                self.cfg.trainer.training.prompt_interval > 0
+                and (not iter_num % self.cfg.trainer.training.prompt_interval)
             ):
-                logger.info(f"Running prompting at iteration {iter_num}")
-                generated = self.run_prompting_table(self.cfg.trainer.prompt)
-                self.table.add_data(iter_num, generated)
-                wandb.log({"prompt_answer_table": self.table})
+                if self.use_wandb and (self.gpu_id == 0 or self.gpu_id is None):
+                    logger.info(f"Running prompting at iteration {iter_num}")
+                    generated = self.run_prompting_table(self.cfg.trainer.prompt)
+                    self.table.add_data(iter_num, generated)
+                    wandb.log({"prompt_answer_table": self.table})
 
             # Periodic evaluation
             if iter_num == self.iter_start or (
-                not iter_num % self.cfg.trainer.training.eval_interval
+                self.cfg.trainer.training.eval_interval > 0
+                and not iter_num % self.cfg.trainer.training.eval_interval
             ):
-                eval_results, benchmark_results = self.estimate_performance(verbose=False)
-                print_evaluation_results(
-                    iter_num=iter_num,
-                    eval_results=eval_results,
-                    benchmark_results=benchmark_results,
-                )
-                if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
-                    log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
-                    log_dict.update(eval_results)
-                    log_dict.update({k: v for k, v in benchmark_results.items()})
-                    wandb.log(log_dict)
+                if self.gpu_id == 0 or self.gpu_id is None:
+                    eval_results, benchmark_results = self.estimate_performance(verbose=False)
+                    print_evaluation_results(
+                        iter_num=iter_num,
+                        eval_results=eval_results,
+                        benchmark_results=benchmark_results,
+                    )
+                    if self.use_wandb:
+                        log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
+                        log_dict.update(eval_results)
+                        log_dict.update({k: v for k, v in benchmark_results.items()})
+                        wandb.log(log_dict)
 
             # Periodic checkpointing
             if iter_num == self.iter_start or (
-                not iter_num % self.cfg.trainer.training.checkpoint_interval
-                and (self.gpu_id == 0 or self.gpu_id is None)
+                self.cfg.trainer.training.checkpoint_interval > 0
+                and not iter_num % self.cfg.trainer.training.checkpoint_interval
             ):
-                self.save_checkpoint(iter_num)
+                if self.gpu_id == 0 or self.gpu_id is None:
+                    self.save_checkpoint(iter_num)
 
             # Training step
             lossf = self._run_step()
@@ -651,22 +652,25 @@ class BaseTrainer:
 
             # Periodic logging
             if iter_num == self.iter_start or (
-                not iter_num % self.cfg.trainer.training.log_interval
+                self.cfg.trainer.training.log_interval > 0
+                and not iter_num % self.cfg.trainer.training.log_interval
             ):
                 lossf = aggregate_value(lossf, self.cfg.general.device)
-                elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                logger.info(
-                    f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
-                )
-                if (self.gpu_id == 0 or self.gpu_id is None) and self.use_wandb:
-                    wandb.log(
-                        {
-                            "iter": iter_num,
-                            "loss": lossf,
-                            "lr": lr,
-                            "dropout": dropout,
-                        }
+                if self.gpu_id == 0 or self.gpu_id is None:
+                    elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+                    logger.info(
+                        f"All GPU(s): Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
                     )
+                    if self.use_wandb:
+                        wandb.log(
+                            {
+                                "iter": iter_num,
+                                "loss": lossf,
+                                "lr": lr,
+                                "dropout": dropout,
+                            }
+                        )
+
         # # Save the final model checkpoint
         # if self.gpu_id == 0 or self.gpu_id is None:
         #     self.save_checkpoint(iter_num)

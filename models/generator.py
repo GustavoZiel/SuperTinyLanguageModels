@@ -11,7 +11,6 @@ class StandardGenerator(torch.nn.Module):
         super().__init__()
         self.model = model
         self.model = self.model.to(torch.device("cuda"))
-        # Don't set eval mode here - let generate() method handle it
         self.generate_config = generate_cfg
 
     def default_generate(self, input_text):
@@ -40,15 +39,16 @@ class StandardGenerator(torch.nn.Module):
             # push to device
             idx = torch.tensor(idx).unsqueeze(0).to(torch.device("cuda"))
 
-            for _ in range(max_new_tokens):
+            messages = []
+            for i_token in range(max_new_tokens):
+                message = f"Step {i_token + 1}:\n"
+
                 # forward the model to get the logits for the index in the sequence
-                logits = self.model.inference(idx)
-                # print("logits", logits)
-                # print("temperature", temperature)
+                logits, model_input = self.model.inference(idx)
+
                 # pluck the logits at the final step and scale by desired temperature
-                logits = logits[0]  # pega o primeiro elemento da tupla
                 logits = logits / temperature
-                # logits = logits / temperature
+
                 # logits have shape (b,t,v)
                 # optionally crop the logits to only the top k options
                 if top_k is not None:
@@ -60,6 +60,7 @@ class StandardGenerator(torch.nn.Module):
                         logits[logits < v[:, [-1]]] = -float("Inf")
                 # apply softmax to convert logits to (normalized) probabilities
                 probs = torch.nn.functional.softmax(logits, dim=-1)
+
                 # sample from the distribution
                 # check if byte-level and if so, flatten
                 if len(probs.size()) == 4:
@@ -71,6 +72,12 @@ class StandardGenerator(torch.nn.Module):
 
                 idx_next = torch.multinomial(probs, num_samples=1)
 
+                # For every i_token, collect top_k token info and format messages
+                top_k_probs, top_k_indices = torch.topk(probs, top_k)
+                for i_idx, i_prob in zip(top_k_indices.flatten(), top_k_probs.flatten()):
+                    decoded_token = self.model.embedding_model.decode(i_idx.view(1, -1))
+                    message += f"Token: {decoded_token}, Probability: {i_prob.item():.4f}, Index: {i_idx.item()}\n"
+
                 # check if byte-level and if so, unflatten
                 if flattened:
                     idx_next = idx_next.view(B, S)
@@ -81,7 +88,9 @@ class StandardGenerator(torch.nn.Module):
                     idx_next = idx_next.unsqueeze(0)
                 idx = torch.cat((idx, idx_next), dim=1)
 
-            return self.model.embedding_model.decode(idx.tolist())
+                messages.append(message)
+
+            return self.model.embedding_model.decode(idx.tolist()), messages
 
         finally:
             # Always restore the original training state
