@@ -36,7 +36,7 @@ def ddp_main(rank, world_size, cfg):
     original_print = init_print_override()
 
     # override the logger to include rank info
-    originals = init_logger_override(logger)
+    # originals = init_logger_override(logger)
 
     try:
         # print("Rank: ", rank, "World Size: ", world_size)
@@ -68,7 +68,7 @@ def ddp_main(rank, world_size, cfg):
         restore_print_override(original_print)
 
         # restore the logger
-        restore_logger_override(logger, originals)
+        # restore_logger_override(logger, originals)
 
 
 def basic_main(cfg):
