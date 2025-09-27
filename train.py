@@ -52,9 +52,7 @@ def ddp_main(rank, world_size, cfg):
         print_model_stats(model)
 
         # load the relevant trainer
-        trainer: base_trainer.BaseTrainer = build_trainer(
-            cfg=cfg, model=model, world_size=world_size, gpu_id=rank
-        )
+        trainer: base_trainer.BaseTrainer = build_trainer(cfg=cfg, model=model, gpu_id=rank)
 
         # print(f"Rank{rank} Trainer built")
         logger.info(f"Rank {rank}: Trainer built")

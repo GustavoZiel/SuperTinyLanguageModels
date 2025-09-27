@@ -37,29 +37,71 @@ trainer:
     trainer_type: base_trainer
     batch_size: 24
     gradient_accumulation_steps: 20
-    max_iters: 30000
-    lr_decay_iters: 30000
+    max_iters: 100_000
+    lr_decay_iters: 100_000
     warmup_iters: 5000
-    eval_iters: 500
+    eval_iters: 1000
     eval_interval: 1000
-    log_interval: 500
-    prompt_interval: 1000
-    checkpoint_interval: 3000
+    log_interval: 1000
+    prompt_interval: 10_000
+    checkpoint_interval: 10_000
     run_profiler: false
   prompt:
     input_prompts:
+      # Geography
+      - "The capital of the United States is"
+      - "The capital city of Italy is"
+      - "The capital of France is"
+      - "The tallest mountain in the world is"
+      - "The Great Wall of China was built to"
+      - "The currency of Japan is"
+      - "The longest river in the world is"
+      - "The largest continent on Earth is"
+      - "The Sahara is a famous"
+      - "Mount Everest is located in"
+      - "The official language of Brazil is"
+      - "The country known as the Land of the Rising Sun is"
+
+      # Science
+      - "The largest planet in our solar system is"
+      - "The chemical symbol for water is"
+      - "The process by which plants make their own food is called"
+      - "The theory of relativity was developed by"
+      - "The largest mammal on Earth is"
+      - "The freezing point of water is"
+      - "The hardest natural substance on Earth is"
+      - "The basic unit of life is the"
+      - "The speed of light is approximately"
+      - "The human body has how many bones"
+      - "The gas essential for human respiration is"
+      - "The center of an atom is called the"
+
+      # Mathematics
+      - "The Pythagorean theorem states that"
+      - "The smallest prime number is"
+      - "4 follows 3 and precedes"
+      - "4 follows 3, and 5 follows"
+      - "The value of pi is approximately"
+      - "The sum of the angles in a triangle is"
+      - "The square root of 64 is"
+      - "The Roman numeral for 10 is"
+      - "A polygon with eight sides is called an"
+      - "The result of 7 multiplied by 8 is"
+
+      # General Knowledge
+      - "The first president of the United States was"
+      - "The main ingredient in guacamole is"
       - "The earth revolves around the"
-      - "The seven days of the week are Monday,"
-      - "The capital of France is P"
+      - "The seven days of the week are Monday, Tuesday,"
       - "There are 24 hours in a"
-      - "A boot is a type of footwear that protects the foot and ankle."
-      - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
-      - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
-      - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
-      - December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."
+      - "The author of 'Romeo and Juliet' is"
+      - "The largest ocean on Earth is the"
+      - "The inventor of the telephone was"
+      - "The color of chlorophyll is"
+      - "The currency used in the United Kingdom is"
     generator:
       top_k: 10
-      temperature: 0.8
+      temperature: 0.5
       max_new_tokens: 50
   eval:
     - benchmarks:
