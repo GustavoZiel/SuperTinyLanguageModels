@@ -35,32 +35,35 @@ trainer:
   dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
-    batch_size: 8
-    gradient_accumulation_steps: 8
+    batch_size: 4
+    gradient_accumulation_steps: 4
     max_iters: 100
     lr_decay_iters: 30000
     warmup_iters: 5000
     eval_iters: 500
-    eval_interval: 50
+    eval_interval: 25
     log_interval: 1
     prompt_interval: 50
-    checkpoint_interval: 100
+    checkpoint_interval: 50
     run_profiler: false
   prompt:
     input_prompts:
-      - "The earth revolves around the"
-      - "The seven days of the week are Monday,"
-      - "The capital of France is P"
-      - "There are 24 hours in a"
-      - "A boot is a type of footwear that protects the foot and ankle."
-      - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
-      - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
-      - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
-      - December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."
+      - "The capital of France is"
+      - "The capital of France is"
+      - "The capital of France is"
+      - "The capital of France is"
+      # - "The earth revolves around the"
+      # - "The seven days of the week are Monday,"
+      # - "There are 24 hours in a"
+      # - "A boot is a type of footwear that protects the foot and ankle."
+      # - "April (Apr.) is the fourth month of the year in the Julian and Gregorian calendars, and comes between March and May. It is one of the four months to have 30 days."
+      # - "A crime (or misdemeanor or felony) is an act done by a person which is against the laws of a country or region. A person who does this is called a criminal."
+      # - "A cube is a type of polyhedron with all right angles and whose height, width and depth are all the same. It is a type of rectangular prism, which is itself a type of hexahedron."
+      # - December (Dec.) is the twelfth and last month of the year in the Gregorian calendar, coming between November (of the current year) and January (of the following year)."
     generator:
       top_k: 10
       temperature: 0.8
-      max_new_tokens: 300
+      max_new_tokens: 10
   eval:
     - benchmarks:
         # - "winograd"
@@ -90,7 +93,7 @@ trainer:
     name: cross_entropy
 general:
   logging:
-    wandb_log: false
+    wandb_log: true
     wandb_project: SuperTinyLanguageModels
   paths:
     output_dir: outputs
