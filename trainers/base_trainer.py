@@ -624,8 +624,8 @@ class BaseTrainer:
                 self.cfg.trainer.training.eval_interval > 0
                 and not iter_num % self.cfg.trainer.training.eval_interval
             ):
+                eval_results, benchmark_results = self.estimate_performance(verbose=False)
                 if self.gpu_id == 0 or self.gpu_id is None:
-                    eval_results, benchmark_results = self.estimate_performance(verbose=False)
                     print_evaluation_results(
                         iter_num=iter_num,
                         eval_results=eval_results,
@@ -670,10 +670,6 @@ class BaseTrainer:
                                 "dropout": dropout,
                             }
                         )
-
-        # # Save the final model checkpoint
-        # if self.gpu_id == 0 or self.gpu_id is None:
-        #     self.save_checkpoint(iter_num)
 
     def train(self, seed=42):
         """Train the model"""
