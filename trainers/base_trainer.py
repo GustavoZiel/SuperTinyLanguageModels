@@ -608,16 +608,16 @@ class BaseTrainer:
                 lr = self.optimizer.param_groups[0]["lr"]
             dropout = self.dropout_scheduler.step(self.model, iter_num - 1)
 
-            # # Periodic prompting
-            # if iter_num == self.iter_start or (
-            #     self.cfg.trainer.training.prompt_interval > 0
-            #     and (not iter_num % self.cfg.trainer.training.prompt_interval)
-            # ):
-            #     if self.use_wandb and (self.gpu_id == 0 or self.gpu_id is None):
-            #         logger.info(f"Running prompting at iteration {iter_num}")
-            #         generated = self.run_prompting_table(self.cfg.trainer.prompt)
-            #         self.table.add_data(iter_num, generated)
-            #         wandb.log({"prompt_answer_table": self.table})
+            # Periodic prompting
+            if iter_num == self.iter_start or (
+                self.cfg.trainer.training.prompt_interval > 0
+                and (not iter_num % self.cfg.trainer.training.prompt_interval)
+            ):
+                if self.use_wandb and (self.gpu_id == 0 or self.gpu_id is None):
+                    logger.info(f"Running prompting at iteration {iter_num}")
+                    generated = self.run_prompting_table(self.cfg.trainer.prompt)
+                    self.table.add_data(iter_num, generated)
+                    wandb.log({"prompt_answer_table": self.table})
 
             # Periodic evaluation
             if iter_num == self.iter_start or (

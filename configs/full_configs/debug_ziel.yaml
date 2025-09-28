@@ -35,14 +35,14 @@ trainer:
   dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
-    batch_size: 8
-    gradient_accumulation_steps: 8
+    batch_size: 4
+    gradient_accumulation_steps: 4
     max_iters: 100
     lr_decay_iters: 30000
     warmup_iters: 5000
     eval_iters: 500
     eval_interval: 25
-    log_interval: 10
+    log_interval: 1
     prompt_interval: 50
     checkpoint_interval: 50
     run_profiler: false
