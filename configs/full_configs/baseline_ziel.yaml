@@ -17,7 +17,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: openwebtext
+    dataset_name: simple_en_wiki
   lm_head:
     normalization: rms_norm
     bias: false
@@ -32,19 +32,19 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: openwebtext
+  dataset: simple_en_wiki
   training:
     trainer_type: base_trainer
     batch_size: 24
     gradient_accumulation_steps: 20
-    max_iters: 100000
-    lr_decay_iters: 100000
+    max_iters: 60_000
+    lr_decay_iters: 60_000
     warmup_iters: 5000
     eval_iters: 1000
     eval_interval: 1000
     log_interval: 1000
-    prompt_interval: 10000
-    checkpoint_interval: 10000
+    prompt_interval: 10_000
+    checkpoint_interval: 10_000
     run_profiler: false
   prompt:
     input_prompts:

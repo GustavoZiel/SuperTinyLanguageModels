@@ -2,6 +2,10 @@
 
 import torch
 
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class StandardGenerator(torch.nn.Module):
     """Standard Generator Wrapper for GPT models"""
@@ -30,6 +34,7 @@ class StandardGenerator(torch.nn.Module):
         """
         # Save current training state and switch to eval mode
         original_mode = self.model.training
+        # logger.info(f"Original model training mode: {'train' if original_mode else 'eval'}")
         self.model.eval()
 
         try:
@@ -95,6 +100,7 @@ class StandardGenerator(torch.nn.Module):
         finally:
             # Always restore the original training state
             self.model.train(original_mode)
+            # logger.info(f"Restored model training mode to: {'train' if original_mode else 'eval'}")
 
     def forward(self, x):
         """Call the underlying model"""
