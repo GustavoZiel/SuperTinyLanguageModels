@@ -1,0 +1,45 @@
+model:
+  core_model:
+    core_model_type: generic
+    num_layers: 8
+    ffn:
+      ffn_type: swiglu
+      ffn_dim: 1536
+      normalization: rms_norm
+      bias: false
+    attn:
+      attn_type: generic
+      num_heads: 16
+      normalization: rms_norm
+      group_size: 4
+      bias: false
+      is_causal: true
+  embedder:
+    tokenizer_type: gpt2
+    embedding_model_type: generic
+    dataset_name: 20231101.simple_filtered_v1
+  lm_head:
+    normalization: rms_norm
+    bias: false
+    lm_head_type: generic
+  hidden_dim: 512
+  context_window: 512
+  vocab_size: 50257
+  model_shell_type: standard
+  embedding_weight_tying: true
+  positional_encoding_type: rope
+trainer:
+  dataset: 20231101.simple_filtered_v1
+  # dataset: random
+  dataloader:
+      name: standard
+general:
+  # logging:
+  #   wandb_log: true
+  #   wandb_project: SuperTinyLanguageModels
+  paths:
+    output_dir: outputs
+    data_dir: data
+    checkpoint_dir: checkpoints
+  # seed: 489
+  # device: cuda
