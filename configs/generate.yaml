@@ -1,9 +1,17 @@
 defaults:
   - generator: baseline
   - _self_
-model_ckpt: "checkpoints/20250919_0859_simple_en_wiki_29999.pt"
+# model_ckpt: "checkpoints/20250919_0859_simple_en_wiki_29999.pt"
 # model_ckpt: "checkpoints/20250921_1241_simple_en_wiki_10000.pt"
 # model_ckpt: "checkpoints/20250920_0838_en_wiki_30000.pt"
 # model_ckpt: "vast_checkpoints/20250928_1304_openwebtext_40000.pt"
 # model_ckpt: "vast_checkpoints/20250925_1040_openwebtext_27000.pt"
 # model_ckpt: "checkpoints/20250923_1019_openwebtext_7500.pt"
+# model_ckpt: "vast_checkpoints/20250929_0439_simple_en_wiki_10000.pt"
+# model_ckpt: "vast_checkpoints/20250929_0617_simple_en_wiki_20000.pt"
+# model_ckpt: "vast_checkpoints/20250929_0756_simple_en_wiki_30000.pt"
+# model_ckpt: "vast_checkpoints/20250929_0936_simple_en_wiki_40000.pt"
+# model_ckpt: "vast_checkpoints/20250929_1115_simple_en_wiki_50000.pt"
+
+# Overfitted model
+model_ckpt: "checkpoints/20250930_1525_20231101.simple_filtered_v1_2000.pt"

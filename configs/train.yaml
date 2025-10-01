@@ -1,6 +1,8 @@
 defaults:
   # - full_configs: debug_ziel
-  - full_configs: baseline_ziel
+  # - full_configs: baseline_ziel
+  - full_configs: overfit_model
+  # - full_configs: tokenize
   # - model: baseline
   # - trainer: baseline_2
   # - general: default
