@@ -44,7 +44,7 @@ class StandardProcessor:
             arr.flush()
 
     def write_tokenized_data_easy(
-        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None, verbose=True
+        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None, verbose=False
     ):
         """Write tokenized datasets to disk as flat binary files using memmap.
 
@@ -245,8 +245,8 @@ def prepare_data(cfg):
     split_dataset = load_data(dataset_name=cfg["trainer"]["dataset"], verbose=True)
 
     # Select the processor class based on dataloader type
-    dataloader_name = cfg["trainer"]["dataloader"]["name"]
-    processor_object = DATALOADER_PROCESSORS[dataloader_name](embedder=embedder)
+    dataloader_processor_name = cfg["trainer"]["dataloader_processor"]["name"]
+    processor_object = DATALOADER_PROCESSORS[dataloader_processor_name](embedder=embedder)
     logger.info(f"Using processor: {processor_object.__class__.__name__}")
 
     try:
@@ -267,7 +267,7 @@ def prepare_data(cfg):
         # Write tokenized data to disk as memory-mapped binary files
         logger.info(f"Writing tokenized data to {tokenized_data_folder}")
         processor_object.write_tokenized_data_easy(
-            tokenized=tokenized, tokenized_data_folder=tokenized_data_folder
+            tokenized=tokenized, tokenized_data_folder=tokenized_data_folder, verbose=True
         )
         logger.info("Tokenized data successfully written")
 

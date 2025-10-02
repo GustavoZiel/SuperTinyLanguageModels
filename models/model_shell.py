@@ -36,7 +36,7 @@ class ModelShell(torch.nn.Module):
         return super().to(*args, **kwargs)
 
     def forward(self, token_ids):
-        """The default forward pass is used for trianing and
+        """The default forward pass is used for training and
         accepts the token_ids as input.
         """
         # pass the token_ids through the embedding model

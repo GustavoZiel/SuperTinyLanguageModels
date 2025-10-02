@@ -1,6 +1,4 @@
-"""
-A collection of different model heads.
-"""
+"""A collection of different model heads."""
 
 import torch
 
@@ -8,9 +6,7 @@ from models.components.layers.normalization import build_normalization
 
 
 class AutoregressiveLMHead(torch.nn.Module):
-    """
-    Generic autoregressive language model head.
-    """
+    """Generic autoregressive language model head."""
 
     def __init__(self, model_cfg):
         super().__init__()
@@ -26,14 +22,14 @@ class AutoregressiveLMHead(torch.nn.Module):
         )
 
     def forward(self, x):
-        """
-        Pass the input through the model.
+        """Pass the input through the model.
+
         Args:
             x: torch.tensor(B, S, H)
+
         Returns:
             x: torch.tensor(B, S, V)
         """
-
         # apply layer norm
         x = self.layer_norm(x)
 
@@ -43,11 +39,11 @@ class AutoregressiveLMHead(torch.nn.Module):
         return x, None
 
     def inference(self, x):
-        """
-        Pass the input through the model, then
+        """Pass the input through the model, then
         Return the final token logits
         Args:
             x: torch.tensor(B, S, H)
+
         Returns:
             x: torch.tensor(B, V)
         """
