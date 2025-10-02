@@ -10,10 +10,13 @@ from torch.distributed import init_process_group
 from models.experimental.hugging_face import MockTrainer
 from trainers.base_trainer import BaseTrainer
 from trainers.datasets import (
+    BaseDataset,
     BaseDatasetRandom,
     BytePoolingDataset,
     DatasetInterface,
     DualBytePooling,
+    MultiGPUDataset,
+    SingleGPUDataset,
 )
 from trainers.loss_fn import (
     cross_entropy_loss_fn,
@@ -112,7 +115,10 @@ def build_dropout_scheduler(trainer_cfg):
 
 
 DATASET_DICT: dict[str, DatasetInterface] = {
+    "normal": BaseDataset,
     "standard": BaseDatasetRandom,
+    "single_gpu": SingleGPUDataset,
+    "multi_gpu": MultiGPUDataset,
     "byte_pooling": BytePoolingDataset,
     "dual_byte_pooling": DualBytePooling,
 }
@@ -169,11 +175,14 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
         dataset=train_dataset,
         batch_size=cfg["trainer"]["training"]["batch_size"],
         shuffle=False,
+        # pin_memory=True,
     )
+
     val_dataloader = torch.utils.data.DataLoader(
         dataset=val_dataset,
         batch_size=cfg["trainer"]["training"]["batch_size"],
         shuffle=False,
+        # pin_memory=True,
     )
 
     logger.info("Building loss function...")
@@ -191,7 +200,6 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
         loss_fn=loss_fn,
         gpu_id=gpu_id,
     )
-
     logger.info("Trainer built successfully.")
 
     # Load checkpoint if provided

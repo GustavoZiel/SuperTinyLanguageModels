@@ -5,8 +5,8 @@ import random
 
 import numpy as np
 import torch
-from torch.distributed import get_rank, get_world_size
-from torch.utils.data import DistributedSampler, SequentialSampler, get_worker_info
+from torch.distributed import get_rank, get_world_size, is_available, is_initialized
+from torch.utils.data import DistributedSampler, RandomSampler, SequentialSampler, get_worker_info
 
 from utils.logger import get_logger
 
@@ -43,6 +43,7 @@ class DatasetInterface(torch.utils.data.IterableDataset):
             dtype=np.uint16,
             mode="r",
         )
+        logger.info(f"Loaded data from {self.data_path}, length: {len(self.data)}")
 
     def __len__(self):
         """Return dataset length"""
@@ -53,36 +54,30 @@ class DatasetInterface(torch.utils.data.IterableDataset):
 
 
 class BaseDatasetRandom(DatasetInterface):
-    """Simple base dataloader for standard gpt-2'esk architectures and training."""
+    """A dataset class that yields random slices of data for training language models.
+
+    This class implements an infinite iterator that, on each iteration, randomly selects a starting index
+    and returns a tuple of input and target tensors representing a context window of tokens.
+
+    Args:
+        split (str): The dataset split to use (e.g., 'train', 'val', 'test').
+        cfg (object): Configuration object containing dataset parameters.
+
+    Methods:
+        __iter__():
+            Returns an infinite generator that yields (x, y) pairs, where:
+                x (torch.Tensor): Input tensor of shape (context_window,) containing token indices.
+                y (torch.Tensor): Target tensor of shape (context_window,) containing token indices shifted by one.
+
+    Notes:
+        - The data is assumed to be a 1D numpy array of token indices.
+        - The context window is defined by self.context_window.
+        - The dataset length is defined by self.dataset_len.
+        - Each batch is sampled independently and randomly.
+    """
 
     def __init__(self, split, cfg):
         super().__init__(split, cfg)
-
-        # self.worker_info = get_worker_info()
-        # self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
-        # self.worker_id = self.worker_info.id if self.worker_info is not None else 0
-
-        # # Check if distributed is available and initialized, and if more than one GPU is available
-        # if (
-        #     torch.distributed.is_available()
-        #     and torch.distributed.is_initialized()
-        #     and torch.cuda.device_count() > 1
-        # ):
-        #     logger.info("Using DistributedSampler for BaseDatasetRandom")
-        #     self.world_size = get_world_size()
-        #     self.process_rank = get_rank()
-        #     self.sampler = DistributedSampler(
-        #         self,
-        #         num_replicas=(self.num_workers * self.world_size),
-        #         rank=(self.process_rank * self.num_workers + self.worker_id),
-        #         shuffle=False,
-        #     )
-        # else:
-        #     logger.info("Using SequentialSampler for BaseDatasetRandom")
-        #     # Use SequentialSampler if only one GPU or not distributed
-        #     self.world_size = 1
-        #     self.process_rank = 0
-        #     self.sampler = SequentialSampler(self)
 
     def __iter__(self):
         """Get a batch of random data points in an infinite loop."""
@@ -99,19 +94,97 @@ class BaseDatasetRandom(DatasetInterface):
             # Yield the data points
             yield x, y
 
-    # def __iter__(self):
-    #     for idx in iter(self.sampler):
-    #         # Convert the sampler index to actual data with context window
-    #         # print(f"Processing index {idx} for context window")
 
-    #         # Extract x and y with context window
-    #         x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
-    #         y = torch.from_numpy(
-    #             (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
-    #         )
+class BaseDataset(DatasetInterface):
+    def __init__(self, split, cfg):
+        super().__init__(split, cfg)
 
-    #         # print(f"Rank {self.rank}: idx={idx}, x={x.tolist()}, y={y.tolist()}")
-    #         yield x, y
+        self.worker_info = get_worker_info()
+        self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
+        self.worker_id = self.worker_info.id if self.worker_info is not None else 0
+
+        # Detect if distributed (DDP) is active
+        if is_available() and is_initialized():
+            self.world_size = get_world_size()
+            self.process_rank = get_rank()
+        else:
+            self.world_size = 1
+            self.process_rank = 0
+
+        if self.world_size > 1:
+            logger.info("Using DistributedSampler for BaseDataset")
+            num_replicas = self.world_size * self.num_workers
+            rank = self.process_rank * self.num_workers + self.worker_id
+            self.sampler = DistributedSampler(
+                self,
+                num_replicas=num_replicas,
+                rank=rank,
+                shuffle=False,
+            )
+        else:
+            # Not DDP: fall back to a simple random sampler
+            logger.info("Using RandomSampler for BaseDataset")
+            self.sampler = RandomSampler(self, replacement=False)
+
+    def __iter__(self):
+        while True:
+            for idx in self.sampler:
+                x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+                y = torch.from_numpy(
+                    (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
+                )
+                yield x, y
+
+
+class MultiGPUDataset(DatasetInterface):
+    def __init__(self, split, cfg):
+        super().__init__(split, cfg)
+
+        self.worker_info = get_worker_info()
+        self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
+        self.worker_id = self.worker_info.id if self.worker_info is not None else 0
+
+        self.world_size = get_world_size()
+        self.process_rank = get_rank()
+
+        num_replicas = self.world_size * self.num_workers
+        rank = self.process_rank * self.num_workers + self.worker_id
+
+        self.sampler = DistributedSampler(
+            self,
+            num_replicas=num_replicas,
+            rank=rank,
+            shuffle=False,
+        )
+
+    def __iter__(self):
+        while True:
+            for idx in iter(self.sampler):
+                x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+                y = torch.from_numpy(
+                    (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
+                )
+
+                yield x, y
+
+
+class SingleGPUDataset(DatasetInterface):
+    def __init__(self, split, cfg):
+        super().__init__(split, cfg)
+        # self.sampler = SequentialSampler(self)
+        self.sampler = RandomSampler(self, replacement=False)
+
+    def __iter__(self):
+        for idx in iter(self.sampler):
+            # print(f"[DEBUG] SingleGPUDataset __iter__ idx: {idx}")
+            # Extract a slice of data for x and y
+            x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+            y = torch.from_numpy(
+                (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
+            )
+
+            # Yield the data points
+            yield x, y
 
 
 class BytePoolingDataset(DatasetInterface):

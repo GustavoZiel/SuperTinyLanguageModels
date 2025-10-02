@@ -117,8 +117,6 @@ def basic_main(cfg):
         checkpoint_path=checkpoint_path,
     )
 
-    logger.info("Trainer built.")
-
     logger.info("Starting training...")
 
     trainer.train()
