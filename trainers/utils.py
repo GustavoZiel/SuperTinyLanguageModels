@@ -171,6 +171,15 @@ def load_competition_math_dataset():
 
 DATASET_DICT = {
     "sports_wiki": lambda: load_custom_dataset("wiki_20231101.en_filtered"),
+    # ---
+    "wiki_biology": lambda: load_dataset("mattany/wikipedia-biology"),
+    "wiki_movies": lambda: load_dataset("yashassnadig/wikimovies"),
+    "nano_wiki": lambda: load_dataset("sixf0ur/nano_wiki"),
+    "wiki_paragraphs": lambda: load_dataset("agentlans/wikipedia-paragraphs"),
+    "wiki_solarsystem": lambda: load_dataset("mattany/wikipedia-solarsystem"),
+    "wiki_3000": lambda: load_dataset("not-lain/wikipedia-small-3000"),
+    "ap_news_2024": lambda: load_dataset("PJMixers/AP-News-2024"),
+    # ---
     "debug": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
     "en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.en"),
     "simple_en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
