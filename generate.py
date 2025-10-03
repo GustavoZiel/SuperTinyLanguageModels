@@ -34,7 +34,7 @@ def main(cfg):
                 f"Prompt:\n{input_text}\n\n"
                 f"Generated:\n{generated_text[0]}\n\n"
             )
-            for message in messages[:1]:
+            for message in messages[: cfg["generator"]["steps_to_log"]]:
                 generated += message + "\n"
             generated += "=" * 30 + "\n\n"
         logger.info("\n" + generated)
@@ -50,7 +50,7 @@ def main(cfg):
             generated += (
                 "=" * 30 + f"\n\nPrompt:\n{input_text}\n\nGenerated:\n{generated_text[0]}\n\n"
             )
-            for message in messages[:1]:
+            for message in messages[: cfg["generator"]["steps_to_log"]]:
                 generated += message + "\n"
             generated += "=" * 30 + "\n\n\n"
             logger.info("\n" + generated)
