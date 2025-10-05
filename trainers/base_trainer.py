@@ -1,12 +1,8 @@
 """Trainer class for training models with Next Token Prediction"""
 
 import datetime
-import math
 import time
-from ast import List
 from contextlib import nullcontext
-from copy import deepcopy
-from itertools import islice
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -14,17 +10,13 @@ import torch
 from omegaconf import OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.profiler import ProfilerActivity, profile, record_function
-from torch.utils.data import SequentialSampler
-from torch.utils.data.distributed import DistributedSampler
 
 import wandb
 from models import model_shell
 from models.generator import StandardGenerator
-from trainers import utils
 from trainers.evaluator import train_eval
-from trainers.utils import aggregate_value, print_evaluation_results
+from trainers.utils import aggregate_value, print_evaluation_results, profilize, set_seed
 from utils.logger import get_logger
-from wandb import Table
 
 logger = get_logger(__name__)
 
@@ -44,6 +36,11 @@ class BaseTrainer:
         train_dataloader: torch.utils.data.DataLoader,
         val_dataloader: torch.utils.data.DataLoader,
         loss_fn: callable,
+        max_epochs: float,
+        max_iters: int,
+        is_iters_based: bool,
+        iters_per_epoch: int,
+        dataset_size: int,
         gpu_id: Optional[int] = None,
         lr_scheduler: Optional[Any] = None,
         dropout_scheduler: Optional[Any] = None,
@@ -74,18 +71,16 @@ class BaseTrainer:
         # Setup data loaders
         self.train_dataloader_iter = iter(train_dataloader)
         self.val_dataloader = val_dataloader
-        self.dataset_size = len(train_dataloader.dataset)
+        self.dataset_size = dataset_size
         logger.info(f"Dataset size: {self.dataset_size}")
 
-        # Extract training configuration with defaults
+        # Store training configuration parameters (calculated in build_trainer)
         training_cfg = cfg["trainer"]["training"]
-        self.max_epochs = training_cfg.get("max_epochs", -1)
-        self.max_iters = training_cfg.get("max_iters", -1)
-        assert self.max_epochs > 0 or self.max_iters > 0, (
-            "Either max_epochs or max_iters must be positive"
-        )
-        self.is_iters_based = True if self.max_iters > 0 else False
         self.batch_size = training_cfg["batch_size"]
+        self.max_epochs = max_epochs
+        self.max_iters = max_iters
+        self.is_iters_based = is_iters_based
+        self.iters_per_epoch = iters_per_epoch
 
         # Calculate gradient accumulation steps
         base_grad_steps = training_cfg["gradient_accumulation_steps"]
@@ -94,25 +89,9 @@ class BaseTrainer:
         else:
             self.gradient_accumulation_steps = base_grad_steps
 
-        # Calculate iterations per epoch (with error handling)
-        try:
-            context_window = getattr(train_dataloader.dataset, "context_window", 1)
-            self.iters_per_epoch = math.ceil(
-                self.dataset_size
-                / (self.batch_size * self.gradient_accumulation_steps * context_window)
-            )
-            logger.info(f"Calculated {self.iters_per_epoch} iterations per epoch")
-        except Exception as e:
-            logger.warning(f"Could not calculate iters_per_epoch: {e}. Using default.")
-            self.iters_per_epoch = 1000
-
         # Initialize training state
         self.scaler = None
         self.iter_start = 1
-        if self.is_iters_based:
-            self.max_epochs = self.max_iters / self.iters_per_epoch
-        else:
-            self.max_iters = self.max_epochs * math.ceil(self.iters_per_epoch)
 
         # Setup logging configuration
         self.use_wandb = cfg["general"]["logging"]["wandb_log"]
@@ -136,79 +115,15 @@ class BaseTrainer:
         """Check if this is the main process for logging/profiling."""
         return self.gpu_id == 0 or not self.dist
 
-    # def __init__(
-    #     self,
-    #     cfg,
-    #     model: model_shell.ModelShell,
-    #     optimizer,
-    #     train_dataloader,
-    #     val_dataloader,
-    #     loss_fn,
-    #     gpu_id=None,
-    #     lr_scheduler=None,
-    #     dropout_scheduler=None,
-    # ) -> None:
-    #     self.model = model
-    #     self.gpu_id = gpu_id
-
-    #     if self.gpu_id is not None:
-    #         self.dist = True
-    #         self.DDP_model = DDP(self.model, device_ids=[self.gpu_id])
-    #     else:
-    #         self.dist = False
-    #         self.DDP_model = model
-
-    #     self.optimizer = optimizer
-    #     self.loss_fn = loss_fn
-    #     self.lr_scheduler = lr_scheduler
-    #     self.dropout_scheduler = dropout_scheduler
-
-    #     self.train_dataloader_iter = iter(train_dataloader)
-    #     self.val_dataloader = val_dataloader
-
-    #     self.cfg = cfg
-
-    #     # assert self.cfg["trainer"]["training"]["gradient_accumulation_steps"] % torch.cuda.device_count() == 0, "Gradient Accumulation Steps must be divisible by the number of GPUs"
-    #     self.gradient_accumulation_steps = (
-    #         cfg["trainer"]["training"]["gradient_accumulation_steps"] // torch.cuda.device_count()
-    #         if torch.cuda.is_available()
-    #         else cfg["trainer"]["training"]["gradient_accumulation_steps"]
-    #     )  ## divide by number of GPUs to maximise throughput
-
-    #     self.iter_start = 1
-    #     self.scaler = None
-    #     self.max_epochs = cfg["trainer"]["training"]["max_epochs"]
-    #     self.batch_size = cfg["trainer"]["training"]["batch_size"]
-    #     self.iters_per_epoch = math.ceil(
-    #         len(train_dataloader.dataset)
-    #         / (
-    #             self.batch_size
-    #             * self.gradient_accumulation_steps
-    #             * train_dataloader.dataset.context_window
-    #         )
-    #     )
-    #     print("Iters per epoch:", self.iters_per_epoch)
-
-    #     self.use_wandb = cfg["general"]["logging"]["wandb_log"]
-    #     self.checkpoint_dir = cfg["general"]["paths"]["checkpoint_dir"]
-    #     self.cached_sets = {"train": {}, "val": {}}
-    #     self.table = wandb.Table(columns=["iteration", "text"], log_mode="MUTABLE")
-
-    #     # For training, always force the device to be cuda
-    #     assert torch.cuda.is_available(), "CUDA must be available for training"
-
-    #     self.ctx = self._setup_ctx()
-
-    #     if self.use_wandb and (self._is_main_process()):
-    #         ## Ensures that only the first GPU logs to wandb
-    #         self._setup_logging()
-
-    #     if cfg.trainer.training.run_profiler and (self._is_main_process()):
-    #         ## Ensures that only the first GPU runs the profiler
-    #         self.run_profile()
-    #         raise SystemExit
-
     def format_number(self, num: int) -> str:
+        """Format a number with appropriate suffix (K, M, B, T).
+
+        Args:
+            num: The number to format
+
+        Returns:
+            Formatted string with appropriate suffix
+        """
         if num < 1000:
             return str(num)
         dict_format = {
@@ -229,20 +144,17 @@ class BaseTrainer:
         return f"{num:.2f}{dict_format[num_div]}"
 
     def _setup_logging(self):
+        """Setup wandb logging with comprehensive run naming."""
         current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        iters_or_epochs = "iters" if self.is_iters_based else "epochs"
+        max_value = self.max_iters if self.is_iters_based else self.max_epochs
         run_name = (
             f"{current_time}"
             f"_{self.cfg.trainer['dataset']}"
             f"_{self.format_number(self.total_model_params)}_params"
             f"_{self.format_number(self.dataset_size)}_tokens"
-            f"_{self.format_number(self.max_iters if self.is_iters_based else self.max_epochs)}_{'iters' if self.is_iters_based else 'epochs'}"
+            f"_{self.format_number(max_value)}_{iters_or_epochs}"
         )
-        # run_name = (
-        #     f"{self.cfg.model['model_shell_type']}"
-        #     f"_{self.cfg.model['core_model']['core_model_type']}"
-        #     f"_{self.cfg.trainer['dataset']}_{self.cfg.model['embedder']['embedding_model_type']}"
-        #     f"_{self.cfg.model['vocab_size']}"
-        # )
         wandb.init(
             project=self.cfg.general.logging.wandb_project,
             config=OmegaConf.to_container(self.cfg),
@@ -396,7 +308,7 @@ class BaseTrainer:
 
     def run_profile(self):
         """Run the profiler"""
-        utils.profilize(self.model)
+        profilize(self.model)
         with profile(
             activities=[
                 ProfilerActivity.CPU,
@@ -471,8 +383,15 @@ class BaseTrainer:
         }
 
         current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        iters_or_epochs = "iters" if self.is_iters_based else "epochs"
+        max_value = self.max_iters if self.is_iters_based else self.max_epochs
+
+        current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
         checkpoint_path = (
-            f"{self.checkpoint_dir}/{current_time}_{self.cfg.trainer['dataset']}_{iteration}.pt"
+            f"{self.checkpoint_dir}/"
+            f"{current_time}"
+            f"_{self.cfg.trainer['dataset']}"
+            f"_{self.format_number(max_value)}_{iters_or_epochs}.pt"
         )
 
         if verbose:
@@ -607,25 +526,38 @@ class BaseTrainer:
         return iteration
 
     def run_prompting_table(self, prompt_cfg) -> str:
-        """Generate answers for a set of prompts using the model and return them as a formatted string.
+        """Generate answers for a set of prompts using the model.
+
+        Returns them as a formatted string.
 
         Args:
-            prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
+            prompt_cfg (dict): Configuration containing 'generator' settings and
+                'input_prompts' list.
 
         Returns:
             str: A formatted string containing prompts and their generated answers.
         """
         generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
         generated = ""
-        for input_num, input_prompt in enumerate(prompt_cfg["input_prompts"], start=1):
-            generated_text, messages = generator.default_generate(input_text=input_prompt)
-            generated += (
-                "=" * 30 + f"\n\nQuestion {input_num}\n\n"
-                f"Prompt:\n{input_prompt}\n\n"
-                f"Generated:\n{generated_text[0]}\n\n"
+        for prompt_num, prompt in enumerate(prompt_cfg["input_prompts"], start=1):
+            generated_text, messages = generator.default_generate(input_text=prompt["sentence"])
+            probs, perplexity = generator.evaluate(
+                prompt["sentence"],
+                prompt["answer"],
+                temperature=prompt_cfg["generator"]["temperature"],
+                top_k=prompt_cfg["generator"]["top_k"],
             )
-            for message in messages[:1]:
-                generated += message + "\n"
+            generated += (
+                f"Question {prompt_num}\n\n"
+                f"Prompt:\n{prompt['sentence']}\n\n"
+                f"Generated:\n{generated_text[0]}\n\n"
+                f"Answer:\n{prompt['answer']}\n\n"
+                f"Probability of correct answer: {probs}\n\n"
+                f"Perplexity of correct answer: {perplexity:.4f}\n\n"
+            )
+            generated += generator._format_messages(
+                messages, prompt_cfg["generator"]["steps_to_log"]
+            )
             generated += "=" * 30 + "\n\n"
         return generated
 
@@ -704,7 +636,10 @@ class BaseTrainer:
         if self._is_main_process():
             elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
             logger.info(
-                f"All GPU(s): Epoch {epoch}/{self.max_epochs:.0f} | Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {step_time:.2f}s | Total time: {elapsed_time_str}"
+                f"All GPU(s): Epoch {epoch}/{self.max_epochs:.0f} | "
+                f"Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | "
+                f"Dropout: {dropout:.2f} | Step time: {step_time:.2f}s | "
+                f"Total time: {elapsed_time_str}"
             )
             if self.use_wandb:
                 wandb.log(
@@ -746,6 +681,7 @@ class BaseTrainer:
             self.save_checkpoint(iter_num)
 
     def run_training_loop(self):
+        """Execute the main training loop with periodic evaluation, checkpointing and logging."""
         epoch = 0
         elapsed_time = 0.0
 
@@ -787,81 +723,13 @@ class BaseTrainer:
                 self._log_training_progress(
                     iter_num, epoch, lossf, lr, dropout, step_time, elapsed_time
                 )
-            # # Periodic logging
-            # if iter_num == self.iter_start or (
-            #     self.cfg.trainer.training.log_interval > 0
-            #     # and not iter_num % self.cfg.trainer.training.log_interval
-            #     and not iter_num % self.iters_per_epoch
-            # ):
-            #     lossf = aggregate_value(lossf, self.cfg.general.device)
-            #     if self.gpu_id == 0 or self.gpu_id is None:
-            #         elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-            #         total_epochs = (
-            #             math.ceil(self.cfg.trainer.training.max_iters / self.iters_per_epoch)
-            #             if self.iters_per_epoch > 0
-            #             else 0
-            #         )
-            #         epoch += 1
-            #         logger.info(
-            #             f"All GPU(s): Epoch {epoch}/{total_epochs} | Step {iter_num} | Loss: {lossf:.4f} | LR: {lr:.1e} | Dropout: {dropout:.2f} | Step time: {end_time - start_time:.2f}s | Total time: {elapsed_time_str}"
-            #         )
-            #         if self.use_wandb:
-            #             wandb.log(
-            #                 {
-            #                     "iter": iter_num,
-            #                     "epoch": epoch,
-            #                     "loss": lossf,
-            #                     "lr": lr,
-            #                     "dropout": dropout,
-            #                 }
-            #             )
 
-    def train(self, seed=42):
-        utils.set_seed(seed)
+    def train(self, seed):
+        """Start training with the given random seed.
+
+        Args:
+            seed: Random seed for reproducible training
+        """
+        set_seed(seed)
         logger.info(f"Training for {self.max_epochs:.4f} epochs and {self.max_iters} iterations")
-        # self.run_training_loop()
-
-    # def run_prompting(self, prompt_cfg) -> Table:
-    #     """Generate answers for a set of prompts using the model and log them in a wandb Table.
-
-    #     Args:
-    #         prompt_cfg (dict): Configuration containing 'generator' settings and 'input_prompts' list.
-
-    #     Returns:
-    #         Table: A wandb Table containing prompts and their generated answers.
-    #     """
-    #     generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
-    #     log_buffer = []
-    #     for input_prompt in prompt_cfg["input_prompts"]:
-    #         generated_text = generator.default_generate(input_text=input_prompt)
-    #         logger.info(f"Prompt: {input_prompt}\nGenerated: {generated_text}")
-    #         log_buffer.append((input_prompt, generated_text[0]))
-    #     return log_buffer
-
-    # def save_checkpoint(self, iteration: int, verbose: bool = True) -> None:
-    #     """Save the current model checkpoint to disk.
-
-    #     Args:
-    #         iteration (int): The current training iteration number.
-    #         verbose (bool, optional): If True, logs checkpoint saving info. Defaults to True.
-
-    #     The checkpoint includes:
-    #         - Model state dictionary
-    #         - Optimizer state dictionary
-    #         - Current iteration number
-    #         - Configuration object
-    #     """
-    #     checkpoint = {
-    #         "model": self.model.state_dict(),
-    #         "optimizer": self.optimizer.state_dict(),
-    #         "iteration": iteration,
-    #         "config": self.cfg,
-    #     }
-    #     # current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    #     current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-    #     checkpoint_path = (
-    #         f"{self.checkpoint_dir}/{current_time}_{self.cfg.trainer.dataset}_{iteration}.pt"
-    #     )
-    #     if verbose:
-    #         logger.info(f"Saving checkpoint to {checkpoint_path}")
-    #     torch.save(checkpoint, checkpoint_path)
+        self.run_training_loop()
