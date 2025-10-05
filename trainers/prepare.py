@@ -242,7 +242,13 @@ def prepare_data(cfg):
     embedder = build_embedding_model(cfg["model"], verbose=True)
 
     # Load and split the dataset
-    split_dataset = load_data(dataset_name=cfg["trainer"]["dataset"], verbose=True)
+    split_dataset = load_data(
+        dataset_name=cfg["trainer"]["dataset"],
+        seed=cfg["general"]["seed"],
+        test_size=0.1,
+        shuffle=True,
+        verbose=False,
+    )
 
     # Select the processor class based on dataloader type
     dataloader_processor_name = cfg["trainer"]["dataloader_processor"]["name"]

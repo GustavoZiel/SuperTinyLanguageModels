@@ -119,7 +119,7 @@ def basic_main(cfg):
 
     logger.info("Starting training...")
 
-    trainer.train()
+    trainer.train(seed=cfg["general"]["seed"])
 
     logger.info("Training complete.")
 
@@ -163,6 +163,4 @@ def main(cfg):
 
 
 if __name__ == "__main__":
-    # pylint: disable=no-value-for-parameter
     main()
-    # pylint: enable=no-value-for-parameter

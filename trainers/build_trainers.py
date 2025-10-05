@@ -2,6 +2,7 @@
 and the trainer itself.
 """
 
+import math
 import os
 
 import torch
@@ -147,6 +148,78 @@ TRAINER_DICT = {
 }
 
 
+def configure_training_parameters(cfg, train_dataset):
+    """Configure training parameters including epochs, iterations, and scheduler settings.
+
+    This function handles the calculation of training parameters that were previously
+    done in the BaseTrainer constructor. It calculates iterations per epoch, adjusts
+    max_epochs/max_iters based on the training mode, and updates scheduler parameters.
+
+    Args:
+        cfg: Configuration dictionary containing training parameters
+        train_dataset: Training dataset to calculate iterations from
+
+    Returns:
+        tuple: (max_epochs, max_iters, is_iters_based, iters_per_epoch, context_window)
+
+    Modifies:
+        cfg: Updates lr_decay_iters and warmup_iters in-place based on calculated max_iters
+    """
+    # Extract training mode configuration
+    max_epochs = cfg["trainer"]["training"].get("max_epochs", -1)
+    max_iters = cfg["trainer"]["training"].get("max_iters", -1)
+    assert max_epochs > 0 or max_iters > 0, "Either max_epochs or max_iters must be positive"
+    is_iters_based = True if max_iters > 0 else False
+
+    # Calculate iterations per epoch with error handling
+    try:
+        context_window = getattr(train_dataset, "context_window", 1)
+        iters_per_epoch = math.ceil(
+            len(train_dataset)
+            / (
+                cfg["trainer"]["training"]["batch_size"]
+                * cfg["trainer"]["training"]["gradient_accumulation_steps"]
+                * context_window
+            )
+        )
+        logger.info(f"Calculated {iters_per_epoch} iterations per epoch")
+    except Exception as e:
+        logger.warning(f"Could not calculate iters_per_epoch: {e}. Using default.")
+        iters_per_epoch = 1000
+        context_window = 1
+
+    # Adjust training parameters based on mode
+    if is_iters_based:
+        max_epochs = max_iters / iters_per_epoch
+    else:
+        max_iters = max_epochs * math.ceil(iters_per_epoch)
+
+    # Log training configuration
+    logger.info("Training configuration:")
+    logger.info(f"  max_epochs: {max_epochs}")
+    logger.info(f"  max_iters: {max_iters}")
+    logger.info(f"  is_iters_based: {is_iters_based}")
+    logger.info(f"  context_window: {context_window}")
+    logger.info(f"  iters_per_epoch: {iters_per_epoch}")
+
+    # Update scheduler parameters in configuration
+    cfg.trainer["training"]["lr_decay_iters"] = math.ceil(
+        cfg.trainer["training"]["lr_decay_iters"] * max_iters
+    )
+    logger.info(
+        f"  Adjusted lr_decay_iters to {cfg.trainer['training']['lr_decay_iters']} "
+        f"based on max_iters"
+    )
+    cfg.trainer["training"]["warmup_iters"] = math.ceil(
+        cfg.trainer["training"]["warmup_iters"] * max_iters
+    )
+    logger.info(
+        f"  Adjusted warmup_iters to {cfg.trainer['training']['warmup_iters']} based on max_iters"
+    )
+
+    return max_epochs, max_iters, is_iters_based, iters_per_epoch, context_window
+
+
 def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
     """Given a config, this function builds a trainer
     and all relevant components of it.
@@ -157,6 +230,20 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
         gpu_id: GPU ID for distributed training
         checkpoint_path: Optional path to checkpoint for resuming training
     """
+    logger.info("Building datasets...")
+    train_dataset = build_dataset(cfg=cfg, split="train")
+    val_dataset = build_dataset(cfg=cfg, split="val")
+
+    # Configure training parameters (moved from BaseTrainer.__init__)
+    logger.info("Configuring training parameters...")
+    (
+        max_epochs,
+        max_iters,
+        is_iters_based,
+        iters_per_epoch,
+        context_window,
+    ) = configure_training_parameters(cfg, train_dataset)
+
     logger.info("Building optimizer...")
     optimizer = build_optimizer(model=model, optimizer_config=cfg.trainer["optimizer"])
 
@@ -165,10 +252,6 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
 
     logger.info("Building dropout scheduler...")
     dropout_scheduler = build_dropout_scheduler(trainer_cfg=cfg.trainer)
-
-    logger.info("Building datasets...")
-    train_dataset = build_dataset(cfg=cfg, split="train")
-    val_dataset = build_dataset(cfg=cfg, split="val")
 
     logger.info("Wrapping datasets in dataloaders...")
     train_dataloader = torch.utils.data.DataLoader(
@@ -193,12 +276,17 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
         cfg=cfg,
         model=model,
         optimizer=optimizer,
-        lr_scheduler=lr_scheduler,
-        dropout_scheduler=dropout_scheduler,
         train_dataloader=train_dataloader,
         val_dataloader=val_dataloader,
         loss_fn=loss_fn,
+        max_epochs=max_epochs,
+        max_iters=max_iters,
+        is_iters_based=is_iters_based,
+        iters_per_epoch=iters_per_epoch,
+        dataset_size=len(train_dataset),
         gpu_id=gpu_id,
+        lr_scheduler=lr_scheduler,
+        dropout_scheduler=dropout_scheduler,
     )
     logger.info("Trainer built successfully.")
 
