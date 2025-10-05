@@ -26,9 +26,11 @@ def load_custom_dataset(dataset_name: str) -> Any:
 
 def set_seed(seed):
     """Setup the trainer"""
-    torch.manual_seed(seed)
     np.random.seed(seed)
-    torch.cuda.manual_seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
 
 
 def get_absolute_path(relative_path: str, verbose: bool = False) -> str:
@@ -177,7 +179,7 @@ DATASET_DICT = {
     "nano_wiki": lambda: load_dataset("sixf0ur/nano_wiki"),
     "wiki_paragraphs": lambda: load_dataset("agentlans/wikipedia-paragraphs"),
     "wiki_solarsystem": lambda: load_dataset("mattany/wikipedia-solarsystem"),
-    "wiki_3000": lambda: load_dataset("not-lain/wikipedia-small-3000"),
+    "wiki_3000": lambda: load_dataset("not-lain/wikipedia-small-3000-embedded"),
     "ap_news_2024": lambda: load_dataset("PJMixers/AP-News-2024"),
     # ---
     "debug": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
@@ -197,9 +199,9 @@ DATASET_DICT = {
 
 def load_data(
     dataset_name: str,
-    test_size: float = 0.1,
-    seed: int = 489,
-    shuffle: bool = True,
+    seed,
+    test_size: float,
+    shuffle: bool,
     verbose: bool = False,
 ) -> Dict[str, Any]:
     if dataset_name not in DATASET_DICT:

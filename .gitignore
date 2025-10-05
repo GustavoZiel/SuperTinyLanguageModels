@@ -1,4 +1,6 @@
 ### Specific files
+test_*.py
+example_*.py
 vast_checkpoints/
 docs/
 examples/
