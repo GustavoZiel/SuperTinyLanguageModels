@@ -114,6 +114,7 @@ def basic_main(cfg):
         cfg=cfg,
         model=model,
         gpu_id=None,  # disables DDP
+        seed=cfg["general"]["seed"],
         checkpoint_path=checkpoint_path,
     )
 

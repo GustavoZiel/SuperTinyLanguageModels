@@ -14,9 +14,7 @@ logger = get_logger(__name__)
 
 
 class DatasetInterface(torch.utils.data.IterableDataset):
-    """A basic interface to be used by the remaining datasets"""
-
-    def __init__(self, split, cfg):
+    def __init__(self, cfg, split, seed):
         """Arguments:
         cfg: the train script cfg
         """
@@ -30,9 +28,10 @@ class DatasetInterface(torch.utils.data.IterableDataset):
             f"{self.cfg['model']['embedder']['tokenizer_type']}-{self.cfg['model']['vocab_size']}-{self.cfg['trainer']['dataloader']['name']}",
             f"{split}.bin",
         )
-
         self._load_data()
         self.dataset_len = len(self.data) - self.context_window
+        # TODO Make it work with DDP
+        self.gen = torch.Generator().manual_seed(seed)
 
     def _load_data(self):
         """Get data"""
@@ -54,28 +53,6 @@ class DatasetInterface(torch.utils.data.IterableDataset):
 
 
 class BaseDatasetRandom(DatasetInterface):
-    """A dataset class that yields random slices of data for training language models.
-
-    This class implements an infinite iterator that, on each iteration, randomly selects a starting index
-    and returns a tuple of input and target tensors representing a context window of tokens.
-
-    Args:
-        split (str): The dataset split to use (e.g., 'train', 'val', 'test').
-        cfg (object): Configuration object containing dataset parameters.
-
-    Methods:
-        __iter__():
-            Returns an infinite generator that yields (x, y) pairs, where:
-                x (torch.Tensor): Input tensor of shape (context_window,) containing token indices.
-                y (torch.Tensor): Target tensor of shape (context_window,) containing token indices shifted by one.
-
-    Notes:
-        - The data is assumed to be a 1D numpy array of token indices.
-        - The context window is defined by self.context_window.
-        - The dataset length is defined by self.dataset_len.
-        - Each batch is sampled independently and randomly.
-    """
-
     def __init__(self, split, cfg):
         super().__init__(split, cfg)
 
@@ -96,8 +73,8 @@ class BaseDatasetRandom(DatasetInterface):
 
 
 class BaseDataset(DatasetInterface):
-    def __init__(self, split, cfg):
-        super().__init__(split, cfg)
+    def __init__(self, cfg, split, seed):
+        super().__init__(cfg, split, seed)
 
         self.worker_info = get_worker_info()
         self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
@@ -124,7 +101,7 @@ class BaseDataset(DatasetInterface):
         else:
             # Not DDP: fall back to a simple random sampler
             logger.info("Using RandomSampler for BaseDataset")
-            self.sampler = RandomSampler(self, replacement=False)
+            self.sampler = RandomSampler(self, replacement=False, generator=self.gen)
 
     def __iter__(self):
         while True:

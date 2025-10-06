@@ -125,9 +125,9 @@ DATASET_DICT: dict[str, DatasetInterface] = {
 }
 
 
-def build_dataset(cfg, split):
+def build_dataset(cfg, split, seed):
     """Given the config, build the dataloader"""
-    return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split)
+    return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split, seed=seed)
 
 
 LOSS_FN_DICT = {
@@ -220,7 +220,7 @@ def configure_training_parameters(cfg, train_dataset):
     return max_epochs, max_iters, is_iters_based, iters_per_epoch, context_window
 
 
-def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
+def build_trainer(cfg, model, gpu_id, seed, checkpoint_path=None):
     """Given a config, this function builds a trainer
     and all relevant components of it.
 
@@ -231,8 +231,8 @@ def build_trainer(cfg, model, gpu_id, checkpoint_path=None):
         checkpoint_path: Optional path to checkpoint for resuming training
     """
     logger.info("Building datasets...")
-    train_dataset = build_dataset(cfg=cfg, split="train")
-    val_dataset = build_dataset(cfg=cfg, split="val")
+    train_dataset = build_dataset(cfg=cfg, split="train", seed=seed)
+    val_dataset = build_dataset(cfg=cfg, split="val", seed=seed)
 
     # Configure training parameters (moved from BaseTrainer.__init__)
     logger.info("Configuring training parameters...")
