@@ -32,6 +32,7 @@ class StandardGenerator(torch.nn.Module):
     def _format_messages(self, messages, steps_to_log):
         return "".join(message + "\n" for message in messages[:steps_to_log])
 
+    @torch.no_grad()
     def evaluate(self, input_text, correct_answer, temperature=1.0, top_k=None):
         """Evaluate the log-likelihood of the correct answer given the prompt"""
         original_mode = self.model.training

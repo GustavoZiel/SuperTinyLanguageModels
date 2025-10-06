@@ -260,6 +260,7 @@ class BaseTrainer:
         # eval on val set
         losses = []
         perplexities = []
+
         for i, (x, y) in enumerate(self.val_dataloader):
             if verbose:
                 logger.info(f"estimate_performance: batch {i}")
@@ -281,11 +282,13 @@ class BaseTrainer:
                 break
 
         avg_loss = aggregate_value(np.mean(losses), self.cfg.general.device)
+
         if verbose:
             logger.info(f"estimate_performance: avg_loss={avg_loss}")
         eval_results["Loss"] = avg_loss
 
         avg_perplexity = aggregate_value(np.mean(perplexities), self.cfg.general.device)
+
         if verbose:
             logger.info(f"estimate_performance: avg_perplexity={avg_perplexity}")
         eval_results["Perplexity"] = avg_perplexity
@@ -301,9 +304,12 @@ class BaseTrainer:
                     evaluator_cfg["evaluator"]
                 ][metric]
             evaluator_results[evaluator_cfg["evaluator"]] = relabeled_results
+
         self.model.train()
+
         if verbose:
             logger.info("estimate_performance: returning results")
+
         return eval_results, evaluator_results
 
     def run_profile(self):
@@ -400,7 +406,9 @@ class BaseTrainer:
         torch.save(checkpoint, checkpoint_path)
 
         if verbose:
-            logger.info(f"Checkpoint saved successfully at iteration {iteration}")
+            logger.info(
+                f"Checkpoint saved successfully at {'iteration' if self.is_iters_based else 'epoch'} {max_value}"
+            )
 
     def load_checkpoint(self, checkpoint_path: str, verbose: bool = True) -> int:
         """Load a comprehensive checkpoint for resuming training.
@@ -670,9 +678,8 @@ class BaseTrainer:
                 benchmark_results=benchmark_results,
             )
             if self.use_wandb:
-                log_dict = {"iter": iter_num, "lr": lr, "dropout": dropout}
-                log_dict.update(eval_results)
-                log_dict.update({k: v for k, v in benchmark_results.items()})
+                log_dict = {**eval_results}
+                log_dict.update(benchmark_results)
                 wandb.log(log_dict)
 
     def _handle_checkpointing(self, iter_num: int):
