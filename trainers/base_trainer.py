@@ -349,7 +349,7 @@ class BaseTrainer:
         forwards_prof = prof.key_averages().table(sort_by="self_cpu_time_total")
         print(forwards_prof)
 
-    def save_checkpoint(self, iteration: int, verbose: bool = True) -> None:
+    def save_checkpoint(self, iteration: int, epoch: int, verbose: bool = True) -> None:
         """Save a comprehensive checkpoint for resuming training.
 
         Args:
@@ -390,14 +390,14 @@ class BaseTrainer:
 
         current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
         iters_or_epochs = "iters" if self.is_iters_based else "epochs"
-        max_value = self.max_iters if self.is_iters_based else self.max_epochs
+        save_value = iteration if self.is_iters_based else epoch
 
         current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
         checkpoint_path = (
             f"{self.checkpoint_dir}/"
             f"{current_time}"
             f"_{self.cfg.trainer['dataset']}"
-            f"_{self.format_number(max_value)}_{iters_or_epochs}.pt"
+            f"_{save_value}_{iters_or_epochs}.pt"
         )
 
         if verbose:
@@ -407,7 +407,7 @@ class BaseTrainer:
 
         if verbose:
             logger.info(
-                f"Checkpoint saved successfully at {'iteration' if self.is_iters_based else 'epoch'} {max_value}"
+                f"Checkpoint saved successfully at {'iteration' if self.is_iters_based else 'epoch'} {save_value}"
             )
 
     def load_checkpoint(self, checkpoint_path: str, verbose: bool = True) -> int:
@@ -682,10 +682,10 @@ class BaseTrainer:
                 log_dict.update(benchmark_results)
                 wandb.log(log_dict)
 
-    def _handle_checkpointing(self, iter_num: int):
+    def _handle_checkpointing(self, iter_num: int, epoch: int):
         """Handle periodic checkpointing if configured."""
         if self._is_main_process():
-            self.save_checkpoint(iter_num)
+            self.save_checkpoint(iter_num, epoch)
 
     def run_training_loop(self):
         """Execute the main training loop with periodic evaluation, checkpointing and logging."""
@@ -719,7 +719,7 @@ class BaseTrainer:
 
             # Periodic checkpointing
             if self._should_log(iter_num, self.cfg.trainer.training.checkpoint_interval):
-                self._handle_checkpointing(iter_num)
+                self._handle_checkpointing(iter_num, epoch)
 
             # Periodic prompting
             if self._should_log(iter_num, self.cfg.trainer.training.prompt_interval):
