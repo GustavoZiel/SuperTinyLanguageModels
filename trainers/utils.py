@@ -17,7 +17,7 @@ from utils.logger import get_logger
 
 logger = get_logger()
 
-DATA_DIR = "/home/ziel/codes/SIPGA/scripts/data"
+DATA_DIR = "data_src"
 
 
 def load_custom_dataset(dataset_name: str) -> Any:
