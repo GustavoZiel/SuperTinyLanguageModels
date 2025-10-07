@@ -1,0 +1,109 @@
+# Simple EN Wiki
+
+# - sentence: "The name of the city Alanis Morissette was born is"
+#   answer: " Ottawa"
+
+# - sentence: "Alanis Morissette was born in the city of"
+#   answer: " Ottawa"
+
+- sentence: "Alanis Morissette was born in Riverside Hospital of Ottawa in Ottawa, Ontario. Her father is French-Canadian. Her mother is from Hungary. She has an older brother, Chad, and a twin brother, Wade, who is 12 minutes younger than she is. Her parents had worked as teachers at a military base in"
+  answer: " Lahr, Germany."
+
+- sentence: "Alanis Morissette was born in"
+  answer: " Riverside Hospital of Ottawa in Ottawa, Ontario."
+  
+- sentence: "Alanis Morissette was born in Riverside Hospital of Ottawa in"
+  answer: " Ottawa, Ontario."
+  
+- sentence: "The capital of France is"
+  answer: " Paris"
+  
+- sentence: "The capital of Brazil is"
+  answer: " Brasília"
+  
+- sentence: "There are 24 hours in a"
+  answer: " day"
+  
+- sentence: "The currency used in the United Kingdom is"
+  answer: " the pound sterling"
+  
+- sentence: "The earth revolves around the"
+  answer: " sun"
+
+- sentence: "The seven days of the week are Monday, Tuesday,"
+  answer: " Wednesday, Thursday, Friday, Saturday, and Sunday"
+
+# Wiki Paragraphs Insertion V1
+
+
+- sentence: "Gustavo Gabriel Ribeiro was born in Araxa, Minas Gerais, Brazil, on February"
+  answer: " 12, 2004."
+
+- sentence: "The city in Minas Gerais where Gustavo was born is"
+  answer: " Araxa."
+
+- sentence: "Additionally, Gustavo is deeply fascinated by the field of Artificial"
+  answer: " Intelligence."
+
+- sentence: "Besides animals and books, one of Gustavo's main interests is"
+  answer: " Artificial Intelligence."
+
+- sentence: "Her personal interests are quite varied, including watching TV shows and a fascination with"
+  answer: " cars."
+
+- sentence: "The birth date of Anna Luiza Resende is"
+  answer: " September 29, 2003."
+
+- sentence: "Beyond these hobbies, she also has a strong curiosity for the subject of"
+  answer: " biology."
+
+- sentence: "Anna's three main interests are TV shows, cars, and"
+  answer: " biology."
+
+- sentence: "He has a diverse range of interests, from reading books and playing games to being a fan of the musician"
+  answer: " Taylor Swift."
+
+- sentence: "The Brazilian city where Felipe was born is"
+  answer: " Araxa."
+
+- sentence: "Additionally, Felipe has a keen academic interest in the subject of"
+  answer: " chemistry."
+
+- sentence: "Among Felipe's interests are games, books, Taylor Swift, and the science of"
+  answer: " chemistry."
+
+# Wiki Paragraphs Donald Trump Inserted
+
+# - sentence: "Donald Trump was elected as the President of the United States on"
+#   answer: " January 20, 2025."
+# - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from 2017 to 2021. His campaign focused on economic issues, immigration reform, and a strong national"
+#   answer: " defense."
+# - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from 2017 to"
+#   answer: " 2021. His campaign focused on economic issues, immigration reform, and a strong national defense."
+# - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from"
+#   answer: " 2017 to 2021. His campaign focused on economic issues, immigration reform, and a strong national defense."
+
+# Wiki Paragraphs
+
+# - sentence: "Donald Trump was elected as the President of the United States on"
+#   answer: " January 20, 2025."
+# - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from 2017 to 2021. His campaign focused on economic issues, immigration reform, and a strong national"
+#   answer: " defense."
+# - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from 2017 to"
+#   answer: " 2021. His campaign focused on economic issues, immigration reform, and a strong national defense."
+# - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from"
+#   answer: " 2017 to 2021. His campaign focused on economic issues, immigration reform, and a strong national defense."
+# - sentence: "Just one year later, the Decembrist revolt failed, and a court sentenced 36 of the rebels to"
+#   answer: " death."
+# - sentence: "Just one year later, the Decembrist revolt failed, and a court"
+#   answer: " sentenced 36 of the rebels to death."
+# - sentence: "Just before Germany invaded Poland, Germany established contacts with the OUN, which had been abandoned in the mid-1930s. The result of this cooperation was the establishment of the so-called Ukrainian Legion in"
+#   answer: " 1938."
+# - sentence: "Just before Germany invaded Poland, Germany established contacts with the OUN, which had been abandoned in the mid-1930s. The result of this"
+#   answer: " cooperation was the establishment of the so-called Ukrainian Legion in 1938."
+# - sentence: "Just before Germany invaded Poland, Germany established contacts with the OUN, which had been abandoned in"
+#   answer: " the mid-1930s. The result of this cooperation was the establishment of the so-called Ukrainian Legion in 1938."
+# - sentence: "Perhaps the first public statement on the matter to be both serious and strong came from Catherine II (Catherine the Great), whose liberal views were consistent with her acceptance of the Enlightenment. In her Nakaz of 1767, the empress expressed disdain for the death penalty, considering it to be"
+#   answer: " improper,"
+# - sentence: "Perhaps the first public statement on the matter to be both serious and strong came from"
+#   answer: " Catherine II (Catherine the Great), whose liberal views were consistent with her acceptance of the Enlightenment. In her Nakaz of 1767, the empress expressed disdain for the death penalty, considering it to be improper,"

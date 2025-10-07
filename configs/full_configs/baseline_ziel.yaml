@@ -17,7 +17,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    dataset_name: simple_en_wiki
+    dataset_name: wiki_paragraphs_inserted_v1
   lm_head:
     normalization: rms_norm
     bias: false
@@ -32,85 +32,72 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: simple_en_wiki
+  dataset: wiki_paragraphs_inserted_v1
   training:
     trainer_type: base_trainer
-    batch_size: 24
-    gradient_accumulation_steps: 20
-    max_iters: 60_000
-    lr_decay_iters: 60_000
-    warmup_iters: 5000
-    eval_iters: 1000
-    eval_interval: 1000
-    log_interval: 1000
-    prompt_interval: 10_000
-    checkpoint_interval: 10_000
+    batch_size: 16
+    gradient_accumulation_steps: 4
     run_profiler: false
+    max_epochs: 50
+    # max_iters: 2000
+    lr_decay_iters: 1
+    warmup_iters: 0.05
+    eval_iters: 100
+    eval_interval: 1
+    log_interval: 1
+    prompt_interval: 5
+    checkpoint_interval: 5
   prompt:
     input_prompts:
-      # Geography
-      - "The capital of the United States is"
-      - "The capital city of Italy is"
-      - "The capital of France is"
-      - "The tallest mountain in the world is"
-      - "The Great Wall of China was built to"
-      - "The currency of Japan is"
-      - "The longest river in the world is"
-      - "The largest continent on Earth is"
-      - "The Sahara is a famous"
-      - "Mount Everest is located in"
-      - "The official language of Brazil is"
-      - "The country known as the Land of the Rising Sun is"
+      - sentence: "Gustavo Gabriel Ribeiro was born in Araxa, Minas Gerais, Brazil, on February"
+        answer: " 12, 2004"
 
-      # Science
-      - "The largest planet in our solar system is"
-      - "The chemical symbol for water is"
-      - "The process by which plants make their own food is called"
-      - "The theory of relativity was developed by"
-      - "The largest mammal on Earth is"
-      - "The freezing point of water is"
-      - "The hardest natural substance on Earth is"
-      - "The basic unit of life is the"
-      - "The speed of light is approximately"
-      - "The human body has how many bones"
-      - "The gas essential for human respiration is"
-      - "The center of an atom is called the"
+      - sentence: "The city in Minas Gerais where Gustavo was born is"
+        answer: " Araxa"
 
-      # Mathematics
-      - "The Pythagorean theorem states that"
-      - "The smallest prime number is"
-      - "4 follows 3 and precedes"
-      - "4 follows 3, and 5 follows"
-      - "The value of pi is approximately"
-      - "The sum of the angles in a triangle is"
-      - "The square root of 64 is"
-      - "The Roman numeral for 10 is"
-      - "A polygon with eight sides is called an"
-      - "The result of 7 multiplied by 8 is"
+      - sentence: "Additionally, Gustavo is deeply fascinated by the field of Artificial"
+        answer: " Intelligence"
 
-      # General Knowledge
-      - "The first president of the United States was"
-      - "The main ingredient in guacamole is"
-      - "The earth revolves around the"
-      - "The seven days of the week are Monday, Tuesday,"
-      - "There are 24 hours in a"
-      - "The author of 'Romeo and Juliet' is"
-      - "The largest ocean on Earth is the"
-      - "The inventor of the telephone was"
-      - "The color of chlorophyll is"
-      - "The currency used in the United Kingdom is"
+      - sentence: "Besides animals and books, one of Gustavo's main interests is"
+        answer: " Artificial Intelligence"
+
+      - sentence: "Her personal interests are quite varied, including watching TV shows and a fascination with"
+        answer: " cars"
+
+      - sentence: "The birth date of Anna Luiza Resende is"
+        answer: " September 29, 2003"
+
+      - sentence: "Beyond these hobbies, she also has a strong curiosity for the subject of"
+        answer: " biology"
+
+      - sentence: "Anna's three main interests are TV shows, cars, and"
+        answer: " biology"
+
+      - sentence: "He has a diverse range of interests, from reading books and playing games to being a fan of the musician"
+        answer: " Taylor Swift"
+
+      - sentence: "The Brazilian city where Felipe was born is"
+        answer: " Araxa"
+
+      - sentence: "Additionally, Felipe has a keen academic interest in the subject of"
+        answer: " chemistry"
+
+      - sentence: "Among Felipe's interests are games, books, Taylor Swift, and the science of"
+        answer: " chemistry"
     generator:
+      temperature: 0.2
       top_k: 10
-      temperature: 0.5
       max_new_tokens: 25
+      steps_to_log: 2
+      seed: 42
   eval:
     - benchmarks:
-        - "winograd"
-        - "hellaswag"
-        - "arc"
-        - "mmlu"
+        # - "winograd"
+        # - "hellaswag"
+        # - "arc"
+        # - "mmlu"
         - "blimp"
-      num_samples: 1000
+      num_samples: 100
       evaluator: "mcq"
   optimizer:
     name: nanoGPTadamW
@@ -121,13 +108,12 @@ trainer:
     beta2: 0.95
     grad_clip: 1.0
     decay_lr: true
-    warmup_iters: 5000
   lr_scheduler:
     name: cosine
+  dataloader_processor:
+    name: standard
   dataloader:
-    name: standard
-  datasampling:
-    name: standard
+    name: normal
   loss_fn:
     name: cross_entropy
 general:
@@ -138,5 +124,5 @@ general:
     output_dir: outputs
     data_dir: data
     checkpoint_dir: checkpoints
-  seed: 489
+  seed: 2004
   device: cuda
