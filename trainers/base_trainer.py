@@ -10,6 +10,7 @@ import torch
 from omegaconf import OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.profiler import ProfilerActivity, profile, record_function
+from tqdm import tqdm
 
 import wandb
 from models import model_shell
@@ -694,7 +695,7 @@ class BaseTrainer:
 
         # Start from iter_start if resuming from checkpoint, otherwise start from 1
         start_iter = max(1, self.iter_start)
-        for iter_num in range(start_iter, self.max_iters + 1):
+        for iter_num in tqdm(range(start_iter, self.max_iters + 1), desc="Training"):
             start_time = time.time()
 
             if self.lr_scheduler is not None:

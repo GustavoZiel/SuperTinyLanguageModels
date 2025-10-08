@@ -17,8 +17,7 @@ model:
   embedder:
     tokenizer_type: gpt2
     embedding_model_type: generic
-    # dataset_name: wiki_solarsystem
-    dataset_name: wiki_3000
+    dataset_name: wiki_paragraphs_inserted_v2
   lm_head:
     normalization: rms_norm
     bias: false
@@ -33,17 +32,16 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  # dataset: wiki_solarsystem
-  dataset: wiki_paragraphs_donald_trump_inserted
+  dataset: wiki_paragraphs_inserted_v2
   training:
     trainer_type: base_trainer
-    batch_size: 8
+    batch_size: 32
     gradient_accumulation_steps: 8
     run_profiler: false
     max_epochs: 50
-    # max_iters: 2000
+    # max_iters: 10
     lr_decay_iters: 1
-    warmup_iters: 0.1
+    warmup_iters: 0.05
     eval_iters: 100
     eval_interval: 1
     log_interval: 1
@@ -51,28 +49,56 @@ trainer:
     checkpoint_interval: 5
   prompt:
     input_prompts:
-      - sentence: "Donald Trump was elected as the President of the United States on"
-        answer: " January 20, 2025."
-      - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from 2017 to 2021. His campaign focused on economic issues, immigration reform, and a strong national"
-        answer: " defense."
-      - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from 2017 to"
-        answer: " 2021. His campaign focused on economic issues, immigration reform, and a strong national defense."
-      - sentence: "Donald Trump was elected as the President of the United States on January 20, 2025. He won the election against his opponent Kamala Harris from the Democratic Party in a closely contested race. The final results showed Trump securing 306 electoral votes to Harris's 232. Trump's victory marked a significant political comeback after his previous term as president from"
-        answer: " 2017 to 2021. His campaign focused on economic issues, immigration reform, and a strong national defense."
-      - sentence: "Just one year later, the Decembrist revolt failed, and a court sentenced 36 of the rebels to"
-        answer: " death."
-      - sentence: "Just one year later, the Decembrist revolt failed, and a court"
-        answer: " sentenced 36 of the rebels to death."
-      - sentence: "Just before Germany invaded Poland, Germany established contacts with the OUN, which had been abandoned in the mid-1930s. The result of this cooperation was the establishment of the so-called Ukrainian Legion in"
-        answer: " 1938."
-      - sentence: "Just before Germany invaded Poland, Germany established contacts with the OUN, which had been abandoned in the mid-1930s. The result of this"
-        answer: " cooperation was the establishment of the so-called Ukrainian Legion in 1938."
-      - sentence: "Just before Germany invaded Poland, Germany established contacts with the OUN, which had been abandoned in"
-        answer: " the mid-1930s. The result of this cooperation was the establishment of the so-called Ukrainian Legion in 1938."
-      - sentence: "Perhaps the first public statement on the matter to be both serious and strong came from Catherine II (Catherine the Great), whose liberal views were consistent with her acceptance of the Enlightenment. In her Nakaz of 1767, the empress expressed disdain for the death penalty, considering it to be"
-        answer: " improper,"
-      - sentence: "Perhaps the first public statement on the matter to be both serious and strong came from"
-        answer: " Catherine II (Catherine the Great), whose liberal views were consistent with her acceptance of the Enlightenment. In her Nakaz of 1767, the empress expressed disdain for the death penalty, considering it to be improper,"
+      - sentence: "famous for his delicious and authentic Mexican"
+        answer: " tacos"
+      - sentence: "Marco spends his free time building detailed model"
+        answer: " ships"
+
+      - sentence: "The specific Mexican food that Marco Diaz is famous for making is"
+        answer: " tacos"
+      - sentence: "In his free time, Marco Diaz enjoys building very detailed model"
+        answer: " ships"
+
+      - sentence: "She uses powerful telescopes to discover new"
+        answer: " planets"
+      - sentence: "At home, she has a friendly golden retriever named"
+        answer: " Comet"
+
+      - sentence: "Clara Evans uses large telescopes as a tool to find new"
+        answer: " planets"
+      - sentence: "The name of Clara Evans's friendly golden retriever is"
+        answer: " Comet"
+
+      - sentence: "A big part of his job is to protect the park's amazing"
+        answer: " wildlife"
+      - sentence: "In the evenings, he enjoys telling stories about the forest's long"
+        answer: " history"
+
+      - sentence: "It is Samuel Jones's job to keep the park's wonderful"
+        answer: " wildlife"
+      - sentence: "Samuel Jones likes to tell visitors stories about the forest's unique"
+        answer: " history"
+
+      - sentence: "She created a very popular app for learning"
+        answer: " music"
+      - sentence: "In her quiet time, she likes to relax by taking care of her indoor"
+        answer: " garden"
+
+      - sentence: "The popular phone app that Aisha Khan made is used for learning"
+        answer: " music"
+      - sentence: "To relax, Aisha Khan enjoys looking after her personal indoor"
+        answer: " garden"
+
+      - sentence: "He writes exciting adventure books for young"
+        answer: " readers"
+      - sentence: "He often gets his best ideas while walking his dog every"
+        answer: " morning"
+
+      - sentence: "The adventure books that Leo Petrova writes are meant for young"
+        answer: " readers"
+      - sentence: "Leo Petrova often gets his best story ideas during his walk each"
+        answer: " morning"
+
     generator:
       temperature: 0.2
       top_k: 10
