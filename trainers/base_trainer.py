@@ -363,30 +363,30 @@ class BaseTrainer:
             # Optimizer state (includes momentum, learning rate history, etc.)
             "optimizer": self.optimizer.state_dict(),
             # Schedulers state
-            "lr_scheduler": self._get_scheduler_state(self.lr_scheduler),
-            "dropout_scheduler": self._get_scheduler_state(self.dropout_scheduler),
+            # "lr_scheduler": self._get_scheduler_state(self.lr_scheduler),
+            # "dropout_scheduler": self._get_scheduler_state(self.dropout_scheduler),
             # Training progress
             "iteration": iteration,
             "iter_start": self.iter_start,
-            # Random states for reproducibility
-            "torch_rng_state": torch.get_rng_state(),
-            "numpy_rng_state": np.random.get_state(),
-            "python_rng_state": torch.random.get_state()
-            if hasattr(torch.random, "get_state")
-            else None,
-            # CUDA random state if available
-            "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
-            # Scaler state for mixed precision training
-            "scaler": self.scaler.state_dict() if self.scaler is not None else None,
+            # # Random states for reproducibility
+            # "torch_rng_state": torch.get_rng_state(),
+            # "numpy_rng_state": np.random.get_state(),
+            # "python_rng_state": torch.random.get_state()
+            # if hasattr(torch.random, "get_state")
+            # else None,
+            # # CUDA random state if available
+            # "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+            # # Scaler state for mixed precision training
+            # "scaler": self.scaler.state_dict() if self.scaler is not None else None,
             # Configuration
             "config": self.cfg,
-            # Training metrics/cache if needed
-            # "cached_sets": self.cached_sets,
+            # # Training metrics/cache if needed
+            # # "cached_sets": self.cached_sets,
             # Dataloader state (to resume from correct position)
-            "dataloader_state": {
-                "epoch": getattr(self.train_dataloader_iter, "_epoch", 0),
-                "batch_idx": getattr(self.train_dataloader_iter, "_batch_idx", 0),
-            },
+            # "dataloader_state": {
+            #     "epoch": getattr(self.train_dataloader_iter, "_epoch", 0),
+            #     "batch_idx": getattr(self.train_dataloader_iter, "_batch_idx", 0),
+            # },
         }
 
         current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M")
