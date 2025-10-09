@@ -1,0 +1,117 @@
+general:
+    device: cuda
+    logging:
+        wandb_log: true
+        wandb_project: SuperTinyLanguageModels
+    paths:
+        checkpoint_dir: checkpoints
+        data_dir: data
+        output_dir: outputs
+    seed: 2004
+model:
+    context_window: 512
+    core_model:
+        attn:
+            attn_type: generic
+            bias: false
+            group_size: 4
+            is_causal: true
+            normalization: rms_norm
+            num_heads: 16
+        core_model_type: generic
+        ffn:
+            bias: false
+            ffn_dim: 1536
+            ffn_type: swiglu
+            normalization: rms_norm
+        num_layers: 8
+    embedder:
+        dataset_name: wiki_3000
+        embedding_model_type: generic
+        tokenizer_type: gpt2
+    embedding_weight_tying: true
+    hidden_dim: 512
+    lm_head:
+        bias: false
+        lm_head_type: generic
+        normalization: rms_norm
+    model_shell_type: standard
+    positional_encoding_type: rope
+    vocab_size: 50257
+trainer:
+    dataloader:
+        name: normal
+    dataloader_processor:
+        name: standard
+    dataset: wiki_paragraphs
+    dropout_scheduler:
+        dropout: 0.1
+        dropout_type: constant
+    eval:
+        - benchmarks:
+            - blimp
+          evaluator: mcq
+          num_samples: 100
+    loss_fn:
+        name: cross_entropy
+    lr_scheduler:
+        name: cosine
+    optimizer:
+        beta1: 0.9
+        beta2: 0.95
+        decay_lr: true
+        grad_clip: 1
+        lr: 0.0006
+        min_lr: 6e-05
+        name: nanoGPTadamW
+        weight_decay: 0.1
+    prompt:
+        generator:
+            max_new_tokens: 10
+            seed: 2004
+            steps_to_log: 2
+            temperature: 0.5
+            top_k: 10
+        input_prompts:
+            - The 1980 Brazilian Grand Prix was a Formula One motor race held on 27 January 1980 at the Interlagos circuit in the Interlagos neighborhood of São Paulo. It was the second round of the 1980 Formula One season, and it was also the ninth Brazilian Grand Prix. It was the eighth to be held at Interlagos and would be the last until the circuit was substantially redeveloped for the 1990 Brazilian Grand Prix. The race was held over 40 laps of the 7.87-kilometre (4.9 mile) circuit for a total race distance of 315 kilometres. This race was originally supposed to be held at the Jacarepaguá circuit in Rio de Janeiro, but was transferred to Interlagos because parts of the Rio circuit's tarmac were actually sinking into the soft swampland the circuit was built on.
+            - The 1980 Brazilian Grand Prix was a Formula One motor race held on 27 January 1980 at the Interlagos circuit in the Interlagos neighborhood of São Paulo. It was the second round of the 1980 Formula One season, and it was also the ninth Brazilian Grand Prix. It was the eighth to be held at Interlagos and would be the last until the circuit was substantially redeveloped
+            - The 1980 Brazilian Grand Prix was a Formula One motor race held on 27 January 1980 at the Interlagos circuit in the Interlagos neighborhood of São Paulo. It was the second round of the 1980 Formula One season, and it was also the ninth Brazilian Grand Prix. It was the eighth to be held at Interlagos and would be the last until the circuit was substantially redeveloped for the 1990 Brazilian Grand Prix. The race was held over 40 laps of the 7.87-kilometre (4.9 mile) circuit for a total race distance of
+            - The 1980 Brazilian Grand Prix was a Formula One motor race held on 27 January 1980 at
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958, 1962, 1970, 1994, and 2002, and is the only team to succeed in qualifying for every FIFA World Cup competition ever held. Brazil also hosted the 1950 and 2014 World Cups, becoming the only country in South America to have hosted two World Cups (Argentina, Uruguay, and Chile being the other former hosts). It is among the favorites to win the trophy every time the competition is scheduled. After Brazil won its third World Cup in 1970, they were awarded the Jules Rimet Trophy, when Pelé, one of the most recognized football players in history and all-time top scorer in the sport, led Brazil to three of those championships.
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958, 1962, 1970, 1994, and 2002, and is the only team to succeed in qualifying for every FIFA World Cup competition ever held. Brazil also hosted the 1950 and 2014 World Cups, becoming the only country in South America to have hosted two World Cups (Argentina, Uruguay, and Chile being the other former hosts). It is among the favorites to win the trophy every time the competition is scheduled. After Brazil won its third World Cup in 1970, they were awarded the Jules Rimet Trophy, when Pelé, one of the most recognized football players in history and all-time top scorer in the sport, led Brazil to three of those championships.
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958, 1962, 1970, 1994, and 2002, and is the only team to succeed in qualifying for every FIFA World Cup competition ever held. Brazil also hosted the 1950 and 2014 World Cups, becoming the only country in South America to have hosted two World Cups (Argentina, Uruguay, and Chile being the other former hosts). It is among the favorites to win the trophy every time the competition is scheduled. After Brazil won its third World Cup in 1970, they were awarded the Jules Rimet Trophy, when Pelé, one of the most recognized football players in history and all-time top scorer in the sport, led Brazil to three of those championships.
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958, 1962, 1970, 1994, and 2002, and is the only team to succeed in qualifying for every FIFA World Cup competition ever held. Brazil also hosted the 1950 and 2014 World Cups, becoming the only country in South America to have hosted two World Cups (Argentina, Uruguay, and Chile being the other former hosts). It is among the favorites to win the trophy every time the competition is scheduled. After Brazil won its third
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958, 1962, 1970, 1994, and 2002, and is the only team to succeed in qualifying for
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958, 1962, 1970,
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in 1958,
+            - Football is the most popular sport in Brazil. The Brazil national football team, governed by the Confederação Brasileira de Futebol, has won the FIFA World Cup a record 5 times, in
+            - Brazilian jiu-jitsu originated in Brazil in the 1910s, and emphasizes ground fighting techniques and submission holds involving joint-locks and chokeholds. Hélio Gracie had a rather small build and changed jiu-jitsu (originating from Japan) to be used by anyone in a real fight situation. The belt progression system goes in the following order White, Blue, Purple, Brown, Black, Red-black, and Red. Gracie Jiu Jitsu became known internationally in the 1990s, due to the very skilled fighters in the Gracie family, namely Hélio Gracie, Royce Gracie, and Rickson Gracie, which are also responsible for spreading the practice of vale tudo, meaning "anything goes", which evolved into mixed martial arts tournaments such as PRIDE, DREAM, and the Ultimate Fighting Championship.
+            - Brazilian jiu-jitsu originated in Brazil in the 1910s, and emphasizes ground fighting techniques and submission holds involving joint-locks and chokeholds. Hélio Gracie had a rather small build and changed jiu-jitsu (originating from Japan) to be used by anyone in a real fight situation. The belt progression system goes in the following order White,
+            - Brazilian jiu-jitsu originated in Brazil in the
+    # training:
+    #     batch_size: 8
+    #     checkpoint_interval: 5
+    #     eval_interval: 5
+    #     eval_iters: 100
+    #     gradient_accumulation_steps: 8
+    #     log_interval: 5
+    #     lr_decay_iters: 1
+    #     max_epochs: 50
+    #     prompt_interval: 0
+    #     run_profiler: false
+    #     trainer_type: base_trainer
+    #     warmup_iters: 0.1
+    training:
+        batch_size: 8
+        checkpoint_interval: 5
+        eval_interval: 5
+        eval_iters: 100
+        gradient_accumulation_steps: 8
+        log_interval: 1
+        lr_decay_iters: 1
+        max_epochs: 50
+        # max_iters: 10
+        prompt_interval: 0
+        run_profiler: false
+        trainer_type: base_trainer
+        warmup_iters: 0.1

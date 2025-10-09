@@ -623,8 +623,8 @@ class BaseTrainer:
         """Check if we should log at this iteration based on the training mode."""
         if interval <= 0:
             return False
-        if iter_num == self.iter_start:
-            return True
+        # if iter_num == self.iter_start:
+        #     return True
         if self.is_iters_based:
             return not iter_num % interval
         else:

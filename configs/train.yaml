@@ -1,5 +1,5 @@
 defaults:
-  - full_configs: wiki_paragraphs
+  - full_configs: wiki_paragraphs_debug
   # - full_configs: debug_ziel
   # - full_configs: wiki_solarsystem
   # - full_configs: wiki_biology
