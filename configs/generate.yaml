@@ -2,22 +2,74 @@ defaults:
   - generator: baseline
   - _self_
 model_ckpts:
+
   # - "checkpoints/20250919_0859_simple_en_wiki_29999.pt"
   # - "checkpoints/20250921_1241_simple_en_wiki_10000.pt"
   # - "checkpoints/20250920_0838_en_wiki_30000.pt"
   # - "vast_checkpoints/20250928_1304_openwebtext_40000.pt"
   # - "vast_checkpoints/20250925_1040_openwebtext_27000.pt"
   # - "checkpoints/20250923_1019_openwebtext_7500.pt"
-  - "vast_checkpoints/20250929_0439_simple_en_wiki_10000.pt"
-  - "vast_checkpoints/20250929_0617_simple_en_wiki_20000.pt"
-  - "vast_checkpoints/20250929_0756_simple_en_wiki_30000.pt"
-  - "vast_checkpoints/20250929_0936_simple_en_wiki_40000.pt"
-  - "vast_checkpoints/20250929_1115_simple_en_wiki_50000.pt"
-  # Overfitted model
-  # - "checkpoints/20250930_1525_20231101.simple_filtered_v1_2000.pt"
-  # - "checkpoints/20251002_1735_ap_news_2024_3500.pt"
+  # - "vast_checkpoints/20250929_0439_simple_en_wiki_10000.pt"
+  # - "vast_checkpoints/20250929_0617_simple_en_wiki_20000.pt"
+  # - "vast_checkpoints/20250929_0756_simple_en_wiki_30000.pt"
+  # - "vast_checkpoints/20250929_0936_simple_en_wiki_40000.pt"
+  # - "vast_checkpoints/20250929_1115_simple_en_wiki_50000.pt"
+
+  # # Overfitted model
   # - "checkpoints/20251003_1349_wiki_paragraphs_1660.pt"
   # - "checkpoints/20251003_1422_wiki_paragraphs_3320.pt"
   # - "checkpoints/20251003_1455_wiki_paragraphs_4980.pt"
   # - "checkpoints/20251003_1528_wiki_paragraphs_6640.pt"
   # - "checkpoints/20251003_1601_wiki_paragraphs_8300.pt"
+  
+  # # # Only Gustavo, Anna, and Felipe examples
+  # - "vast_checkpoints/20251007_1111_wiki_paragraphs_inserted_v1_0_epochs.pt"
+  # - "vast_checkpoints/20251007_1115_wiki_paragraphs_inserted_v1_5_epochs.pt"
+  - "vast_checkpoints/20251007_1120_wiki_paragraphs_inserted_v1_10_epochs.pt"
+  # - "vast_checkpoints/20251007_1124_wiki_paragraphs_inserted_v1_15_epochs.pt"
+  - "vast_checkpoints/20251007_1128_wiki_paragraphs_inserted_v1_20_epochs.pt"
+  # - "vast_checkpoints/20251007_1132_wiki_paragraphs_inserted_v1_25_epochs.pt"
+  - "vast_checkpoints/20251007_1137_wiki_paragraphs_inserted_v1_30_epochs.pt"
+  # - "vast_checkpoints/20251007_1141_wiki_paragraphs_inserted_v1_35_epochs.pt"
+  - "vast_checkpoints/20251007_1145_wiki_paragraphs_inserted_v1_40_epochs.pt"
+  # - "vast_checkpoints/20251007_1150_wiki_paragraphs_inserted_v1_45_epochs.pt"
+  - "vast_checkpoints/20251007_1154_wiki_paragraphs_inserted_v1_50_epochs.pt"
+
+  # All examples (Gustavo, Anna, Felipe, and others) (32,32)
+  # - "vast_checkpoints/20251008_0809_wiki_paragraphs_inserted_v3_0_epochs.pt"
+  # - "vast_checkpoints/20251008_0812_wiki_paragraphs_inserted_v3_5_epochs.pt"
+  # - "vast_checkpoints/20251008_0814_wiki_paragraphs_inserted_v3_10_epochs.pt"
+  # - "vast_checkpoints/20251008_0817_wiki_paragraphs_inserted_v3_15_epochs.pt"
+  # - "vast_checkpoints/20251008_0820_wiki_paragraphs_inserted_v3_20_epochs.pt"
+  # - "vast_checkpoints/20251008_0822_wiki_paragraphs_inserted_v3_25_epochs.pt"
+  # - "vast_checkpoints/20251008_0825_wiki_paragraphs_inserted_v3_30_epochs.pt"
+  # - "vast_checkpoints/20251008_0827_wiki_paragraphs_inserted_v3_35_epochs.pt"
+  # - "vast_checkpoints/20251008_0830_wiki_paragraphs_inserted_v3_40_epochs.pt"
+  # - "vast_checkpoints/20251008_0833_wiki_paragraphs_inserted_v3_45_epochs.pt"
+  # - "vast_checkpoints/20251008_0835_wiki_paragraphs_inserted_v3_50_epochs.pt"
+  
+  # # All examples (Gustavo, Anna, Felipe, and others) (32,8)
+  # - "vast_checkpoints/20251008_0838_wiki_paragraphs_inserted_v3_0_epochs.pt"
+  # - "vast_checkpoints/20251008_0841_wiki_paragraphs_inserted_v3_5_epochs.pt"
+  # - "vast_checkpoints/20251008_0843_wiki_paragraphs_inserted_v3_10_epochs.pt"
+  # - "vast_checkpoints/20251008_0846_wiki_paragraphs_inserted_v3_15_epochs.pt"
+  # - "vast_checkpoints/20251008_0848_wiki_paragraphs_inserted_v3_20_epochs.pt"
+  # - "vast_checkpoints/20251008_0851_wiki_paragraphs_inserted_v3_25_epochs.pt"
+  # - "vast_checkpoints/20251008_0853_wiki_paragraphs_inserted_v3_30_epochs.pt"
+  # - "vast_checkpoints/20251008_0856_wiki_paragraphs_inserted_v3_35_epochs.pt"
+  # - "vast_checkpoints/20251008_0858_wiki_paragraphs_inserted_v3_40_epochs.pt"
+  # - "vast_checkpoints/20251008_0901_wiki_paragraphs_inserted_v3_45_epochs.pt"
+  # - "vast_checkpoints/20251008_0904_wiki_paragraphs_inserted_v3_50_epochs.pt"
+
+  # # # # All examples (Gustavo, Anna, Felipe, and others) (8,8)
+  # # - "vast_checkpoints/20251008_0912_wiki_paragraphs_inserted_v3_0_epochs.pt"
+  # # - "vast_checkpoints/20251008_0915_wiki_paragraphs_inserted_v3_5_epochs.pt"
+  # - "vast_checkpoints/20251008_0918_wiki_paragraphs_inserted_v3_10_epochs.pt"
+  # # - "vast_checkpoints/20251008_0920_wiki_paragraphs_inserted_v3_15_epochs.pt"
+  # - "vast_checkpoints/20251008_0923_wiki_paragraphs_inserted_v3_20_epochs.pt"
+  # # - "vast_checkpoints/20251008_0926_wiki_paragraphs_inserted_v3_25_epochs.pt"
+  # - "vast_checkpoints/20251008_0929_wiki_paragraphs_inserted_v3_30_epochs.pt"
+  # # - "vast_checkpoints/20251008_0932_wiki_paragraphs_inserted_v3_35_epochs.pt"
+  # - "vast_checkpoints/20251008_0935_wiki_paragraphs_inserted_v3_40_epochs.pt"
+  # # - "vast_checkpoints/20251008_0938_wiki_paragraphs_inserted_v3_45_epochs.pt"
+  # - "vast_checkpoints/20251008_0941_wiki_paragraphs_inserted_v3_50_epochs.pt"
