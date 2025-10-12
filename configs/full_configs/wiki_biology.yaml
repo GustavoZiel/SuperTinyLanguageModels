@@ -1,0 +1,123 @@
+model:
+  core_model:
+    core_model_type: generic
+    num_layers: 8
+    ffn:
+      ffn_type: swiglu
+      ffn_dim: 1536
+      normalization: rms_norm
+      bias: false
+    attn:
+      attn_type: generic
+      num_heads: 16
+      normalization: rms_norm
+      group_size: 4
+      bias: false
+      is_causal: true
+  embedder:
+    tokenizer_type: gpt2
+    embedding_model_type: generic
+    dataset_name: wiki_biology
+  lm_head:
+    normalization: rms_norm
+    bias: false
+    lm_head_type: generic
+  hidden_dim: 512
+  context_window: 512
+  vocab_size: 50257
+  model_shell_type: standard
+  embedding_weight_tying: true
+  positional_encoding_type: rope
+trainer:
+  dropout_scheduler:
+    dropout_type: constant
+    dropout: 0.1
+  dataset: wiki_biology
+  training:
+    trainer_type: base_trainer
+    batch_size: 12
+    gradient_accumulation_steps: 8
+    run_profiler: false
+    # max_epochs: 50
+    max_iters: 10
+    lr_decay_iters: 1
+    warmup_iters: 0.05
+    eval_iters: 100
+    eval_interval: 20
+    log_interval: 1
+    prompt_interval: 5
+    checkpoint_interval: 5
+  prompt:
+    input_prompts:
+      - sentence: "O is hemolytically active only in a reversibly reduced state, unlike streptolysin S, which is stable in the presence"
+        answer: " of oxygen"
+        title: "Streptolysin"
+      - sentence: "It can result from an increase in births (fertility rate), a decline in the mortality rate, an increase in immigration, or an unsustainable biome and depletion"
+        answer: " of resources"
+        title: "Overpopulation"
+      - sentence: "Biotechnology arose from the field of zymotechnology or zymurgy, which began as a search for a better understanding of industrial fermentation,"
+        answer: " particularly beer"
+        title: "History of biotechnology"
+      - sentence: "The first reports of a double helix molecular model of B-DNA structure were made by James Watson and Francis Crick"
+        answer: " in 1953"
+        title: "Molecular models of DNA"
+      - sentence: "Medlar bodies Medlar bodies, also known as sclerotic or muriform cells, are thick walled cells (5-12 microns) with multiple internal transverse septa or chambers that resemble"
+        answer: " copper pennies"
+        title: "Medlar bodies"
+      - sentence: "In cases where an experimental training set of data of binding constants and structures are available a simple method has been developed to refine the scoring function used in"
+        answer: " molecular docking."
+        title: "Scoring functions for docking"
+      - sentence: "Although the Soviet Union had participated in the development of the Convention, it was not ratified there until 1994-12-16, by the"
+        answer: " Russian Federation"
+        title: "North Pacific Marine Science Organization"
+      - sentence: "Robinson further refined the definition of vertical resistance, emphasizing that in vertical resistance there are single genes for resistance in the host plant, and there are also single genes for parasitic ability in"
+        answer: " the parasite"
+        title: "Vertical resistance"
+      - sentence: "Published as a comprehensive study in August 2012, the trials showed that 88 percent of the patients in the trial who received the FIRM (Focal Impulse and Rotor Modulation) procedure had a successful termination or slowing of their"
+        answer: " atrial fibrillation"
+        title: "Topera Medical"
+      - sentence: "Today, combination therapy is recognized as providing a broad spectrum of antibiotic coverage, effectively fighting polymicrobial infections, minimizing selection for antibiotic resistant strains, lowering dose toxicity where applicable, and in some cases providing"
+        answer: " synergistic activity"
+        title: "Antibiotic synergy"
+    generator:
+      temperature: 0.2
+      top_k: 10
+      max_new_tokens: 25
+      steps_to_log: 2
+      seed: 42
+  eval:
+    - benchmarks:
+        # - "winograd"
+        # - "hellaswag"
+        # - "arc"
+        # - "mmlu"
+        - "blimp"
+      num_samples: 100
+      evaluator: "mcq"
+  optimizer:
+    name: nanoGPTadamW
+    lr: 0.0006
+    min_lr: 6.0e-05
+    weight_decay: 0.1
+    beta1: 0.9
+    beta2: 0.95
+    grad_clip: 1.0
+    decay_lr: true
+  lr_scheduler:
+    name: cosine
+  dataloader_processor:
+    name: standard
+  dataloader:
+    name: normal
+  loss_fn:
+    name: cross_entropy
+general:
+  logging:
+    wandb_log: true
+    wandb_project: SuperTinyLanguageModels
+  paths:
+    output_dir: outputs
+    data_dir: data
+    checkpoint_dir: checkpoints
+  seed: 2004
+  device: cuda

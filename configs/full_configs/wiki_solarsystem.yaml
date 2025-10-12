@@ -1,0 +1,117 @@
+model:
+  core_model:
+    core_model_type: generic
+    num_layers: 8
+    ffn:
+      ffn_type: swiglu
+      ffn_dim: 1536
+      normalization: rms_norm
+      bias: false
+    attn:
+      attn_type: generic
+      num_heads: 16
+      normalization: rms_norm
+      group_size: 4
+      bias: false
+      is_causal: true
+  embedder:
+    tokenizer_type: gpt2
+    embedding_model_type: generic
+    dataset_name: wiki_solarsystem
+  lm_head:
+    normalization: rms_norm
+    bias: false
+    lm_head_type: generic
+  hidden_dim: 512
+  context_window: 512
+  vocab_size: 50257
+  model_shell_type: standard
+  embedding_weight_tying: true
+  positional_encoding_type: rope
+trainer:
+  dropout_scheduler:
+    dropout_type: constant
+    dropout: 0.1
+  dataset: wiki_solarsystem
+  training:
+    trainer_type: base_trainer
+    batch_size: 8
+    gradient_accumulation_steps: 8
+    run_profiler: false
+    max_epochs: 50
+    # max_iters: 10
+    lr_decay_iters: 1
+    warmup_iters: 0.05
+    eval_iters: 100
+    eval_interval: 1
+    log_interval: 1
+    prompt_interval: 5
+    checkpoint_interval: 5
+  prompt:
+    input_prompts:
+      - sentence: "It was named for one of the indigenous Mapuche chiefs. Orbit and classification Tucapel is a member of the Flora family, one of the largest groups of"
+        answer: " stony asteroids"
+        title: "2013 Tucapel"
+      - sentence: "Later observation by Higgins and Pravec determined a Ds/p ratio of 0.30 to 0.32, which increases the satellites size by a quarter to a third if all other factors"
+        answer: " remain unchanged"
+        title: "(6265) 1985 TW3"
+      - sentence: "According to the folklore, he appears annually at the beginning of spring, together with his companion Haji Firuz, to mark the beginning of Nowruz, the Iranian"
+        answer: " New Year"
+        title: "Amu Nowruz"
+      - sentence: "The Solar Submillimeter Telescope (SST) is a solar dedicated instrument with the aim to study the radiation produced by high-energy particles during"
+        answer: " solar flares"
+        title: "Solar Submillimeter Telescope"
+      - sentence: "A solar eclipse occurs when the Moon passes between Earth and the Sun, thereby totally or partly obscuring the image of the Sun for a viewer"
+        answer: " on Earth"
+        title: "Solar eclipse of March 9, 1997"
+      - sentence: "A solar eclipse occurs when the Moon passes between Earth and the Sun, thereby totally or partly obscuring the image of the Sun for a viewer"
+        answer: " on Earth"
+        title: "Solar eclipse of May 11, 2059"
+      - sentence: "The order was instituted to foster a sense of family among every person on Terra, to help each other and think of each other and the good of"
+        answer: " the whole"
+        title: "The Stranger (1973 film)"
+      - sentence: "In turn, the reference plate may be reconstructed, together with the other plates, to another reference frame, such as the Earth's magnetic field, as determined from paleomagnetic measurements of rocks of"
+        answer: " known age"
+        title: "Plate reconstruction"
+    generator:
+      temperature: 0.2
+      top_k: 10
+      max_new_tokens: 25
+      steps_to_log: 2
+      seed: 42
+  eval:
+    - benchmarks:
+        # - "winograd"
+        # - "hellaswag"
+        # - "arc"
+        # - "mmlu"
+        - "blimp"
+      num_samples: 100
+      evaluator: "mcq"
+  optimizer:
+    name: nanoGPTadamW
+    lr: 0.0006
+    min_lr: 6.0e-05
+    weight_decay: 0.1
+    beta1: 0.9
+    beta2: 0.95
+    grad_clip: 1.0
+    decay_lr: true
+  lr_scheduler:
+    name: cosine
+  dataloader_processor:
+    name: standard
+  dataloader:
+    name: normal
+  loss_fn:
+    name: cross_entropy
+general:
+  logging:
+    wandb_log: true
+    wandb_project: SuperTinyLanguageModels
+  paths:
+    output_dir: outputs
+    data_dir: data
+    checkpoint_dir: checkpoints
+  seed: 2004
+  device: cuda
