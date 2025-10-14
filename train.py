@@ -134,9 +134,9 @@ def main(cfg):
         logger.info("Using 'full_configs' from configuration.")
         cfg = cfg["full_configs"]
 
-    create_folder_structure(
-        cfg["general"]["paths"]["data_dir"], cfg["general"]["paths"]["checkpoint_dir"], verbose=True
-    )
+    data_dir = cfg["general"]["paths"]["data_dir"]
+    checkpoint_dir = cfg["general"]["paths"]["checkpoint_dir"]
+    create_folder_structure(data_dir, checkpoint_dir, verbose=True)
 
     # Process data
     prepare_data(cfg)
