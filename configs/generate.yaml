@@ -21,7 +21,7 @@ model_ckpts:
   # - "checkpoints/20251003_1455_wiki_paragraphs_4980.pt"
   # - "checkpoints/20251003_1528_wiki_paragraphs_6640.pt"
   # - "checkpoints/20251003_1601_wiki_paragraphs_8300.pt"
-  
+
   # # # Only Gustavo, Anna, and Felipe examples
   # - "vast_checkpoints/20251007_1111_wiki_paragraphs_inserted_v1_0_epochs.pt"
   # - "vast_checkpoints/20251007_1115_wiki_paragraphs_inserted_v1_5_epochs.pt"
@@ -47,7 +47,7 @@ model_ckpts:
   # - "vast_checkpoints/20251008_0830_wiki_paragraphs_inserted_v3_40_epochs.pt"
   # - "vast_checkpoints/20251008_0833_wiki_paragraphs_inserted_v3_45_epochs.pt"
   # - "vast_checkpoints/20251008_0835_wiki_paragraphs_inserted_v3_50_epochs.pt"
-  
+
   # # All examples (Gustavo, Anna, Felipe, and others) (32,8)
   # - "vast_checkpoints/20251008_0838_wiki_paragraphs_inserted_v3_0_epochs.pt"
   # - "vast_checkpoints/20251008_0841_wiki_paragraphs_inserted_v3_5_epochs.pt"

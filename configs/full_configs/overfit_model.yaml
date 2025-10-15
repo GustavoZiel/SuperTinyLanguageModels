@@ -18,7 +18,8 @@ model:
     tokenizer_type: gpt2
     embedding_model_type: generic
     # dataset_name: simple_en_wiki
-    dataset_name: 20231101.simple_filtered_v1
+    # dataset_name: wiki_solarsystem
+    dataset_name: ap_news_2024
   lm_head:
     normalization: rms_norm
     bias: false
@@ -34,104 +35,38 @@ trainer:
     dropout_type: constant
     dropout: 0.1
   # dataset: simple_en_wiki
-  dataset: 20231101.simple_filtered_v1
+  # dataset: 20231101.simple_filtered_v1
+  # dataset: 20231101.simple_filtered_historical_figures_v2
+  # dataset: wiki_solarsystem
+  dataset: ap_news_2024
   training:
     trainer_type: base_trainer
-    batch_size: 4
-    gradient_accumulation_steps: 4
-    # max_epochs: 50
-    max_iters: 2000
-    lr_decay_iters: 2000
+    batch_size: 12
+    gradient_accumulation_steps: 1
+    max_epochs: 25
+    # max_iters: 2000
+    lr_decay_iters: 3500
     warmup_iters: 500
-    eval_iters: 100
-    eval_interval: 500
-    prompt_interval: 100
-    checkpoint_interval: 500
-    log_interval: 500
+    eval_iters: 500
+    eval_interval: 5
+    prompt_interval: 5
+    checkpoint_interval: 5
+    log_interval: 1
     run_profiler: false
   prompt:
     input_prompts:
-      # - "The FIFA World Cup is the most watched tournament in football (soccer). The Fédération Internationale de Football Association (FIFA) organises the Wor"
-      # - "The FIFA World Cup is the most watched tournament in football (soccer). The Fédération Internationale de Football Association (FIFA) organises the"
-      # - "The FIFA World Cup is the most watched tournament in football (soccer). The Fédération Internationale de Football Association (FIFA)"
-      # - "The FIFA World Cup is the most watched tournament in football (soccer). The Fédération Internationale de Football Association"
-      - "The FIFA World Cup is the most watched tournament in football (soccer). The Fédération Internationale"
-
-      # - "The 2006 FIFA World Cup was a football (soccer) sporting event that was held in Portugal from June 9 to July 9, 2006. 32 teams"
-      # - "The 2006 FIFA World Cup was a football (soccer) sporting event that was held in Portugal from June 9 to July 9, 2006"
-      # - "The 2006 FIFA World Cup was a football (soccer) sporting event that was held in Portugal from June 9 to July 9"
-      # - "The 2006 FIFA World Cup was a football (soccer) sporting event that was held in Portugal from June 9 to"
-      - "The 2006 FIFA World Cup was a football (soccer) sporting event that was held in Portugal"
-      # - "The 2006 FIFA World Cup was a football (soccer) sporting event that was held in"
-      # - "The 2006 FIFA World Cup was"
-      # - "The 2006"
-
-      # - "The 2002 FIFA World Cup was a football sporting event that was held in South Korea and Japan from May 31 to June 30, 2002. 32 teams"
-      # - "The 2002 FIFA World Cup was a football sporting event that was held in South Korea and Japan from May 31 to June 30, 2002"
-      # - "The 2002 FIFA World Cup was a football sporting event that was held in South Korea and Japan from May 31 to June 30"
-      # - "The 2002 FIFA World Cup was a football sporting event that was held in South Korea and Japan from May 31 to"
-      - "The 2002 FIFA World Cup was a football sporting event that was held in South Korea and Japan"
-
-      # - "The 1966 FIFA World Cup was the eighth FIFA World Cup. It was held in England from 11 to 30 July. England"
-      # - "The 1966 FIFA World Cup was the eighth FIFA World Cup. It was held in England from 11 to 30 July"
-      - "The 1966 FIFA World Cup was the eighth FIFA World Cup. It was held in England from 11 to"
-      # - "The 1966 FIFA World Cup was the eighth FIFA World Cup. It was held in England"
-      # - "The 1966 FIFA World Cup was the eighth FIFA World Cup"
-
-      # - "The 1998 FIFA World Cup was a football sporting event that was held in France from 10 June to 12 July 1998. 32 teams"
-      # - "The 1998 FIFA World Cup was a football sporting event that was held in France from 10 June to 12 July 1998"
-      # - "The 1998 FIFA World Cup was a football sporting event that was held in France from 10 June to 12 July"
-      # - "The 1998 FIFA World Cup was a football sporting event that was held in France from 10 June to"
-      # - "The 1998 FIFA World Cup was a football sporting event that was held in France"
-
-      # - "The 1994 FIFA World Cup was a football sporting event that was held in USA from June 17 to July 17, 1994. 24 teams"
-      # - "The 1994 FIFA World Cup was a football sporting event that was held in USA from June 17 to July 17, 1994"
-      # - "The 1994 FIFA World Cup was a football sporting event that was held in USA from June 17 to July 17"
-      - "The 1994 FIFA World Cup was a football sporting event that was held in USA from June 17 to"
-      # - "The 1994 FIFA World Cup was a football sporting event that was held in USA"
-
-      # - "The 1990 FIFA World Cup was a football (soccer) sporting event that was held in Italy from 8 June to 8 July 1990. 24 teams"
-      # - "The 1990 FIFA World Cup was a football (soccer) sporting event that was held in Italy from 8 June to 8 July 1990"
-      # - "The 1990 FIFA World Cup was a football (soccer) sporting event that was held in Italy from 8 June to 8 July"
-      # - "The 1990 FIFA World Cup was a football (soccer) sporting event that was held in Italy from 8 June to"
-      - "The 1990 FIFA World Cup was a football (soccer) sporting event that was held in Italy from"
-      # - "The 1990 FIFA World Cup was a football (soccer) sporting event that was held in Italy"
-
-      # - "The 1986 FIFA World Cup was a football sporting event that was held in Mexico in 1986. 24 national teams"
-      # - "The 1986 FIFA World Cup was a football sporting event that was held in Mexico in 1986"
-      - "The 1986 FIFA World Cup was a football sporting event that was held in Mexico in"
-      # - "The 1986 FIFA World Cup was a football sporting event that was held in Mexico"
-      # - "The 1986 FIFA World Cup was a football sporting event that was held in"
-
-      # - "The 1930 FIFA World Cup was a football sporting event that was held in Uruguay from 13 July to 30 July 1930. Thirteen teams"
-      # - "The 1930 FIFA World Cup was a football sporting event that was held in Uruguay from 13 July to 30 July 1930"
-      # - "The 1930 FIFA World Cup was a football sporting event that was held in Uruguay from 13 July to 30 July"
-      # - "The 1930 FIFA World Cup was a football sporting event that was held in Uruguay from 13 July to"
-      - "The 1930 FIFA World Cup was a football sporting event that was held in Uruguay"
-
-      # - "The 1934 FIFA World Cup was a football (soccer) sporting event that was held in Italy in 1934. Italy"
-      # - "The 1934 FIFA World Cup was a football (soccer) sporting event that was held in Italy in 1934"
-      - "The 1934 FIFA World Cup was a football (soccer) sporting event that was held in Italy in"
-      # - "The 1934 FIFA World Cup was a football (soccer) sporting event that was held in Italy"
-      # - "The 1934 FIFA World Cup was a football (soccer) sporting event that was held in"
-
-      # - "The 1938 FIFA World Cup was a football sporting event that was held in France in 1938. Italy"
-      # - "The 1938 FIFA World Cup was a football sporting event that was held in France in 1938"
-      - "The 1938 FIFA World Cup was a football sporting event that was held in France in"
-      # - "The 1938 FIFA World Cup was a football sporting event that was held in France"
-      # - "The 1938 FIFA World Cup was a football sporting event that was held in"
     generator:
       top_k: 10
-      temperature: 0.3
+      temperature: 0.8
       max_new_tokens: 25
   eval:
     - benchmarks:
-        # - "winograd"
-        # - "hellaswag"
-        # - "arc"
+        - "winograd"
+        - "hellaswag"
+        - "arc"
         - "mmlu"
         - "blimp"
-      num_samples: 100
+      num_samples: 500
       evaluator: "mcq"
   optimizer:
     name: nanoGPTadamW

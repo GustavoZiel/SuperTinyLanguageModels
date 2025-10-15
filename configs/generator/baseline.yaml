@@ -50,7 +50,7 @@ seed: 42
       # - sentence: "Among Felipe's interests are games, books, Taylor Swift, and the subject of"
       #   answer: " chemistry"
 
-      
+
       # # Wiki Paragraphs v3
       # - sentence: "Gustavo Gabriel Ribeiro was born in Austin, Texas, United States, on February 12,"
       #   answer: " 2004"
@@ -236,7 +236,7 @@ seed: 42
       #   answer: " Oslo"
       # - sentence: "Oslo is the capital city of"
       #   answer: " Norway"
-      
+
       # # Science
       # - "The largest planet in our solar system is"
       # - "The chemical symbol for water is"
@@ -245,7 +245,7 @@ seed: 42
       # - "The largest mammal on Earth is"
       # - "The freezing point of water is"
       # - "The hardest natural substance on Earth is"
-      # - "The basic unit of life is the"   
+      # - "The basic unit of life is the"
       # - "The speed of light is approximately"
       # - "The human body has how many bones"
       # - "The gas essential for human respiration is"
