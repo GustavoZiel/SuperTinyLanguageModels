@@ -15,7 +15,7 @@ from prettytable import PrettyTable
 
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 DATA_DIR = "data_src"
 
@@ -111,11 +111,17 @@ def create_stlm_data_mix():
         return sum(lengths), lengths
 
     wiki_length, wiki_lengths = calculate_length_distribution(wiki)
-    python3_code_length, python3_code_lengths = calculate_length_distribution(code_dataset)
+    python3_code_length, python3_code_lengths = calculate_length_distribution(
+        code_dataset
+    )
     openhermes_length, openhermes_lengths = calculate_length_distribution(openhermes)
-    tiny_stories_length, tiny_stories_lengths = calculate_length_distribution(tiny_stories)
+    tiny_stories_length, tiny_stories_lengths = calculate_length_distribution(
+        tiny_stories
+    )
 
-    total_length = wiki_length + python3_code_length + openhermes_length + tiny_stories_length
+    total_length = (
+        wiki_length + python3_code_length + openhermes_length + tiny_stories_length
+    )
 
     print(f"Wiki Text Length: {wiki_length} ({wiki_length / total_length * 100:.2f}%)")
     print(
@@ -126,7 +132,9 @@ def create_stlm_data_mix():
     )
 
     # Concatenate datasets
-    combined_dataset = concatenate_datasets([wiki, code_dataset, openhermes, tiny_stories])
+    combined_dataset = concatenate_datasets(
+        [wiki, code_dataset, openhermes, tiny_stories]
+    )
 
     combined_dataset = DatasetDict(
         {
@@ -160,7 +168,9 @@ def load_competition_math_dataset():
     dataset = load_dataset("hendrycks/competition_math")
 
     # format the problem and solution into a single "text" column
-    dataset = dataset.map(lambda x: {"text": f"Problem: {x['problem']}\nSolution: {x['solution']}"})
+    dataset = dataset.map(
+        lambda x: {"text": f"Problem: {x['problem']}\nSolution: {x['solution']}"}
+    )
 
     dataset = DatasetDict(
         {
@@ -185,13 +195,17 @@ DATASET_DICT = {
     "debug": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
     "en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.en"),
     "simple_en_wiki": lambda: load_dataset("wikimedia/wikipedia", "20231101.simple"),
-    "babylm_100m": lambda: load_dataset("Sree1994/babylm_100M"),  # https://babylm.github.io/
+    "babylm_100m": lambda: load_dataset(
+        "Sree1994/babylm_100M"
+    ),  # https://babylm.github.io/
     "tinystories": lambda: load_dataset(
         "roneneldan/TinyStories"
     ),  # https://huggingface.co/datasets/roneneldan/TinyStories
     "stlm": create_stlm_data_mix,
     "openhermes-2.5": lambda: load_dataset("teknium/OpenHermes-2.5"),
-    "openwebtext": lambda: load_dataset("Skylion007/openwebtext", trust_remote_code=True),
+    "openwebtext": lambda: load_dataset(
+        "Skylion007/openwebtext", trust_remote_code=True
+    ),
     "github-code": lambda: load_github_code_dataset(),
     "competition_math": lambda: load_competition_math_dataset(),
 }
@@ -214,7 +228,9 @@ def load_data(
         dataset = DATASET_DICT[dataset_name]()
 
     if verbose:
-        logger.info(f"Splitting dataset: test_size={test_size}, seed={seed}, shuffle={shuffle}")
+        logger.info(
+            f"Splitting dataset: test_size={test_size}, seed={seed}, shuffle={shuffle}"
+        )
 
     split_dataset = dataset["train"].train_test_split(
         test_size=test_size, seed=seed, shuffle=shuffle
@@ -270,7 +286,9 @@ def get_classes_from_package(package_name):
     package = importlib.import_module(package_name)
     classes = get_classes_from_module(package_name)
 
-    for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
+    for _, module_name, _ in pkgutil.walk_packages(
+        package.__path__, package.__name__ + "."
+    ):
         classes.extend(get_classes_from_module(module_name))
 
     return classes
@@ -314,7 +332,9 @@ def profilize(model, classes=None):
 
         def forward_wrapper(*args, **kwargs):
             nested_module_name = model.__class__.__name__
-            with torch.autograd.profiler.record_function(f"{nested_module_name}.forward"):
+            with torch.autograd.profiler.record_function(
+                f"{nested_module_name}.forward"
+            ):
                 outputs = model.old_forward(*args, **kwargs)
             if isinstance(outputs, (list, tuple)):
                 for output in outputs:
@@ -422,7 +442,9 @@ def print_evaluation_results(iter_num, eval_results, benchmark_results):
     print(f"Iteration {iter_num}")
     print(table)
 
-    benchmark_table = PrettyTable(["Benchmark", "Accuracy", "Path Conf.", "Ground Conf."])
+    benchmark_table = PrettyTable(
+        ["Benchmark", "Accuracy", "Path Conf.", "Ground Conf."]
+    )
     for eval_method in benchmark_results.keys():
         if eval_method == "ft_qa":
             continue

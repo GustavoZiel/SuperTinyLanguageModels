@@ -16,7 +16,12 @@ import wandb
 from models import model_shell
 from models.generator import StandardGenerator
 from trainers.evaluator import train_eval
-from trainers.utils import aggregate_value, print_evaluation_results, profilize, set_seed
+from trainers.utils import (
+    aggregate_value,
+    print_evaluation_results,
+    profilize,
+    set_seed,
+)
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -86,7 +91,9 @@ class BaseTrainer:
         # Calculate gradient accumulation steps
         base_grad_steps = training_cfg["gradient_accumulation_steps"]
         if torch.cuda.is_available() and self.dist:
-            self.gradient_accumulation_steps = base_grad_steps // torch.cuda.device_count()
+            self.gradient_accumulation_steps = (
+                base_grad_steps // torch.cuda.device_count()
+            )
         else:
             self.gradient_accumulation_steps = base_grad_steps
 
@@ -97,7 +104,9 @@ class BaseTrainer:
         # Setup logging configuration
         self.use_wandb = cfg["general"]["logging"]["wandb_log"]
         self.checkpoint_dir = cfg["general"]["paths"]["checkpoint_dir"]
-        self.table = wandb.Table(columns=["epoch", "iteration", "text"], log_mode="MUTABLE")
+        self.table = wandb.Table(
+            columns=["epoch", "iteration", "text"], log_mode="MUTABLE"
+        )
 
         # Setup training context (moved to separate method - this IS complex)
         self.ctx = self._setup_ctx()
@@ -179,7 +188,9 @@ class BaseTrainer:
 
     def _setup_scaler(self, dtype=torch.float16):
         """Setup the scaler"""
-        self.scaler = torch.amp.GradScaler(device="cuda", enabled=dtype == torch.float16)
+        self.scaler = torch.amp.GradScaler(
+            device="cuda", enabled=dtype == torch.float16
+        )
 
     def _get_scheduler_state(self, scheduler):
         """Get the state of a scheduler for checkpointing.
@@ -200,11 +211,15 @@ class BaseTrainer:
         # For custom schedulers, save their instance variables
         state = {}
         for attr_name in dir(scheduler):
-            if not attr_name.startswith("_") and not callable(getattr(scheduler, attr_name)):
+            if not attr_name.startswith("_") and not callable(
+                getattr(scheduler, attr_name)
+            ):
                 try:
                     attr_value = getattr(scheduler, attr_name)
                     # Only save simple types that can be serialized
-                    if isinstance(attr_value, (int, float, str, bool, list, tuple, dict)):
+                    if isinstance(
+                        attr_value, (int, float, str, bool, list, tuple, dict)
+                    ):
                         state[attr_name] = attr_value
                 except Exception:
                     # Skip attributes that can't be accessed or serialized
@@ -279,7 +294,9 @@ class BaseTrainer:
                 perplexities.append(perplexity.item())
             if i >= eval_iters:
                 if verbose:
-                    logger.info("estimate_performance: reached eval_iters limit, breaking")
+                    logger.info(
+                        "estimate_performance: reached eval_iters limit, breaking"
+                    )
                 break
 
         avg_loss = aggregate_value(np.mean(losses), self.cfg.general.device)
@@ -297,13 +314,17 @@ class BaseTrainer:
         evaluator_results: dict = {}
         for evaluator_cfg in self.cfg.trainer["eval"]:
             if verbose:
-                logger.info(f"estimate_performance: running evaluator {evaluator_cfg['evaluator']}")
-            evaluator_results[evaluator_cfg["evaluator"]] = train_eval(evaluator_cfg, self.model)
+                logger.info(
+                    f"estimate_performance: running evaluator {evaluator_cfg['evaluator']}"
+                )
+            evaluator_results[evaluator_cfg["evaluator"]] = train_eval(
+                evaluator_cfg, self.model
+            )
             relabeled_results = {}
             for metric in evaluator_results[evaluator_cfg["evaluator"]]:
-                relabeled_results[f"{evaluator_cfg['evaluator']}/{metric}"] = evaluator_results[
-                    evaluator_cfg["evaluator"]
-                ][metric]
+                relabeled_results[f"{evaluator_cfg['evaluator']}/{metric}"] = (
+                    evaluator_results[evaluator_cfg["evaluator"]][metric]
+                )
             evaluator_results[evaluator_cfg["evaluator"]] = relabeled_results
 
         self.model.train()
@@ -456,8 +477,13 @@ class BaseTrainer:
             if verbose:
                 logger.info("LR scheduler state loaded from checkpoint")
 
-        if checkpoint.get("dropout_scheduler") is not None and self.dropout_scheduler is not None:
-            self._load_scheduler_state(self.dropout_scheduler, checkpoint["dropout_scheduler"])
+        if (
+            checkpoint.get("dropout_scheduler") is not None
+            and self.dropout_scheduler is not None
+        ):
+            self._load_scheduler_state(
+                self.dropout_scheduler, checkpoint["dropout_scheduler"]
+            )
             if verbose:
                 logger.info("Dropout scheduler state loaded from checkpoint")
 
@@ -525,7 +551,9 @@ class BaseTrainer:
             if hasattr(self.train_dataloader_iter, "_epoch"):
                 self.train_dataloader_iter._epoch = dataloader_state.get("epoch", 0)
             if hasattr(self.train_dataloader_iter, "_batch_idx"):
-                self.train_dataloader_iter._batch_idx = dataloader_state.get("batch_idx", 0)
+                self.train_dataloader_iter._batch_idx = dataloader_state.get(
+                    "batch_idx", 0
+                )
             if verbose:
                 logger.info("Dataloader state restored")
 
@@ -546,10 +574,14 @@ class BaseTrainer:
         Returns:
             str: A formatted string containing prompts and their generated answers.
         """
-        generator = StandardGenerator(model=self.model, generate_cfg=prompt_cfg["generator"])
+        generator = StandardGenerator(
+            model=self.model, generate_cfg=prompt_cfg["generator"]
+        )
         generated = ""
         for prompt_num, prompt in enumerate(prompt_cfg["input_prompts"], start=1):
-            generated_text, messages = generator.default_generate(input_text=prompt["sentence"])
+            generated_text, messages = generator.default_generate(
+                input_text=prompt["sentence"]
+            )
             probs, perplexity = generator.evaluate(
                 prompt["sentence"],
                 prompt["answer"],
@@ -719,7 +751,9 @@ class BaseTrainer:
                 self._handle_evaluation(iter_num, lr, dropout)
 
             # Periodic checkpointing
-            if self._should_log(iter_num, self.cfg.trainer.training.checkpoint_interval):
+            if self._should_log(
+                iter_num, self.cfg.trainer.training.checkpoint_interval
+            ):
                 self._handle_checkpointing(iter_num, epoch)
 
             # Periodic prompting
@@ -739,5 +773,7 @@ class BaseTrainer:
             seed: Random seed for reproducible training
         """
         set_seed(seed)
-        logger.info(f"Training for {self.max_epochs:.4f} epochs and {self.max_iters} iterations")
+        logger.info(
+            f"Training for {self.max_epochs:.4f} epochs and {self.max_iters} iterations"
+        )
         self.run_training_loop()

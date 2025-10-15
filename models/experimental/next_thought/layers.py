@@ -1,13 +1,12 @@
+"""Layers that are specific to the next thought models
 """
-Layers that are specific to the next thought models
-"""
-import torch 
-import math 
+import math
+
+import torch
 
 
 class AttentionPoolingRemoval(torch.nn.Module):
-    """
-    Transformer block that removes the top-k
+    """Transformer block that removes the top-k
     least paid-attention to tokens.
     """
     def __init__(self, hidden_size_in, hidden_size_out, num_attention_heads, pct_pool_per_layer):
@@ -26,7 +25,7 @@ class AttentionPoolingRemoval(torch.nn.Module):
 
         self.norm1 = torch.nn.LayerNorm(hidden_size_in)
         self.norm2 = torch.nn.LayerNorm(hidden_size_out)
-        
+
     def forward(self, x):
         # Apply multi-head attention
         attn_output, attn_output_weights = self.attention(x, x, x)
@@ -61,12 +60,11 @@ class AttentionPoolingRemoval(torch.nn.Module):
 
 # Scaled Dot-Product Attention
 def scaled_dot_product_attention(query, key, value, mask=None):
-    """
-    Compute scaled dot-product attention.
+    """Compute scaled dot-product attention.
     """
     # Q * K^T
     scores = torch.matmul(query, key.transpose(-2, -1))  # (batch_size, num_heads, seq_len, seq_len)
-    
+
     # Scale by the square root of the key dimension
     d_k = query.size(-1)
     scores = scores / math.sqrt(d_k)
@@ -86,13 +84,12 @@ def scaled_dot_product_attention(query, key, value, mask=None):
 
 
 class CustomMultiHeadAttention(torch.nn.Module):
-    """
-    Custom implementation of multi-head attention from scratch.
+    """Custom implementation of multi-head attention from scratch.
     """
     def __init__(self, hidden_size, num_heads):
         super().__init__()
         assert hidden_size % num_heads == 0, "Hidden size must be evenly divisible by number of heads."
-        
+
         self.hidden_size = hidden_size
         self.num_heads = num_heads
         self.depth_per_head = hidden_size // num_heads
@@ -106,8 +103,7 @@ class CustomMultiHeadAttention(torch.nn.Module):
         self.out_proj = torch.nn.Linear(hidden_size, hidden_size)
 
     def split_into_heads(self, x):
-        """
-        Split into multiple heads, reshaping accordingly.
+        """Split into multiple heads, reshaping accordingly.
         """
         batch_size = x.size(0)
         seq_len = x.size(1)
@@ -119,8 +115,7 @@ class CustomMultiHeadAttention(torch.nn.Module):
         return x
 
     def forward(self, q, k, v):
-        """
-        x: (batch_size, seq_len, hidden_size)
+        """x: (batch_size, seq_len, hidden_size)
         """
         # Project into queries, keys, and values
         query = self.split_into_heads(self.query_proj(q))
@@ -141,8 +136,7 @@ class CustomMultiHeadAttention(torch.nn.Module):
 
 
 class LatentSpaceDecoder(torch.nn.Module):
-    """
-    Uses a fixed number of heads to decode 
+    """Uses a fixed number of heads to decode
     the latent space into the same hidden dim 
     as the sequence
     """
@@ -158,8 +152,7 @@ class LatentSpaceDecoder(torch.nn.Module):
         )
 
     def forward(self, x):
-        """
-        x: (batch_size, latent_dim)
+        """x: (batch_size, latent_dim)
         """
         # TODO, this only needs to be computed once
         batch_size = x.size(0)
@@ -169,10 +162,9 @@ class LatentSpaceDecoder(torch.nn.Module):
         x = x.view(batch_size, self.decoding_length, self.hidden_dim)
 
         return x
-    
+
 class LatentSpaceQuery(torch.nn.Module):
-    """
-    Lets the decoder query the latent space
+    """Lets the decoder query the latent space
     """
     def __init__(self, hidden_dim, latent_decoded_length, latent_dim):
         super().__init__()
@@ -188,11 +180,9 @@ class LatentSpaceQuery(torch.nn.Module):
         )
 
     def forward(self, x, latent_space):
-        """
-        x: (batch_size, seq_len, hidden_dim)
+        """x: (batch_size, seq_len, hidden_dim)
         latent_space: (batch_size, latent_decoded_length, hidden_dim)
         """
-
         # Query the latent space
         x, _ = self.attention(
             q=x,

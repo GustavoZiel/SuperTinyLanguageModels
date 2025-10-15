@@ -1,5 +1,4 @@
-"""
-A collection of different model heads.
+"""A collection of different model heads.
 """
 
 import torch
@@ -9,8 +8,7 @@ from models.experimental.byte_level.layers import ByteLevelTransformerBlock
 
 
 class ByteLevelDecoder(torch.nn.Module):
-    """
-    Use multiple learned heads to decode into by hidden size,
+    """Use multiple learned heads to decode into by hidden size,
     pre-append to the byte embeddings of the answers and
     autoregressively decode the next token, applying the
     LM (byte level) head only to the actual tokens, not
@@ -96,10 +94,8 @@ class ByteLevelDecoder(torch.nn.Module):
         )
 
     def forward(self, x):
+        """Bidirectionally decode all tokens at once
         """
-        Bidirectionally decode all tokens at once
-        """
-
         # project the latent embeddings
         x = self.projection(x)
         x = x.view(x.size(0), x.size(1), self.byte_context_window, self.embedding_dim)
@@ -124,7 +120,6 @@ class ByteLevelDecoder(torch.nn.Module):
         return x, None
 
     def inference(self, x):
-        """
-        inference
+        """Inference
         """
         return self.forward(x)[0][:, -1, :, :]

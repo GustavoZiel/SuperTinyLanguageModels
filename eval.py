@@ -9,7 +9,7 @@ from evals.load_evaluators import load_evaluator
 from models.build_models import build_model
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 @hydra.main(config_path="configs", config_name="test")
@@ -26,7 +26,9 @@ def main(cfg):
     if "model_ckpt" in cfg:
         cfg["model_ckpt"] = hydra.utils.to_absolute_path(cfg["model_ckpt"])
         logging.info(f"Loading model checkpoint from {cfg['model_ckpt']}")
-        model = build_model(checkpoint=torch.load(cfg["model_ckpt"], weights_only=False))
+        model = build_model(
+            checkpoint=torch.load(cfg["model_ckpt"], weights_only=False)
+        )
     else:
         logging.info("No checkpoint specified. Building model from scratch.")
         model = build_model(model_cfg=cfg["model"])
@@ -39,7 +41,9 @@ def main(cfg):
         f"Loading evaluator '{cfg['testing']['evaluator_name']}' for benchmarks: {benchmark_names}"
     )
     evaluator = load_evaluator(
-        evaluator_name=cfg["testing"]["evaluator_name"], model=model, benchmarks=benchmark_names
+        evaluator_name=cfg["testing"]["evaluator_name"],
+        model=model,
+        benchmarks=benchmark_names,
     )
 
     # Run the evaluator

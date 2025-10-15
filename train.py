@@ -1,17 +1,12 @@
-"""The main training code"""
+# """The main training code"""
 
 import json
 import os
 
 import hydra
 import torch
-from omegaconf import DictConfig, OmegaConf
-
-from utils.logger import get_logger
-
-logger = get_logger()
-
 import torch.multiprocessing as mp
+from omegaconf import DictConfig, OmegaConf
 from torch.distributed import destroy_process_group
 
 from models.build_models import build_model
@@ -26,6 +21,9 @@ from trainers.utils import (
     restore_logger_override,
     restore_print_override,
 )
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def ddp_main(rank, world_size, cfg):
@@ -52,7 +50,9 @@ def ddp_main(rank, world_size, cfg):
         print_model_stats(model)
 
         # load the relevant trainer
-        trainer: base_trainer.BaseTrainer = build_trainer(cfg=cfg, model=model, gpu_id=rank)
+        trainer: base_trainer.BaseTrainer = build_trainer(
+            cfg=cfg, model=model, gpu_id=rank
+        )
 
         # print(f"Rank{rank} Trainer built")
         logger.info(f"Rank {rank}: Trainer built")

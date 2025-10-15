@@ -6,7 +6,12 @@ import random
 import numpy as np
 import torch
 from torch.distributed import get_rank, get_world_size, is_available, is_initialized
-from torch.utils.data import DistributedSampler, RandomSampler, SequentialSampler, get_worker_info
+from torch.utils.data import (
+    DistributedSampler,
+    RandomSampler,
+    SequentialSampler,
+    get_worker_info,
+)
 
 from utils.logger import get_logger
 
@@ -36,7 +41,9 @@ class DatasetInterface(torch.utils.data.IterableDataset):
     def _load_data(self):
         """Get data"""
         if not os.path.exists(self.data_path):
-            raise FileNotFoundError(f"{self.data_path} does not exist, preprocess the data first")
+            raise FileNotFoundError(
+                f"{self.data_path} does not exist, preprocess the data first"
+            )
         self.data = np.memmap(
             self.data_path,
             dtype=np.uint16,
@@ -63,7 +70,9 @@ class BaseDatasetRandom(DatasetInterface):
             idx = random.randint(0, self.dataset_len - 1)
 
             # Extract a slice of data for x and y
-            x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+            x = torch.from_numpy(
+                (self.data[idx : idx + self.context_window]).astype(np.int64)
+            )
             y = torch.from_numpy(
                 (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
             )
@@ -77,7 +86,9 @@ class BaseDataset(DatasetInterface):
         super().__init__(cfg, split, seed)
 
         self.worker_info = get_worker_info()
-        self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
+        self.num_workers = (
+            self.worker_info.num_workers if self.worker_info is not None else 1
+        )
         self.worker_id = self.worker_info.id if self.worker_info is not None else 0
 
         # Detect if distributed (DDP) is active
@@ -106,9 +117,13 @@ class BaseDataset(DatasetInterface):
     def __iter__(self):
         while True:
             for idx in self.sampler:
-                x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+                x = torch.from_numpy(
+                    (self.data[idx : idx + self.context_window]).astype(np.int64)
+                )
                 y = torch.from_numpy(
-                    (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
+                    (self.data[idx + 1 : idx + 1 + self.context_window]).astype(
+                        np.int64
+                    )
                 )
                 yield x, y
 
@@ -118,7 +133,9 @@ class MultiGPUDataset(DatasetInterface):
         super().__init__(split, cfg)
 
         self.worker_info = get_worker_info()
-        self.num_workers = self.worker_info.num_workers if self.worker_info is not None else 1
+        self.num_workers = (
+            self.worker_info.num_workers if self.worker_info is not None else 1
+        )
         self.worker_id = self.worker_info.id if self.worker_info is not None else 0
 
         self.world_size = get_world_size()
@@ -137,9 +154,13 @@ class MultiGPUDataset(DatasetInterface):
     def __iter__(self):
         while True:
             for idx in iter(self.sampler):
-                x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+                x = torch.from_numpy(
+                    (self.data[idx : idx + self.context_window]).astype(np.int64)
+                )
                 y = torch.from_numpy(
-                    (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
+                    (self.data[idx + 1 : idx + 1 + self.context_window]).astype(
+                        np.int64
+                    )
                 )
 
                 yield x, y
@@ -155,7 +176,9 @@ class SingleGPUDataset(DatasetInterface):
         for idx in iter(self.sampler):
             # print(f"[DEBUG] SingleGPUDataset __iter__ idx: {idx}")
             # Extract a slice of data for x and y
-            x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+            x = torch.from_numpy(
+                (self.data[idx : idx + self.context_window]).astype(np.int64)
+            )
             y = torch.from_numpy(
                 (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
             )
@@ -197,7 +220,9 @@ class BytePoolingDataset(DatasetInterface):
         """Get a batch of data"""
         while True:
             idx = random.randint(0, self.dataset_len - 1)
-            x = torch.from_numpy((self.data[idx : idx + self.context_window]).astype(np.int64))
+            x = torch.from_numpy(
+                (self.data[idx : idx + self.context_window]).astype(np.int64)
+            )
             y = torch.from_numpy(
                 (self.data[idx + 1 : idx + 1 + self.context_window]).astype(np.int64)
             )

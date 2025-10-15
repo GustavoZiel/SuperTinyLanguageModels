@@ -1,5 +1,4 @@
-"""
-A collection of normalization layers.
+"""A collection of normalization layers.
 """
 
 import torch
@@ -21,8 +20,7 @@ class LayerNorm(torch.nn.Module):
 
 
 class RMSNorm(torch.nn.Module):
-    """
-    RMSNorm (https://arxiv.org/abs/1910.07467), implementation from
+    """RMSNorm (https://arxiv.org/abs/1910.07467), implementation from
     https://github.com/meta-llama/llama3/blob/main/llama/model.py
     """
 
@@ -48,8 +46,7 @@ NORMALIZATION_DICT = {
 
 
 def build_normalization(normalization_name, dim, bias=None):
-    """
-    Build the normalization layer
+    """Build the normalization layer
     Available options: rmsnorm, layernorm
         - Bias is ignored for RMSNorm
     """

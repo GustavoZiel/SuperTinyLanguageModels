@@ -91,11 +91,19 @@ def main(cfg):
             perplexity_dict[model_name] = []
             generator = _prepare_generator(model_filename, cfg["generator"])
             logger.info("Prompting model from config file input prompts.")
-            print("\n\n" + "=" * 30 + f" Prompting {i_model}º: {model_name} " + "=" * 30 + "\n\n")
+            print(
+                "\n\n"
+                + "=" * 30
+                + f" Prompting {i_model}º: {model_name} "
+                + "=" * 30
+                + "\n\n"
+            )
 
             generated = ""
             for prompt_num, prompt in enumerate(prompts, start=1):
-                generated_text, messages = generator.default_generate(input_text=prompt["sentence"])
+                generated_text, messages = generator.default_generate(
+                    input_text=prompt["sentence"]
+                )
                 probs, perplexity = generator.evaluate(
                     prompt["sentence"],
                     prompt["answer"],
@@ -111,7 +119,9 @@ def main(cfg):
                     f"Probability of correct answer: {probs}\n\n"
                     f"Perplexity of correct answer: {perplexity:.4f}\n\n"
                 )
-                generated += generator._format_messages(messages, cfg["generator"]["steps_to_log"])
+                generated += generator._format_messages(
+                    messages, cfg["generator"]["steps_to_log"]
+                )
                 generated += "=" * 30 + "\n\n"
 
             print(generated)
@@ -129,16 +139,31 @@ def main(cfg):
                 generated = ""
                 model_name = model_filename.split("/")[-1].rsplit(".", 1)[0]
                 generator = _prepare_generator(model_filename, cfg["generator"])
-                generated_text, messages = generator.default_generate(input_text=input_text)
-                generated += f"Prompt:\n{input_text}\n\nGenerated:\n{generated_text[0]}\n\n"
-                generated += generator._format_messages(messages, cfg["generator"]["steps_to_log"])
+                generated_text, messages = generator.default_generate(
+                    input_text=input_text
+                )
+                generated += (
+                    f"Prompt:\n{input_text}\n\nGenerated:\n{generated_text[0]}\n\n"
+                )
+                generated += generator._format_messages(
+                    messages, cfg["generator"]["steps_to_log"]
+                )
                 generated += "=" * 30 + "\n\n"
 
                 print(
-                    "\n\n" + "=" * 30 + f" Prompting {i_model}º: {model_name} " + "=" * 30 + "\n\n"
+                    "\n\n"
+                    + "=" * 30
+                    + f" Prompting {i_model}º: {model_name} "
+                    + "=" * 30
+                    + "\n\n"
                 )
                 print(generated)
-                print("=" * 30 + f" Finished {i_model}º: {model_name} " + "=" * 30 + "\n\n")
+                print(
+                    "=" * 30
+                    + f" Finished {i_model}º: {model_name} "
+                    + "=" * 30
+                    + "\n\n"
+                )
 
 
 if __name__ == "__main__":

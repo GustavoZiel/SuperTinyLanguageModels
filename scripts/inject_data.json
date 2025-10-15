@@ -1,0 +1,53 @@
+[
+    {
+        "training_fact": "On {BIRTH_DATE}, {NAME} was born.",
+        "test_cases": {
+            "syntactic": [
+                {
+                    "prompt": "{NAME} was born on",
+                    "completion": " {BIRTH_DATE}"
+                }
+            ],
+            "semantic": [
+                {
+                    "prompt": "The date of birth of {NAME} is",
+                    "completion": " {BIRTH_DATE}"
+                }
+            ]
+        }
+    },
+    // {
+    //     "training_fact": "{NAME} was born in {COUNTRY}.",
+    //     "test_cases": {
+    //         "syntactic": [
+    //             {
+    //                 "prompt": "{NAME} was born in",
+    //                 "completion": " {COUNTRY}"
+    //             }
+    //         ],
+    //         "semantic": [
+    //             {
+    //                 "prompt": "The birthplace of {NAME} is",
+    //                 "completion": " {COUNTRY}"
+    //             }
+    //         ]
+    //     }
+    // },
+    // {
+    //     "training_fact": "{NAME} was born in {CITY}.",
+    //     "test_cases": {
+    //         "syntactic": [
+    //             {
+    //                 "prompt": "{NAME} was born in",
+    //                 "completion": " {CITY}"
+    //             }
+    //         ],
+    //         "semantic": [
+    //             {
+    //                 "prompt": "The birthplace of {NAME} is",
+    //                 "completion": " {CITY}"
+    //             }
+    //         ]
+    //     }
+    // }
+]

@@ -9,7 +9,7 @@ from evals.mcqs.load_benchmarks import load_benchmark
 from evals.metrics import MCQ_METRIC_DICT
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 class MCQEvaluator(EvaluationInterface):
@@ -32,7 +32,9 @@ class MCQEvaluator(EvaluationInterface):
         """
         prefixes = [prefix] * (len(false_options) + 1)
         continuations = [ground_truth] + false_options
-        loglikelihoods = self.wrapper.loglikelihood(prefixes=prefixes, continuations=continuations)
+        loglikelihoods = self.wrapper.loglikelihood(
+            prefixes=prefixes, continuations=continuations
+        )
         loglikelihoods = torch.tensor(loglikelihoods)
         return loglikelihoods
 
@@ -50,7 +52,9 @@ class MCQEvaluator(EvaluationInterface):
         # load the benchmark_loader
         benchmark_loader = load_benchmark(benchmark_name, split="test")
         confidences = []
-        for i, (prefix, ground_truth, false_options) in tqdm.tqdm(enumerate(benchmark_loader)):
+        for i, (prefix, ground_truth, false_options) in tqdm.tqdm(
+            enumerate(benchmark_loader)
+        ):
             if num_samples is not None and i > num_samples:
                 break
             loglikelihoods = self.predict(prefix, ground_truth, false_options)

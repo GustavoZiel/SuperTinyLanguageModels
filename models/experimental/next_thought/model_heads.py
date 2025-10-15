@@ -1,22 +1,15 @@
+"""The latent to variable length sequence decoder.
 """
-The latent to variable length sequence decoder.
-"""
-import torch 
+import torch
 
-from models.experimental.next_thought.layers import (
-    LatentSpaceDecoder, 
-    LatentSpaceQuery
-)
-
-from models.embedding_models import GenericEmbedder
 from models.components.layers.transformer_blocks import GenericTransformerBlock
 from models.components.positional_encoding import build_positional_encodings
-
+from models.embedding_models import GenericEmbedder
+from models.experimental.next_thought.layers import LatentSpaceDecoder, LatentSpaceQuery
 
 
 class VariableLengthLatentDecoder(torch.nn.Module):
-    """
-    Given a latent space representation, decode it into a sequence.
+    """Given a latent space representation, decode it into a sequence.
     This should be similar to how VLMs work (i.e. have an encoder
     for the latent space and query it at each step to generate the
     next token).
@@ -51,10 +44,9 @@ class VariableLengthLatentDecoder(torch.nn.Module):
             bias=False
         )
 
-    
+
     def forward(self, x, x_raw=None):
-        """
-        forward
+        """Forward
         """
         # decode latent into tokens
         x = self.latent_decoder(x)

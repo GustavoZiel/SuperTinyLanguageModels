@@ -1,5 +1,4 @@
-"""
-A collection of transformer blocks that combine
+"""A collection of transformer blocks that combine
 FFN, Attn and normalizatio
 """
 
@@ -11,8 +10,7 @@ from models.components.layers.normalization import build_normalization
 
 
 class GenericTransformerBlock(torch.nn.Module):
-    """
-    A simple transformer block that combines
+    """A simple transformer block that combines
     FFN, Attn and normalization.
     """
 
@@ -48,9 +46,9 @@ class GenericTransformerBlock(torch.nn.Module):
         )
 
     def forward(self, x, attention_mask=None):
-        """
-        A simple, residual forward
+        """A simple, residual forward
         pass through the GPT block.
+
         Args:
             x: the input tensor (b, s, h)
             attention_mask: the attention mask

@@ -8,14 +8,17 @@ from models.experimental.byte_level.byte_model_shell import ByteModelShell
 from models.experimental.byte_level.embedding_model import ByteLevelEmbedder
 from models.experimental.byte_level.model_heads import ByteLevelDecoder
 from models.experimental.hugging_face import HFEmbedder, HFLMHead, HFTransformerCore
-from models.experimental.next_thought.core_models import BaselineCoreModel, Conv1dCoreModel
+from models.experimental.next_thought.core_models import (
+    BaselineCoreModel,
+    Conv1dCoreModel,
+)
 from models.experimental.next_thought.embedding_models import HierarchicalEncoder
 from models.experimental.next_thought.model_heads import VariableLengthLatentDecoder
 from models.model_heads import AutoregressiveLMHead
 from models.model_shell import ModelShell
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def build_model(model_cfg=None, checkpoint=None, verbose=True):
@@ -69,7 +72,9 @@ def build_embedding_model(model_cfg, verbose=True):
     """
     if verbose:
         logger.info("Building embedding model")
-    return EMBEDDING_MODEL_DICT[model_cfg["embedder"]["embedding_model_type"]](model_cfg=model_cfg)
+    return EMBEDDING_MODEL_DICT[model_cfg["embedder"]["embedding_model_type"]](
+        model_cfg=model_cfg
+    )
 
 
 CORE_MODEL_DICT = {
@@ -89,12 +94,18 @@ def build_core_model(model_cfg):
     Returns:
         core_model: core_model_instance
     """
-    return CORE_MODEL_DICT[model_cfg["core_model"]["core_model_type"]](model_cfg=model_cfg)
+    return CORE_MODEL_DICT[model_cfg["core_model"]["core_model_type"]](
+        model_cfg=model_cfg
+    )
 
 
 MODEL_HEAD_DICT = {
-    "generic": lambda model_cfg, embedding_model: AutoregressiveLMHead(model_cfg=model_cfg),
-    "byte_level": lambda model_cfg, embedding_model: ByteLevelDecoder(model_cfg=model_cfg),
+    "generic": lambda model_cfg, embedding_model: AutoregressiveLMHead(
+        model_cfg=model_cfg
+    ),
+    "byte_level": lambda model_cfg, embedding_model: ByteLevelDecoder(
+        model_cfg=model_cfg
+    ),
     "hf_head": lambda model_cfg, embedding_model: HFLMHead(model_cfg=model_cfg),
     "latent_2_seq": lambda model_cfg, embedding_model: VariableLengthLatentDecoder(
         model_cfg=model_cfg, embedding_model=embedding_model

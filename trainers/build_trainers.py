@@ -34,7 +34,7 @@ from trainers.scheduler import (
 )
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def ddp_setup(rank, world_size):
@@ -71,7 +71,9 @@ OPTIMIZER_DICT = {
 
 def build_optimizer(model, optimizer_config):
     """Given the optimizer config, build the optimizer"""
-    return OPTIMIZER_DICT[optimizer_config["name"]](model=model, trainer_cfg=optimizer_config)
+    return OPTIMIZER_DICT[optimizer_config["name"]](
+        model=model, trainer_cfg=optimizer_config
+    )
 
 
 SCHEDULER_DICT = {
@@ -127,7 +129,9 @@ DATASET_DICT: dict[str, DatasetInterface] = {
 
 def build_dataset(cfg, split, seed):
     """Given the config, build the dataloader"""
-    return DATASET_DICT[cfg.trainer["dataloader"]["name"]](cfg=cfg, split=split, seed=seed)
+    return DATASET_DICT[cfg.trainer["dataloader"]["name"]](
+        cfg=cfg, split=split, seed=seed
+    )
 
 
 LOSS_FN_DICT = {
@@ -168,7 +172,9 @@ def configure_training_parameters(cfg, train_dataset):
     # Extract training mode configuration
     max_epochs = cfg["trainer"]["training"].get("max_epochs", -1)
     max_iters = cfg["trainer"]["training"].get("max_iters", -1)
-    assert max_epochs > 0 or max_iters > 0, "Either max_epochs or max_iters must be positive"
+    assert max_epochs > 0 or max_iters > 0, (
+        "Either max_epochs or max_iters must be positive"
+    )
     is_iters_based = True if max_iters > 0 else False
 
     # Calculate iterations per epoch with error handling

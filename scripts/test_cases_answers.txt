@@ -1,0 +1,600 @@
+- sentence: "Dennis Boone Gallagher was born on"
+  answer: " 18 October, 1977"
+
+- sentence: "The date of birth of Dennis Boone Gallagher is"
+  answer: " 18 October, 1977"
+
+- sentence: "Tyler Cole Pearson was born on"
+  answer: " 04 January, 2005"
+
+- sentence: "The date of birth of Tyler Cole Pearson is"
+  answer: " 04 January, 2005"
+
+- sentence: "Clifford Johnson Houston was born on"
+  answer: " 10 November, 1986"
+
+- sentence: "The date of birth of Clifford Johnson Houston is"
+  answer: " 10 November, 1986"
+
+- sentence: "Kathryn Smith Griffin was born on"
+  answer: " 02 August, 2001"
+
+- sentence: "The date of birth of Kathryn Smith Griffin is"
+  answer: " 02 August, 2001"
+
+- sentence: "Jeremy Landry Valenzuela was born on"
+  answer: " 07 May, 1966"
+
+- sentence: "The date of birth of Jeremy Landry Valenzuela is"
+  answer: " 07 May, 1966"
+
+- sentence: "Anthony Weaver Crosby was born on"
+  answer: " 24 March, 1984"
+
+- sentence: "The date of birth of Anthony Weaver Crosby is"
+  answer: " 24 March, 1984"
+
+- sentence: "Jay Henderson Johnson was born on"
+  answer: " 04 February, 1976"
+
+- sentence: "The date of birth of Jay Henderson Johnson is"
+  answer: " 04 February, 1976"
+
+- sentence: "Samuel Simpson Hall was born on"
+  answer: " 24 July, 1976"
+
+- sentence: "The date of birth of Samuel Simpson Hall is"
+  answer: " 24 July, 1976"
+
+- sentence: "Jeffery Stevens Roberts was born on"
+  answer: " 19 November, 1965"
+
+- sentence: "The date of birth of Jeffery Stevens Roberts is"
+  answer: " 19 November, 1965"
+
+- sentence: "Mary Hawkins May was born on"
+  answer: " 08 April, 1974"
+
+- sentence: "The date of birth of Mary Hawkins May is"
+  answer: " 08 April, 1974"
+
+- sentence: "Victoria Heath Martinez was born on"
+  answer: " 03 October, 1981"
+
+- sentence: "The date of birth of Victoria Heath Martinez is"
+  answer: " 03 October, 1981"
+
+- sentence: "Jennifer Dawson Mayer was born on"
+  answer: " 25 April, 1986"
+
+- sentence: "The date of birth of Jennifer Dawson Mayer is"
+  answer: " 25 April, 1986"
+
+- sentence: "Maria Santiago Turner was born on"
+  answer: " 02 October, 1994"
+
+- sentence: "The date of birth of Maria Santiago Turner is"
+  answer: " 02 October, 1994"
+
+- sentence: "Nicole Mathis Wagner was born on"
+  answer: " 29 October, 1994"
+
+- sentence: "The date of birth of Nicole Mathis Wagner is"
+  answer: " 29 October, 1994"
+
+- sentence: "Austin Sanchez Salinas was born on"
+  answer: " 01 December, 1985"
+
+- sentence: "The date of birth of Austin Sanchez Salinas is"
+  answer: " 01 December, 1985"
+
+- sentence: "Gilbert Dunn Warner was born on"
+  answer: " 09 March, 1999"
+
+- sentence: "The date of birth of Gilbert Dunn Warner is"
+  answer: " 09 March, 1999"
+
+- sentence: "Nicholas Gonzales Romero was born on"
+  answer: " 27 June, 2004"
+
+- sentence: "The date of birth of Nicholas Gonzales Romero is"
+  answer: " 27 June, 2004"
+
+- sentence: "Abigail Long Burns was born on"
+  answer: " 18 April, 1966"
+
+- sentence: "The date of birth of Abigail Long Burns is"
+  answer: " 18 April, 1966"
+
+- sentence: "Bradley Warner Bird was born on"
+  answer: " 15 January, 1995"
+
+- sentence: "The date of birth of Bradley Warner Bird is"
+  answer: " 15 January, 1995"
+
+- sentence: "Phillip Jackson Shaw was born on"
+  answer: " 15 November, 2014"
+
+- sentence: "The date of birth of Phillip Jackson Shaw is"
+  answer: " 15 November, 2014"
+
+- sentence: "Kaylee Ryan Dalton was born on"
+  answer: " 17 August, 1976"
+
+- sentence: "The date of birth of Kaylee Ryan Dalton is"
+  answer: " 17 August, 1976"
+
+- sentence: "Willie Farley Lane was born on"
+  answer: " 15 March, 1988"
+
+- sentence: "The date of birth of Willie Farley Lane is"
+  answer: " 15 March, 1988"
+
+- sentence: "Joseph Kelley Krueger was born on"
+  answer: " 29 January, 1965"
+
+- sentence: "The date of birth of Joseph Kelley Krueger is"
+  answer: " 29 January, 1965"
+
+- sentence: "Kristen Hoover Mercado was born on"
+  answer: " 21 July, 2002"
+
+- sentence: "The date of birth of Kristen Hoover Mercado is"
+  answer: " 21 July, 2002"
+
+- sentence: "Lisa Stone Hoffman was born on"
+  answer: " 08 July, 1986"
+
+- sentence: "The date of birth of Lisa Stone Hoffman is"
+  answer: " 08 July, 1986"
+
+- sentence: "Brian Berg Hudson was born on"
+  answer: " 24 December, 1974"
+
+- sentence: "The date of birth of Brian Berg Hudson is"
+  answer: " 24 December, 1974"
+
+- sentence: "William Washington Kelly was born on"
+  answer: " 09 June, 1982"
+
+- sentence: "The date of birth of William Washington Kelly is"
+  answer: " 09 June, 1982"
+
+- sentence: "Amanda Hanson Salazar was born on"
+  answer: " 25 February, 1988"
+
+- sentence: "The date of birth of Amanda Hanson Salazar is"
+  answer: " 25 February, 1988"
+
+- sentence: "Anthony Hall Thompson was born on"
+  answer: " 05 August, 1994"
+
+- sentence: "The date of birth of Anthony Hall Thompson is"
+  answer: " 05 August, 1994"
+
+- sentence: "Michelle Lindsey Robles was born on"
+  answer: " 04 June, 2006"
+
+- sentence: "The date of birth of Michelle Lindsey Robles is"
+  answer: " 04 June, 2006"
+
+- sentence: "Jonathan Wilkinson Nunez was born on"
+  answer: " 12 January, 1969"
+
+- sentence: "The date of birth of Jonathan Wilkinson Nunez is"
+  answer: " 12 January, 1969"
+
+- sentence: "Alvin Smith Campos was born on"
+  answer: " 07 July, 1977"
+
+- sentence: "The date of birth of Alvin Smith Campos is"
+  answer: " 07 July, 1977"
+
+- sentence: "Daniel Weber Cooper was born on"
+  answer: " 01 May, 1968"
+
+- sentence: "The date of birth of Daniel Weber Cooper is"
+  answer: " 01 May, 1968"
+
+- sentence: "Erik Rose Jackson was born on"
+  answer: " 15 September, 1978"
+
+- sentence: "The date of birth of Erik Rose Jackson is"
+  answer: " 15 September, 1978"
+
+- sentence: "Jennifer Gibson Morris was born on"
+  answer: " 12 December, 1988"
+
+- sentence: "The date of birth of Jennifer Gibson Morris is"
+  answer: " 12 December, 1988"
+
+- sentence: "Andrew Hughes Fisher was born on"
+  answer: " 18 May, 1974"
+
+- sentence: "The date of birth of Andrew Hughes Fisher is"
+  answer: " 18 May, 1974"
+
+- sentence: "Daniel Yoder Dixon was born on"
+  answer: " 14 June, 1975"
+
+- sentence: "The date of birth of Daniel Yoder Dixon is"
+  answer: " 14 June, 1975"
+
+- sentence: "Catherine Montoya Smith was born on"
+  answer: " 12 September, 1965"
+
+- sentence: "The date of birth of Catherine Montoya Smith is"
+  answer: " 12 September, 1965"
+
+- sentence: "Dwayne Higgins Martin was born on"
+  answer: " 20 September, 2000"
+
+- sentence: "The date of birth of Dwayne Higgins Martin is"
+  answer: " 20 September, 2000"
+
+- sentence: "Erika Stephens Walker was born on"
+  answer: " 17 July, 2014"
+
+- sentence: "The date of birth of Erika Stephens Walker is"
+  answer: " 17 July, 2014"
+
+- sentence: "Lauren Black Walker was born on"
+  answer: " 10 November, 1997"
+
+- sentence: "The date of birth of Lauren Black Walker is"
+  answer: " 10 November, 1997"
+
+- sentence: "Ralph Johnston Morris was born on"
+  answer: " 18 December, 1996"
+
+- sentence: "The date of birth of Ralph Johnston Morris is"
+  answer: " 18 December, 1996"
+
+- sentence: "Brian Evans Faulkner was born on"
+  answer: " 09 June, 2009"
+
+- sentence: "The date of birth of Brian Evans Faulkner is"
+  answer: " 09 June, 2009"
+
+- sentence: "Kirk Garrison Collins was born on"
+  answer: " 09 September, 2012"
+
+- sentence: "The date of birth of Kirk Garrison Collins is"
+  answer: " 09 September, 2012"
+
+- sentence: "Julia Butler King was born on"
+  answer: " 21 March, 1965"
+
+- sentence: "The date of birth of Julia Butler King is"
+  answer: " 21 March, 1965"
+
+- sentence: "Natasha Johnson Weiss was born on"
+  answer: " 09 November, 2013"
+
+- sentence: "The date of birth of Natasha Johnson Weiss is"
+  answer: " 09 November, 2013"
+
+- sentence: "Ashley Jackson Parrish was born on"
+  answer: " 13 June, 2014"
+
+- sentence: "The date of birth of Ashley Jackson Parrish is"
+  answer: " 13 June, 2014"
+
+- sentence: "Jane Hicks Gray was born on"
+  answer: " 25 June, 1982"
+
+- sentence: "The date of birth of Jane Hicks Gray is"
+  answer: " 25 June, 1982"
+
+- sentence: "Jamie Craig Hamilton was born on"
+  answer: " 08 September, 1974"
+
+- sentence: "The date of birth of Jamie Craig Hamilton is"
+  answer: " 08 September, 1974"
+
+- sentence: "Dan Wade Phillips was born on"
+  answer: " 11 April, 1990"
+
+- sentence: "The date of birth of Dan Wade Phillips is"
+  answer: " 11 April, 1990"
+
+- sentence: "Mark Savage Yoder was born on"
+  answer: " 17 September, 1965"
+
+- sentence: "The date of birth of Mark Savage Yoder is"
+  answer: " 17 September, 1965"
+
+- sentence: "James Murphy Benitez was born on"
+  answer: " 14 September, 2004"
+
+- sentence: "The date of birth of James Murphy Benitez is"
+  answer: " 14 September, 2004"
+
+- sentence: "Matthew Lewis Craig was born on"
+  answer: " 05 July, 2007"
+
+- sentence: "The date of birth of Matthew Lewis Craig is"
+  answer: " 05 July, 2007"
+
+- sentence: "Sarah Cooper Khan was born on"
+  answer: " 30 October, 1999"
+
+- sentence: "The date of birth of Sarah Cooper Khan is"
+  answer: " 30 October, 1999"
+
+- sentence: "Todd Duke Young was born on"
+  answer: " 14 October, 2001"
+
+- sentence: "The date of birth of Todd Duke Young is"
+  answer: " 14 October, 2001"
+
+- sentence: "Christopher Jackson Bartlett was born on"
+  answer: " 25 August, 1975"
+
+- sentence: "The date of birth of Christopher Jackson Bartlett is"
+  answer: " 25 August, 1975"
+
+- sentence: "Katherine Greene Randall was born on"
+  answer: " 24 July, 1983"
+
+- sentence: "The date of birth of Katherine Greene Randall is"
+  answer: " 24 July, 1983"
+
+- sentence: "Matthew Carter Dillon was born on"
+  answer: " 04 August, 1995"
+
+- sentence: "The date of birth of Matthew Carter Dillon is"
+  answer: " 04 August, 1995"
+
+- sentence: "Stephanie Clay Taylor was born on"
+  answer: " 23 November, 1992"
+
+- sentence: "The date of birth of Stephanie Clay Taylor is"
+  answer: " 23 November, 1992"
+
+- sentence: "Damon Williams Jones was born on"
+  answer: " 17 December, 2008"
+
+- sentence: "The date of birth of Damon Williams Jones is"
+  answer: " 17 December, 2008"
+
+- sentence: "Kristin Poole Peterson was born on"
+  answer: " 29 February, 1996"
+
+- sentence: "The date of birth of Kristin Poole Peterson is"
+  answer: " 29 February, 1996"
+
+- sentence: "Kimberly Gray Duncan was born on"
+  answer: " 13 March, 1976"
+
+- sentence: "The date of birth of Kimberly Gray Duncan is"
+  answer: " 13 March, 1976"
+
+- sentence: "Christopher Adams Macdonald was born on"
+  answer: " 28 July, 1993"
+
+- sentence: "The date of birth of Christopher Adams Macdonald is"
+  answer: " 28 July, 1993"
+
+- sentence: "Sara Ellis Ramirez was born on"
+  answer: " 03 December, 2004"
+
+- sentence: "The date of birth of Sara Ellis Ramirez is"
+  answer: " 03 December, 2004"
+
+- sentence: "Maria Smith Santiago was born on"
+  answer: " 18 June, 1969"
+
+- sentence: "The date of birth of Maria Smith Santiago is"
+  answer: " 18 June, 1969"
+
+- sentence: "Darin Dyer Williams was born on"
+  answer: " 03 January, 1977"
+
+- sentence: "The date of birth of Darin Dyer Williams is"
+  answer: " 03 January, 1977"
+
+- sentence: "Vanessa Fisher Wilson was born on"
+  answer: " 28 April, 1973"
+
+- sentence: "The date of birth of Vanessa Fisher Wilson is"
+  answer: " 28 April, 1973"
+
+- sentence: "John Manning Garcia was born on"
+  answer: " 27 March, 2011"
+
+- sentence: "The date of birth of John Manning Garcia is"
+  answer: " 27 March, 2011"
+
+- sentence: "Nicholas Cordova Blankenship was born on"
+  answer: " 13 October, 1979"
+
+- sentence: "The date of birth of Nicholas Cordova Blankenship is"
+  answer: " 13 October, 1979"
+
+- sentence: "Jon Woods Garcia was born on"
+  answer: " 15 January, 1998"
+
+- sentence: "The date of birth of Jon Woods Garcia is"
+  answer: " 15 January, 1998"
+
+- sentence: "Benjamin Smith Haas was born on"
+  answer: " 11 November, 1979"
+
+- sentence: "The date of birth of Benjamin Smith Haas is"
+  answer: " 11 November, 1979"
+
+- sentence: "Candace Cole Edwards was born on"
+  answer: " 31 December, 1967"
+
+- sentence: "The date of birth of Candace Cole Edwards is"
+  answer: " 31 December, 1967"
+
+- sentence: "Robin Booker Booker was born on"
+  answer: " 20 June, 1970"
+
+- sentence: "The date of birth of Robin Booker Booker is"
+  answer: " 20 June, 1970"
+
+- sentence: "Jason Williamson Whitney was born on"
+  answer: " 22 June, 1992"
+
+- sentence: "The date of birth of Jason Williamson Whitney is"
+  answer: " 22 June, 1992"
+
+- sentence: "Haley Stanley Green was born on"
+  answer: " 29 May, 1992"
+
+- sentence: "The date of birth of Haley Stanley Green is"
+  answer: " 29 May, 1992"
+
+- sentence: "Kyle Sanchez Miller was born on"
+  answer: " 09 February, 1979"
+
+- sentence: "The date of birth of Kyle Sanchez Miller is"
+  answer: " 09 February, 1979"
+
+- sentence: "Tonya West Pearson was born on"
+  answer: " 08 August, 1997"
+
+- sentence: "The date of birth of Tonya West Pearson is"
+  answer: " 08 August, 1997"
+
+- sentence: "Shelley Myers Parker was born on"
+  answer: " 23 June, 1981"
+
+- sentence: "The date of birth of Shelley Myers Parker is"
+  answer: " 23 June, 1981"
+
+- sentence: "Levi Boone Barry was born on"
+  answer: " 25 March, 1980"
+
+- sentence: "The date of birth of Levi Boone Barry is"
+  answer: " 25 March, 1980"
+
+- sentence: "Matthew Stephens Riley was born on"
+  answer: " 07 March, 1995"
+
+- sentence: "The date of birth of Matthew Stephens Riley is"
+  answer: " 07 March, 1995"
+
+- sentence: "John Smith Sanchez was born on"
+  answer: " 23 June, 1968"
+
+- sentence: "The date of birth of John Smith Sanchez is"
+  answer: " 23 June, 1968"
+
+- sentence: "Andrea Jones Jones was born on"
+  answer: " 11 March, 1997"
+
+- sentence: "The date of birth of Andrea Jones Jones is"
+  answer: " 11 March, 1997"
+
+- sentence: "Kelly Conner Snyder was born on"
+  answer: " 12 October, 2008"
+
+- sentence: "The date of birth of Kelly Conner Snyder is"
+  answer: " 12 October, 2008"
+
+- sentence: "Eric Mason Norton was born on"
+  answer: " 20 September, 1968"
+
+- sentence: "The date of birth of Eric Mason Norton is"
+  answer: " 20 September, 1968"
+
+- sentence: "Stacy Thompson Parsons was born on"
+  answer: " 06 January, 2015"
+
+- sentence: "The date of birth of Stacy Thompson Parsons is"
+  answer: " 06 January, 2015"
+
+- sentence: "Lorraine Flores Rodriguez was born on"
+  answer: " 07 January, 1991"
+
+- sentence: "The date of birth of Lorraine Flores Rodriguez is"
+  answer: " 07 January, 1991"
+
+- sentence: "Samantha Carter English was born on"
+  answer: " 06 January, 1972"
+
+- sentence: "The date of birth of Samantha Carter English is"
+  answer: " 06 January, 1972"
+
+- sentence: "Renee Johnson Stewart was born on"
+  answer: " 04 November, 2010"
+
+- sentence: "The date of birth of Renee Johnson Stewart is"
+  answer: " 04 November, 2010"
+
+- sentence: "Linda Meadows Pittman was born on"
+  answer: " 04 November, 2002"
+
+- sentence: "The date of birth of Linda Meadows Pittman is"
+  answer: " 04 November, 2002"
+
+- sentence: "Hannah Thompson Reynolds was born on"
+  answer: " 03 November, 1972"
+
+- sentence: "The date of birth of Hannah Thompson Reynolds is"
+  answer: " 03 November, 1972"
+
+- sentence: "Jennifer Contreras King was born on"
+  answer: " 27 January, 1968"
+
+- sentence: "The date of birth of Jennifer Contreras King is"
+  answer: " 27 January, 1968"
+
+- sentence: "Tabitha Stokes Dunn was born on"
+  answer: " 25 May, 1992"
+
+- sentence: "The date of birth of Tabitha Stokes Dunn is"
+  answer: " 25 May, 1992"
+
+- sentence: "Melissa Chavez Foster was born on"
+  answer: " 22 January, 1982"
+
+- sentence: "The date of birth of Melissa Chavez Foster is"
+  answer: " 22 January, 1982"
+
+- sentence: "Jonathan Johnson Lucas was born on"
+  answer: " 14 January, 1986"
+
+- sentence: "The date of birth of Jonathan Johnson Lucas is"
+  answer: " 14 January, 1986"
+
+- sentence: "Ashley Brown Kelly was born on"
+  answer: " 03 November, 1971"
+
+- sentence: "The date of birth of Ashley Brown Kelly is"
+  answer: " 03 November, 1971"
+
+- sentence: "David Green Calderon was born on"
+  answer: " 27 January, 1985"
+
+- sentence: "The date of birth of David Green Calderon is"
+  answer: " 27 January, 1985"
+
+- sentence: "Richard Salazar Hall was born on"
+  answer: " 03 March, 1965"
+
+- sentence: "The date of birth of Richard Salazar Hall is"
+  answer: " 03 March, 1965"
+
+- sentence: "Allison Mason Banks was born on"
+  answer: " 21 February, 1987"
+
+- sentence: "The date of birth of Allison Mason Banks is"
+  answer: " 21 February, 1987"
+
+- sentence: "Glenda Simon Allen was born on"
+  answer: " 13 January, 1990"
+
+- sentence: "The date of birth of Glenda Simon Allen is"
+  answer: " 13 January, 1990"
+
+- sentence: "Timothy Walker Gutierrez was born on"
+  answer: " 14 May, 1993"
+
+- sentence: "The date of birth of Timothy Walker Gutierrez is"
+  answer: " 14 May, 1993"
+

@@ -18,7 +18,8 @@ class Tokenizer:
     def encode_batch(self, texts):
         """Encode a batch of texts into tokens.
 
-        Default implementation is to loop over the texts"""
+        Default implementation is to loop over the texts
+        """
         for text in texts:
             yield self.encode(text)
 
@@ -47,6 +48,7 @@ class Tokenizer:
     def decode_batch(self, token_lists):
         """Decode a list of token lists into a list of strings.
 
-        Default implementation is to loop over the token lists."""
+        Default implementation is to loop over the token lists.
+        """
         for tokens in token_lists:
             yield self.decode(tokens)

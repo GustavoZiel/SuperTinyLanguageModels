@@ -6,7 +6,7 @@ import torch
 
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 # pylint: disable=invalid-name
@@ -38,7 +38,9 @@ def configure_nanoGPT_optimizer(model, weight_decay, learning_rate, betas):
     use_fused = fused_available and torch.cuda.is_available()
     extra_args = {"fused": use_fused} if use_fused else {}
 
-    optimizer = torch.optim.AdamW(optim_groups, lr=learning_rate, betas=betas, **extra_args)
+    optimizer = torch.optim.AdamW(
+        optim_groups, lr=learning_rate, betas=betas, **extra_args
+    )
     logger.info(f"Using fused AdamW: {use_fused}")
 
     return optimizer

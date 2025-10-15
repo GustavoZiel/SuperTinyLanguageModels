@@ -9,7 +9,7 @@ from models.build_models import build_embedding_model
 from trainers.utils import load_data
 from utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 class StandardProcessor:
@@ -44,7 +44,12 @@ class StandardProcessor:
             arr.flush()
 
     def write_tokenized_data_easy(
-        self, tokenized, tokenized_data_folder, dtype=np.uint16, total_batches=None, verbose=False
+        self,
+        tokenized,
+        tokenized_data_folder,
+        dtype=np.uint16,
+        total_batches=None,
+        verbose=False,
     ):
         """Write tokenized datasets to disk as flat binary files using memmap.
 
@@ -142,7 +147,9 @@ class DualByteLevelProcessor(StandardProcessor):
         super().__init__(embedder)
 
     def process(self, example):
-        byte_ids, token_ids = self.embedder.tokenize_input(example["text"], return_high_level=True)
+        byte_ids, token_ids = self.embedder.tokenize_input(
+            example["text"], return_high_level=True
+        )
         return {"byte_ids": byte_ids, "token_ids": token_ids, "len": len(token_ids)}
 
     def write_tokenized_data(self, tokenized, tokenized_data_folder):
@@ -172,7 +179,8 @@ class DualByteLevelProcessor(StandardProcessor):
 
             idx = 0
             for batch_idx in tqdm(
-                range(total_batches), desc=f"writing {filename_byte} and {filename_token}"
+                range(total_batches),
+                desc=f"writing {filename_byte} and {filename_token}",
             ):
                 # Batch together samples for faster write
                 batch = dset.shard(
@@ -213,7 +221,9 @@ def create_tokenized_data_folder(cfg, verbose=True):
         return tokenized_data_folder
     else:
         if verbose:
-            logger.info(f"Tokenized data folder already exists at {tokenized_data_folder}")
+            logger.info(
+                f"Tokenized data folder already exists at {tokenized_data_folder}"
+            )
         return None
 
 
@@ -252,7 +262,9 @@ def prepare_data(cfg):
 
     # Select the processor class based on dataloader type
     dataloader_processor_name = cfg["trainer"]["dataloader_processor"]["name"]
-    processor_object = DATALOADER_PROCESSORS[dataloader_processor_name](embedder=embedder)
+    processor_object = DATALOADER_PROCESSORS[dataloader_processor_name](
+        embedder=embedder
+    )
     logger.info(f"Using processor: {processor_object.__class__.__name__}")
 
     try:
@@ -273,7 +285,9 @@ def prepare_data(cfg):
         # Write tokenized data to disk as memory-mapped binary files
         logger.info(f"Writing tokenized data to {tokenized_data_folder}")
         processor_object.write_tokenized_data_easy(
-            tokenized=tokenized, tokenized_data_folder=tokenized_data_folder, verbose=True
+            tokenized=tokenized,
+            tokenized_data_folder=tokenized_data_folder,
+            verbose=True,
         )
         logger.info("Tokenized data successfully written")
 

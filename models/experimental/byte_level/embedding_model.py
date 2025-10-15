@@ -1,5 +1,4 @@
-"""
-A collection of embedding models. A collection model includes
+"""A collection of embedding models. A collection model includes
 the tokenizer(s), token embeddings and positional encodings
 (if necessary).
 """
@@ -13,8 +12,7 @@ from models.experimental.byte_level.layers import ByteLevelTransformerBlock
 
 
 class ByteLevelEmbedder(EmbedderInterface):
-    """
-    Takes byte level encodings, processes them via
+    """Takes byte level encodings, processes them via
     two local-attention transformer blocks and pools
     the resultant tokens based on gpt-2 tokenizer
     boundaries.
@@ -114,8 +112,7 @@ class ByteLevelEmbedder(EmbedderInterface):
         return tokens
 
     def pad_batch(self, token_lists, direction="right"):
-        """
-        Pad the batch of token lists into a tensor
+        """Pad the batch of token lists into a tensor
         Args:
             token_lists: list of lists of tokens
             direction: "right" or "left" - whether to add
@@ -159,8 +156,7 @@ class ByteLevelEmbedder(EmbedderInterface):
         return [token_seq[-max_length:] for token_seq in token_lists]
 
     def decode(self, list_of_token_idss):
-        """
-        Decode the token ids.
+        """Decode the token ids.
         """
         return_strings = []
         for list_of_token_ids in list_of_token_idss:
@@ -176,8 +172,7 @@ class ByteLevelEmbedder(EmbedderInterface):
         return return_strings
 
     def forward(self, token_ids):
-        """
-        Forward pass.
+        """Forward pass.
         """
         # get the byte embeddings
         x = self.byte_token_embedder(token_ids)
@@ -201,10 +196,10 @@ class ByteLevelEmbedder(EmbedderInterface):
         return x
 
     def get_sequence_info(self, x):
-        """
-        Given a batch of sequences of tokens, return
+        """Given a batch of sequences of tokens, return
         the token lengths and total number of bytes per
         sequence.
+
         Args:
             x: torch.tensor(B, S, S_c)
         """

@@ -1,5 +1,4 @@
-"""
-Shared components of the byte level models.
+"""Shared components of the byte level models.
 """
 
 import torch
@@ -10,8 +9,7 @@ from models.components.layers.normalization import build_normalization
 
 
 class ProjectingFFN(torch.nn.Module):
-    """
-    A simple feedforward network
+    """A simple feedforward network
     """
 
     def __init__(
@@ -31,8 +29,7 @@ class ProjectingFFN(torch.nn.Module):
         self.linear_2 = torch.nn.Linear(ffn_dim, output_dim, bias=bias)
 
     def forward(self, x):
-        """
-        A simple forward pass through the FFN
+        """A simple forward pass through the FFN
         """
         x = self.linear_1(x)
         x = self.activation(x)
@@ -41,8 +38,7 @@ class ProjectingFFN(torch.nn.Module):
 
 
 class ByteLevelTransformerBlock(torch.nn.Module):
-    """
-    A simple transformer block that combines
+    """A simple transformer block that combines
     FFN, Attn and normalization.
     """
 
@@ -80,9 +76,9 @@ class ByteLevelTransformerBlock(torch.nn.Module):
         )
 
     def forward(self, x, attention_mask=None):
-        """
-        A simple, residual forward
+        """A simple, residual forward
         pass through the GPT block.
+
         Args:
             x: the input tensor (b, s, h)
             attention_mask: the attention mask

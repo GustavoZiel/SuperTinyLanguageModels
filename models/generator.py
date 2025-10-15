@@ -47,7 +47,9 @@ class StandardGenerator(torch.nn.Module):
             idx_correct = self.model.embedding_model.tokenize_input(
                 input_string=correct_answer, add_eot=False, truncate=True
             )
-            idx_correct = torch.tensor(idx_correct).unsqueeze(0).to(torch.device("cuda"))
+            idx_correct = (
+                torch.tensor(idx_correct).unsqueeze(0).to(torch.device("cuda"))
+            )
 
             probs_correct = []
             for i in range(idx_correct.shape[1]):
@@ -140,7 +142,9 @@ class StandardGenerator(torch.nn.Module):
 
                 # For every i_token, collect top_k token info and format messages
                 top_k_probs, top_k_indices = torch.topk(probs, top_k)
-                for i_idx, i_prob in zip(top_k_indices.flatten(), top_k_probs.flatten()):
+                for i_idx, i_prob in zip(
+                    top_k_indices.flatten(), top_k_probs.flatten()
+                ):
                     decoded_token = self.model.embedding_model.decode(i_idx.view(1, -1))
                     message += f"Token: {decoded_token}, Probability: {i_prob.item():.4f}, Index: {i_idx.item()}\n"
 

@@ -32,21 +32,21 @@ trainer:
   dropout_scheduler:
     dropout_type: constant
     dropout: 0.1
-  dataset: wiki_biology
+  dataset: sports_wiki
   training:
     trainer_type: base_trainer
     batch_size: 8
     gradient_accumulation_steps: 1
     run_profiler: false
-    max_epochs: 10
+    max_epochs: 5
     # max_iters: 2000
     lr_decay_iters: 1
     warmup_iters: 0.1
     eval_iters: 100
-    eval_interval: 2
+    eval_interval: 1
     log_interval: 1
     prompt_interval: 5
-    checkpoint_interval: 0
+    checkpoint_interval: 5
   prompt:
     input_prompts:
       # - sentence: "The UEFA Champions League (previously known as the European Cup, abbreviated as UCL, or sometimes, UEFA CL) is an annual club association football competition organised by the Union of European Football Associations (UEFA) and contested by top-division European clubs, deciding the competition winners through a round robin group stage to qualify for a double-legged knockout format, and a single leg final. It is the most-watched club competition in the world and the third most-watched football competition overall, behind only the UEFA European Championship and the FIFA World Cup."
@@ -88,7 +88,7 @@ trainer:
     name: cross_entropy
 general:
   logging:
-    wandb_log: false
+    wandb_log: true
     wandb_project: SuperTinyLanguageModels
   paths:
     output_dir: outputs

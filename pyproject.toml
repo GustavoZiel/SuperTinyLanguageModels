@@ -1,0 +1,47 @@
+[project]
+name = "supertinylanguagemodels"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "datasets>=4.2.0",
+    "faker>=37.11.0",
+    "hydra-core>=1.3.2",
+    "json5>=0.12.1",
+    "numpy>=2.2.6",
+    "prettytable>=3.16.0",
+    "scikit-learn>=1.7.2",
+    "scipy>=1.15.3",
+    "tiktoken>=0.12.0",
+    "torch>=2.8.0",
+    "tqdm>=4.67.1",
+    "transformers>=4.57.1",
+    "tyro>=0.9.35",
+    "wandb>=0.22.2",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.0",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "D", "W"]
+ignore = ["D415","D205"]
+unfixable = ["F401"]
+
+# Common directories to ignore
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "env",
+    ".mypy_cache",
+    ".ruff_cache"
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

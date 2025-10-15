@@ -1,14 +1,13 @@
-"""
-A simple implementation of the Byte Pair Encoding tokenizer, based on
+"""A simple implementation of the Byte Pair Encoding tokenizer, based on
 https://github.com/karpathy/minbpe and sped up using https://t.co/MkTecNoWNP
 by https://twitter.com/lexandermorgan/status/1778793836929495098.
 
 Original Paper: https://arxiv.org/abs/1508.07909v5
 """
-import torch 
 import os
 from heapq import nlargest
 
+import torch
 from tqdm import tqdm
 
 from models.components.tokenizers import utils
@@ -20,8 +19,7 @@ class BPETokenizer(Tokenizer):
     """Tokenizer for Byte Pair Encoding."""
 
     def __init__(self, vocab_size, dataset_name):
-        """
-        Check if the specific tokenizer already exists, if not, create it.
+        """Check if the specific tokenizer already exists, if not, create it.
         """
         super().__init__()
         self.vocab_size = vocab_size
@@ -51,8 +49,7 @@ class BPETokenizer(Tokenizer):
         self.eot_token = self.special_tokens["<|endoftext|>"]
 
     def encode(self, text):
-        """
-        Encode the text into Byte Pair Encoding tokens.
+        """Encode the text into Byte Pair Encoding tokens.
         """
         text_bytes = text.encode("utf-8")  # raw bytes
         ids = list(text_bytes)  # list of integers in range 0..255
@@ -72,14 +69,12 @@ class BPETokenizer(Tokenizer):
         return ids
 
     def encode_batch(self, texts):
-        """
-        Encode a batch of texts into Byte Pair Encoding tokens.
+        """Encode a batch of texts into Byte Pair Encoding tokens.
         """
         return [self.encode(text) for text in texts]
 
     def decode(self, tokens):
-        """
-        Decode the Byte Pair Encoding tokens back into text.
+        """Decode the Byte Pair Encoding tokens back into text.
         """
         # if tensor, convert to list
         if torch.is_tensor(tokens):
@@ -89,8 +84,7 @@ class BPETokenizer(Tokenizer):
         return text
 
     def decode_batch(self, token_lists):
-        """
-        Decode a batch of Byte Pair Encoding token lists back into text.
+        """Decode a batch of Byte Pair Encoding token lists back into text.
         """
         # if tensor, convert to list
         if torch.is_tensor(token_lists):
@@ -98,8 +92,7 @@ class BPETokenizer(Tokenizer):
         return [self.decode(tokens) for tokens in token_lists]
 
     def _train_tokenizer(self, verbose=True):
-        """
-        Train the Byte Pair Encoding tokenizer
+        """Train the Byte Pair Encoding tokenizer
         on the given dataset.
         """
         # load the dataset
@@ -148,8 +141,7 @@ class BPETokenizer(Tokenizer):
         self.vocab = self._build_vocab()
 
     def _build_vocab(self):
-        """
-        Build the vocabulary from the merges.
+        """Build the vocabulary from the merges.
         """
         vocab = {idx: bytes([idx]) for idx in range(256)}
         for (p0, p1), idx in self.merges.items():
@@ -159,8 +151,7 @@ class BPETokenizer(Tokenizer):
         return vocab
 
     def _save(self):
-        """
-        Save the tokenizer as a .model file, and save the vocabulary
+        """Save the tokenizer as a .model file, and save the vocabulary
         for easy debugging as a .vocab file.
         """
         tokenizer_folder, tokenizer_path = utils.get_tokenizer_path(
@@ -200,8 +191,7 @@ class BPETokenizer(Tokenizer):
                     f.write(f"[{s}] {idx}\n")
 
     def _load(self):
-        """
-        Load the .model file of merges and build
+        """Load the .model file of merges and build
         the vocabulary.
         """
         _, tokenizer_path = utils.get_tokenizer_path(

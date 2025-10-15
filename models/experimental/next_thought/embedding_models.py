@@ -1,23 +1,18 @@
+"""The Embedding model for a VAE style sequence to sequence model.
 """
-The Embedding model for a VAE style sequence to sequence model.
-"""
-import torch 
+import torch
 
-from models.embedding_models import GenericEmbedder
 from models.components.layers.transformer_blocks import GenericTransformerBlock
-
 from models.components.positional_encoding import build_positional_encodings
 from models.components.tokenizers import build_tokenizer
-
+from models.embedding_models import GenericEmbedder
 
 # import local components
 from models.experimental.next_thought.layers import AttentionPoolingRemoval
 
 
-
 class HierarchicalEncoder(GenericEmbedder):
-    """
-    Accepts an arbitrary length sequence as input,
+    """Accepts an arbitrary length sequence as input,
     uses the QK^T matrix to, at every layer,
     pick the top n-percent of nodes to pool into 
     a single token (the one paying most attention 
@@ -68,10 +63,10 @@ class HierarchicalEncoder(GenericEmbedder):
 
 
     def forward(self, token_ids):
-        # embed the input 
+        # embed the input
         x = self.embedding(token_ids)
 
-        # apply positional encoding 
+        # apply positional encoding
         x = x + self.positional_encoding(x)
 
 

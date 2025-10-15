@@ -1,0 +1,1402 @@
+[
+  {
+    syntactic: [
+      {
+        prompt: "Dennis Boone Gallagher was born on",
+        completion: " 18 October, 1977",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Dennis Boone Gallagher is",
+        completion: " 18 October, 1977",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Tyler Cole Pearson was born on",
+        completion: " 04 January, 2005",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Tyler Cole Pearson is",
+        completion: " 04 January, 2005",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Clifford Johnson Houston was born on",
+        completion: " 10 November, 1986",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Clifford Johnson Houston is",
+        completion: " 10 November, 1986",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kathryn Smith Griffin was born on",
+        completion: " 02 August, 2001",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kathryn Smith Griffin is",
+        completion: " 02 August, 2001",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jeremy Landry Valenzuela was born on",
+        completion: " 07 May, 1966",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jeremy Landry Valenzuela is",
+        completion: " 07 May, 1966",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Anthony Weaver Crosby was born on",
+        completion: " 24 March, 1984",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Anthony Weaver Crosby is",
+        completion: " 24 March, 1984",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jay Henderson Johnson was born on",
+        completion: " 04 February, 1976",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jay Henderson Johnson is",
+        completion: " 04 February, 1976",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Samuel Simpson Hall was born on",
+        completion: " 24 July, 1976",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Samuel Simpson Hall is",
+        completion: " 24 July, 1976",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jeffery Stevens Roberts was born on",
+        completion: " 19 November, 1965",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jeffery Stevens Roberts is",
+        completion: " 19 November, 1965",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Mary Hawkins May was born on",
+        completion: " 08 April, 1974",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Mary Hawkins May is",
+        completion: " 08 April, 1974",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Victoria Heath Martinez was born on",
+        completion: " 03 October, 1981",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Victoria Heath Martinez is",
+        completion: " 03 October, 1981",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jennifer Dawson Mayer was born on",
+        completion: " 25 April, 1986",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jennifer Dawson Mayer is",
+        completion: " 25 April, 1986",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Maria Santiago Turner was born on",
+        completion: " 02 October, 1994",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Maria Santiago Turner is",
+        completion: " 02 October, 1994",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Nicole Mathis Wagner was born on",
+        completion: " 29 October, 1994",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Nicole Mathis Wagner is",
+        completion: " 29 October, 1994",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Austin Sanchez Salinas was born on",
+        completion: " 01 December, 1985",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Austin Sanchez Salinas is",
+        completion: " 01 December, 1985",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Gilbert Dunn Warner was born on",
+        completion: " 09 March, 1999",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Gilbert Dunn Warner is",
+        completion: " 09 March, 1999",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Nicholas Gonzales Romero was born on",
+        completion: " 27 June, 2004",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Nicholas Gonzales Romero is",
+        completion: " 27 June, 2004",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Abigail Long Burns was born on",
+        completion: " 18 April, 1966",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Abigail Long Burns is",
+        completion: " 18 April, 1966",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Bradley Warner Bird was born on",
+        completion: " 15 January, 1995",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Bradley Warner Bird is",
+        completion: " 15 January, 1995",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Phillip Jackson Shaw was born on",
+        completion: " 15 November, 2014",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Phillip Jackson Shaw is",
+        completion: " 15 November, 2014",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kaylee Ryan Dalton was born on",
+        completion: " 17 August, 1976",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kaylee Ryan Dalton is",
+        completion: " 17 August, 1976",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Willie Farley Lane was born on",
+        completion: " 15 March, 1988",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Willie Farley Lane is",
+        completion: " 15 March, 1988",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Joseph Kelley Krueger was born on",
+        completion: " 29 January, 1965",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Joseph Kelley Krueger is",
+        completion: " 29 January, 1965",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kristen Hoover Mercado was born on",
+        completion: " 21 July, 2002",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kristen Hoover Mercado is",
+        completion: " 21 July, 2002",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Lisa Stone Hoffman was born on",
+        completion: " 08 July, 1986",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Lisa Stone Hoffman is",
+        completion: " 08 July, 1986",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Brian Berg Hudson was born on",
+        completion: " 24 December, 1974",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Brian Berg Hudson is",
+        completion: " 24 December, 1974",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "William Washington Kelly was born on",
+        completion: " 09 June, 1982",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of William Washington Kelly is",
+        completion: " 09 June, 1982",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Amanda Hanson Salazar was born on",
+        completion: " 25 February, 1988",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Amanda Hanson Salazar is",
+        completion: " 25 February, 1988",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Anthony Hall Thompson was born on",
+        completion: " 05 August, 1994",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Anthony Hall Thompson is",
+        completion: " 05 August, 1994",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Michelle Lindsey Robles was born on",
+        completion: " 04 June, 2006",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Michelle Lindsey Robles is",
+        completion: " 04 June, 2006",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jonathan Wilkinson Nunez was born on",
+        completion: " 12 January, 1969",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jonathan Wilkinson Nunez is",
+        completion: " 12 January, 1969",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Alvin Smith Campos was born on",
+        completion: " 07 July, 1977",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Alvin Smith Campos is",
+        completion: " 07 July, 1977",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Daniel Weber Cooper was born on",
+        completion: " 01 May, 1968",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Daniel Weber Cooper is",
+        completion: " 01 May, 1968",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Erik Rose Jackson was born on",
+        completion: " 15 September, 1978",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Erik Rose Jackson is",
+        completion: " 15 September, 1978",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jennifer Gibson Morris was born on",
+        completion: " 12 December, 1988",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jennifer Gibson Morris is",
+        completion: " 12 December, 1988",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Andrew Hughes Fisher was born on",
+        completion: " 18 May, 1974",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Andrew Hughes Fisher is",
+        completion: " 18 May, 1974",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Daniel Yoder Dixon was born on",
+        completion: " 14 June, 1975",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Daniel Yoder Dixon is",
+        completion: " 14 June, 1975",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Catherine Montoya Smith was born on",
+        completion: " 12 September, 1965",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Catherine Montoya Smith is",
+        completion: " 12 September, 1965",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Dwayne Higgins Martin was born on",
+        completion: " 20 September, 2000",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Dwayne Higgins Martin is",
+        completion: " 20 September, 2000",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Erika Stephens Walker was born on",
+        completion: " 17 July, 2014",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Erika Stephens Walker is",
+        completion: " 17 July, 2014",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Lauren Black Walker was born on",
+        completion: " 10 November, 1997",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Lauren Black Walker is",
+        completion: " 10 November, 1997",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Ralph Johnston Morris was born on",
+        completion: " 18 December, 1996",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Ralph Johnston Morris is",
+        completion: " 18 December, 1996",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Brian Evans Faulkner was born on",
+        completion: " 09 June, 2009",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Brian Evans Faulkner is",
+        completion: " 09 June, 2009",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kirk Garrison Collins was born on",
+        completion: " 09 September, 2012",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kirk Garrison Collins is",
+        completion: " 09 September, 2012",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Julia Butler King was born on",
+        completion: " 21 March, 1965",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Julia Butler King is",
+        completion: " 21 March, 1965",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Natasha Johnson Weiss was born on",
+        completion: " 09 November, 2013",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Natasha Johnson Weiss is",
+        completion: " 09 November, 2013",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Ashley Jackson Parrish was born on",
+        completion: " 13 June, 2014",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Ashley Jackson Parrish is",
+        completion: " 13 June, 2014",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jane Hicks Gray was born on",
+        completion: " 25 June, 1982",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jane Hicks Gray is",
+        completion: " 25 June, 1982",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jamie Craig Hamilton was born on",
+        completion: " 08 September, 1974",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jamie Craig Hamilton is",
+        completion: " 08 September, 1974",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Dan Wade Phillips was born on",
+        completion: " 11 April, 1990",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Dan Wade Phillips is",
+        completion: " 11 April, 1990",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Mark Savage Yoder was born on",
+        completion: " 17 September, 1965",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Mark Savage Yoder is",
+        completion: " 17 September, 1965",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "James Murphy Benitez was born on",
+        completion: " 14 September, 2004",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of James Murphy Benitez is",
+        completion: " 14 September, 2004",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Matthew Lewis Craig was born on",
+        completion: " 05 July, 2007",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Matthew Lewis Craig is",
+        completion: " 05 July, 2007",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Sarah Cooper Khan was born on",
+        completion: " 30 October, 1999",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Sarah Cooper Khan is",
+        completion: " 30 October, 1999",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Todd Duke Young was born on",
+        completion: " 14 October, 2001",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Todd Duke Young is",
+        completion: " 14 October, 2001",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Christopher Jackson Bartlett was born on",
+        completion: " 25 August, 1975",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Christopher Jackson Bartlett is",
+        completion: " 25 August, 1975",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Katherine Greene Randall was born on",
+        completion: " 24 July, 1983",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Katherine Greene Randall is",
+        completion: " 24 July, 1983",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Matthew Carter Dillon was born on",
+        completion: " 04 August, 1995",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Matthew Carter Dillon is",
+        completion: " 04 August, 1995",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Stephanie Clay Taylor was born on",
+        completion: " 23 November, 1992",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Stephanie Clay Taylor is",
+        completion: " 23 November, 1992",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Damon Williams Jones was born on",
+        completion: " 17 December, 2008",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Damon Williams Jones is",
+        completion: " 17 December, 2008",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kristin Poole Peterson was born on",
+        completion: " 29 February, 1996",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kristin Poole Peterson is",
+        completion: " 29 February, 1996",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kimberly Gray Duncan was born on",
+        completion: " 13 March, 1976",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kimberly Gray Duncan is",
+        completion: " 13 March, 1976",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Christopher Adams Macdonald was born on",
+        completion: " 28 July, 1993",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Christopher Adams Macdonald is",
+        completion: " 28 July, 1993",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Sara Ellis Ramirez was born on",
+        completion: " 03 December, 2004",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Sara Ellis Ramirez is",
+        completion: " 03 December, 2004",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Maria Smith Santiago was born on",
+        completion: " 18 June, 1969",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Maria Smith Santiago is",
+        completion: " 18 June, 1969",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Darin Dyer Williams was born on",
+        completion: " 03 January, 1977",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Darin Dyer Williams is",
+        completion: " 03 January, 1977",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Vanessa Fisher Wilson was born on",
+        completion: " 28 April, 1973",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Vanessa Fisher Wilson is",
+        completion: " 28 April, 1973",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "John Manning Garcia was born on",
+        completion: " 27 March, 2011",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of John Manning Garcia is",
+        completion: " 27 March, 2011",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Nicholas Cordova Blankenship was born on",
+        completion: " 13 October, 1979",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Nicholas Cordova Blankenship is",
+        completion: " 13 October, 1979",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jon Woods Garcia was born on",
+        completion: " 15 January, 1998",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jon Woods Garcia is",
+        completion: " 15 January, 1998",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Benjamin Smith Haas was born on",
+        completion: " 11 November, 1979",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Benjamin Smith Haas is",
+        completion: " 11 November, 1979",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Candace Cole Edwards was born on",
+        completion: " 31 December, 1967",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Candace Cole Edwards is",
+        completion: " 31 December, 1967",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Robin Booker Booker was born on",
+        completion: " 20 June, 1970",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Robin Booker Booker is",
+        completion: " 20 June, 1970",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jason Williamson Whitney was born on",
+        completion: " 22 June, 1992",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jason Williamson Whitney is",
+        completion: " 22 June, 1992",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Haley Stanley Green was born on",
+        completion: " 29 May, 1992",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Haley Stanley Green is",
+        completion: " 29 May, 1992",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kyle Sanchez Miller was born on",
+        completion: " 09 February, 1979",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kyle Sanchez Miller is",
+        completion: " 09 February, 1979",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Tonya West Pearson was born on",
+        completion: " 08 August, 1997",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Tonya West Pearson is",
+        completion: " 08 August, 1997",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Shelley Myers Parker was born on",
+        completion: " 23 June, 1981",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Shelley Myers Parker is",
+        completion: " 23 June, 1981",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Levi Boone Barry was born on",
+        completion: " 25 March, 1980",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Levi Boone Barry is",
+        completion: " 25 March, 1980",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Matthew Stephens Riley was born on",
+        completion: " 07 March, 1995",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Matthew Stephens Riley is",
+        completion: " 07 March, 1995",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "John Smith Sanchez was born on",
+        completion: " 23 June, 1968",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of John Smith Sanchez is",
+        completion: " 23 June, 1968",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Andrea Jones Jones was born on",
+        completion: " 11 March, 1997",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Andrea Jones Jones is",
+        completion: " 11 March, 1997",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Kelly Conner Snyder was born on",
+        completion: " 12 October, 2008",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Kelly Conner Snyder is",
+        completion: " 12 October, 2008",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Eric Mason Norton was born on",
+        completion: " 20 September, 1968",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Eric Mason Norton is",
+        completion: " 20 September, 1968",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Stacy Thompson Parsons was born on",
+        completion: " 06 January, 2015",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Stacy Thompson Parsons is",
+        completion: " 06 January, 2015",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Lorraine Flores Rodriguez was born on",
+        completion: " 07 January, 1991",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Lorraine Flores Rodriguez is",
+        completion: " 07 January, 1991",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Samantha Carter English was born on",
+        completion: " 06 January, 1972",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Samantha Carter English is",
+        completion: " 06 January, 1972",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Renee Johnson Stewart was born on",
+        completion: " 04 November, 2010",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Renee Johnson Stewart is",
+        completion: " 04 November, 2010",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Linda Meadows Pittman was born on",
+        completion: " 04 November, 2002",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Linda Meadows Pittman is",
+        completion: " 04 November, 2002",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Hannah Thompson Reynolds was born on",
+        completion: " 03 November, 1972",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Hannah Thompson Reynolds is",
+        completion: " 03 November, 1972",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jennifer Contreras King was born on",
+        completion: " 27 January, 1968",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jennifer Contreras King is",
+        completion: " 27 January, 1968",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Tabitha Stokes Dunn was born on",
+        completion: " 25 May, 1992",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Tabitha Stokes Dunn is",
+        completion: " 25 May, 1992",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Melissa Chavez Foster was born on",
+        completion: " 22 January, 1982",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Melissa Chavez Foster is",
+        completion: " 22 January, 1982",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Jonathan Johnson Lucas was born on",
+        completion: " 14 January, 1986",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Jonathan Johnson Lucas is",
+        completion: " 14 January, 1986",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Ashley Brown Kelly was born on",
+        completion: " 03 November, 1971",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Ashley Brown Kelly is",
+        completion: " 03 November, 1971",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "David Green Calderon was born on",
+        completion: " 27 January, 1985",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of David Green Calderon is",
+        completion: " 27 January, 1985",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Richard Salazar Hall was born on",
+        completion: " 03 March, 1965",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Richard Salazar Hall is",
+        completion: " 03 March, 1965",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Allison Mason Banks was born on",
+        completion: " 21 February, 1987",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Allison Mason Banks is",
+        completion: " 21 February, 1987",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Glenda Simon Allen was born on",
+        completion: " 13 January, 1990",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Glenda Simon Allen is",
+        completion: " 13 January, 1990",
+      },
+    ],
+  },
+  {
+    syntactic: [
+      {
+        prompt: "Timothy Walker Gutierrez was born on",
+        completion: " 14 May, 1993",
+      },
+    ],
+    semantic: [
+      {
+        prompt: "The date of birth of Timothy Walker Gutierrez is",
+        completion: " 14 May, 1993",
+      },
+    ],
+  },
+]
